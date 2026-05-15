@@ -280,18 +280,33 @@
   .writing-area {
     background: var(--surface);
     border: 1px solid var(--border);
-    border-radius: 20px; padding: 24px; text-align: center;
+    border-radius: 20px; padding: 20px 20px 18px; text-align: center;
     box-shadow: 0 8px 40px rgba(0,0,0,0.35);
   }
+
+  /* Writing panel header: char info + prev/next */
+  .writing-header {
+    display: flex; align-items: center; gap: 10px; margin-bottom: 10px;
+  }
+  .writing-nav-btn {
+    flex-shrink: 0; width: 32px; height: 32px; border-radius: 8px;
+    border: 1px solid var(--border); background: transparent;
+    color: var(--muted); cursor: pointer; display: flex; align-items: center; justify-content: center;
+    transition: all 0.15s;
+  }
+  .writing-nav-btn:hover:not(:disabled) { border-color: var(--text-dim); color: var(--text); }
+  .writing-nav-btn:disabled { opacity: 0.2; cursor: default; pointer-events: none; }
+  .writing-nav-btn svg { width: 14px; height: 14px; }
+  .writing-char-info { flex: 1; min-width: 0; }
   #writing-char {
     font-family: 'Noto Serif SC', 'STKaiti', serif;
-    color: var(--text); margin-bottom: 6px;
+    color: var(--text); margin-bottom: 2px; font-size: 2.6rem; line-height: 1;
   }
-  .writing-area .pinyin { font-family: 'Space Grotesk', sans-serif; font-size: 0.95rem; color: var(--red); margin-bottom: 4px; }
-  .writing-area .meaning { font-size: 0.82rem; color: var(--muted); margin-bottom: 12px; }
+  .writing-area .pinyin { font-family: 'Space Grotesk', sans-serif; font-size: 0.88rem; color: var(--red); margin-bottom: 2px; }
+  .writing-area .meaning { font-size: 0.75rem; color: var(--muted); margin-bottom: 0; }
 
   /* 田字格 grid behind HanziWriter */
-  #hanzi-container { display: flex; justify-content: center; margin: 10px 0; position: relative; }
+  #hanzi-container { display: flex; justify-content: center; margin: 8px 0 4px; position: relative; }
   #hanzi-container::before {
     content: '';
     position: absolute;
@@ -304,13 +319,52 @@
     border: 1px solid var(--border);
     border-radius: 4px;
     pointer-events: none; z-index: 0;
+    transition: border-color 0.3s;
   }
+  #hanzi-container.mode-hints::before { border-color: rgba(74,144,217,0.4); }
+  #hanzi-container.mode-free::before  { border-color: rgba(212,64,48,0.4); }
+  #hanzi-container.mode-done::before  { border-color: rgba(74,158,107,0.5); }
   #hz-target { position: relative; z-index: 1; }
 
-  #writing-status {
-    font-family: 'Space Grotesk', sans-serif; font-size: 0.76rem;
-    color: var(--muted); min-height: 1.4em; margin-top: 8px; text-align: center;
+  /* Mode badge floating over canvas */
+  #mode-badge {
+    position: absolute; top: 7px; left: 50%; transform: translateX(-50%);
+    font-family: 'Space Grotesk', sans-serif; font-size: 0.42rem; font-weight: 700;
+    letter-spacing: 1.5px; text-transform: uppercase;
+    padding: 3px 9px; border-radius: 20px; pointer-events: none; z-index: 10;
+    opacity: 0; transition: opacity 0.2s;
+    white-space: nowrap;
   }
+  #mode-badge.visible { opacity: 1; }
+  #mode-badge.hints { background: rgba(74,144,217,0.18); color: #6ab0e8; border: 1px solid rgba(74,144,217,0.3); }
+  #mode-badge.free  { background: rgba(212,64,48,0.15);  color: var(--red);  border: 1px solid rgba(212,64,48,0.3); }
+
+  /* Completion flash overlay */
+  #hz-done-flash {
+    position: absolute; inset: 0; border-radius: 4px;
+    display: flex; align-items: center; justify-content: center;
+    pointer-events: none; z-index: 20; opacity: 0;
+  }
+  #hz-done-flash .done-check {
+    font-size: 3rem; line-height: 1;
+    animation: doneCheckPop 0.5s cubic-bezier(0.34,1.56,0.64,1) both;
+  }
+  @keyframes doneCheckPop {
+    0%   { transform: scale(0) rotate(-20deg); opacity: 0; }
+    70%  { transform: scale(1.2) rotate(5deg);  opacity: 1; }
+    100% { transform: scale(1) rotate(0deg);    opacity: 1; }
+  }
+  @keyframes flashGreen {
+    0%   { background: rgba(74,158,107,0);   }
+    30%  { background: rgba(74,158,107,0.18); }
+    100% { background: rgba(74,158,107,0);   }
+  }
+
+  #writing-status {
+    font-family: 'Space Grotesk', sans-serif; font-size: 0.72rem;
+    color: var(--muted); min-height: 1.3em; margin-top: 4px; text-align: center;
+  }
+
   .btn-secondary {
     background: transparent; color: var(--text-dim);
     border: 1px solid var(--border); border-radius: 8px;
@@ -319,39 +373,44 @@
   }
   .btn-secondary:hover { border-color: var(--red); color: var(--red); background: rgba(212,64,48,0.06); }
 
-  /* ── WRITING ACTION GROUPS ── */
-  .writing-actions { margin-top: 16px; display: flex; flex-direction: column; gap: 10px; }
-  .action-group { display: flex; flex-direction: column; gap: 5px; }
-  .action-group-label {
-    font-family: 'Space Grotesk', sans-serif; font-size: 0.58rem; font-weight: 600;
-    letter-spacing: 1.8px; text-transform: uppercase; color: var(--muted);
-  }
-  .action-group-row { display: flex; gap: 6px; flex-wrap: wrap; }
-  .action-group-practice .btn-secondary { flex: 1; padding: 11px 16px; }
+  /* ── WRITING CONTROLS: segmented mode bar + aux buttons ── */
+  .writing-controls { margin-top: 14px; display: flex; flex-direction: column; gap: 10px; }
 
-  /* Split button: Animar (left) + loop toggle (right) */
-  .btn-split { display: flex; }
-  .btn-split > .btn-secondary:first-child {
-    border-top-right-radius: 0; border-bottom-right-radius: 0; border-right: none;
+  /* Segmented mode toggle */
+  .mode-seg {
+    display: flex; border: 1px solid var(--border); border-radius: 10px;
+    overflow: hidden; background: var(--surface2);
   }
-  .btn-split-loop { border-top-left-radius: 0; border-bottom-left-radius: 0; padding: 8px 10px; }
-  .btn-animating { background: rgba(212,64,48,0.15) !important; color: var(--red) !important; border-color: rgba(212,64,48,0.4) !important; border-right: none !important; }
-  .btn-split-loop.loop-on {
-    background: rgba(201,146,42,0.15) !important; color: var(--gold) !important;
-    border-color: rgba(201,146,42,0.35) !important;
+  .mode-seg-btn {
+    flex: 1; padding: 10px 6px; background: transparent; border: none;
+    font-family: 'Space Grotesk', sans-serif; font-size: 0.72rem; font-weight: 500;
+    color: var(--muted); cursor: pointer; display: flex; align-items: center;
+    justify-content: center; gap: 5px; transition: all 0.15s; position: relative;
+  }
+  .mode-seg-btn + .mode-seg-btn { border-left: 1px solid var(--border); }
+  .mode-seg-btn:hover:not(.active):not(:disabled) { color: var(--text); background: rgba(255,255,255,0.04); }
+  .mode-seg-btn:disabled { opacity: 0.3; cursor: default; pointer-events: none; }
+  .mode-seg-btn svg { width: 13px; height: 13px; flex-shrink: 0; }
+
+  .mode-seg-btn.active-animate {
+    background: rgba(212,64,48,0.14); color: var(--red);
+  }
+  .mode-seg-btn.active-hints {
+    background: rgba(74,144,217,0.16); color: #6ab0e8;
+  }
+  .mode-seg-btn.active-free {
+    background: rgba(212,64,48,0.14); color: var(--red);
   }
 
-  /* Practice button colours */
-  .btn-hints { background: rgba(74,144,217,0.12); color: #6ab0e8; border-color: rgba(74,144,217,0.3); }
-  .btn-quiz  { background: rgba(212,64,48,0.12);  color: var(--red); border-color: rgba(212,64,48,0.3); }
-  .btn-quiz-active { box-shadow: 0 0 0 2px currentColor; font-weight: 600; }
-
-  /* Ver group locked while quizzing */
-  .action-group-ver-locked { opacity: 0.35; pointer-events: none; transition: opacity 0.25s; }
+  /* Aux row: Mostrar + loop */
+  .writing-aux { display: flex; gap: 6px; }
+  .writing-aux .btn-secondary { flex: 1; }
+  .btn-animating { background: rgba(212,64,48,0.15) !important; color: var(--red) !important; border-color: rgba(212,64,48,0.4) !important; }
+  .btn-loop-on { background: rgba(201,146,42,0.15) !important; color: var(--gold) !important; border-color: rgba(201,146,42,0.35) !important; }
 
   /* Compound dots */
   .dot {
-    width: 38px; height: 38px; border-radius: 50%;
+    width: 36px; height: 36px; border-radius: 8px;
     background: var(--surface2); border: 1px solid var(--border);
     transition: all 0.2s; cursor: pointer;
     display: flex; align-items: center; justify-content: center;
@@ -359,7 +418,7 @@
   }
   .dot:hover { border-color: var(--red); color: var(--text); transform: scale(1.05); }
   .dot.done    { background: rgba(74,158,107,0.15); border-color: var(--green); color: var(--green); }
-  .dot.current { background: rgba(212,64,48,0.15);  border-color: var(--red);   color: var(--red);   transform: scale(1.15); }
+  .dot.current { background: rgba(212,64,48,0.15);  border-color: var(--red);   color: var(--red);   transform: scale(1.08); }
 
   #writing-word-full  { font-family: 'Noto Serif SC', serif; }
   #writing-word-pinyin { font-family: 'Space Grotesk', sans-serif; }
@@ -536,9 +595,9 @@
     #char-selector { max-height: 200px; overflow-y: auto; }
 
     /* Larger touch targets for writing buttons */
-    .writing-actions { gap: 10px; }
+    .writing-controls { gap: 8px; }
     .btn-secondary { padding: 10px 14px; font-size: 0.8rem; }
-    .action-group-practice .btn-secondary { padding: 12px 14px; }
+    .mode-seg-btn { padding: 12px 6px; font-size: 0.7rem; }
   }
 
   /* ── ACCESSIBILITY & GLOBAL INTERACTION ── */
@@ -813,43 +872,60 @@
 
   <!-- Right column: writing canvas -->
   <div class="writing-area">
-    <!-- For single chars: big char + pinyin + meaning -->
-    <div id="single-char-display">
-      <h2 id="writing-char" style="font-size:4rem;margin-bottom:4px"></h2>
-      <div class="pinyin" id="writing-pinyin"></div>
-      <div class="meaning" id="writing-meaning"></div>
-    </div>
-    <!-- For compound words: full word header + dot navigation -->
-    <div id="compound-display" style="display:none">
-      <div style="margin-bottom:10px">
-        <span id="writing-word-full" style="font-size:1.8rem;font-weight:700"></span>
-        <span id="writing-word-pinyin" style="font-size:0.9rem;color:#c0392b;margin-left:8px"></span>
-        <div style="font-size:0.82rem;color:#888;margin-top:2px" id="writing-word-meaning"></div>
+
+    <!-- Header: prev/next + char info -->
+    <div class="writing-header">
+      <button class="writing-nav-btn" id="btn-writing-prev" onclick="writingNav(-1)" aria-label="Carácter anterior" disabled>
+        <i data-lucide="chevron-left"></i>
+      </button>
+      <div class="writing-char-info">
+        <!-- Single char -->
+        <div id="single-char-display">
+          <h2 id="writing-char"></h2>
+          <div class="pinyin" id="writing-pinyin"></div>
+          <div class="meaning" id="writing-meaning"></div>
+        </div>
+        <!-- Compound word -->
+        <div id="compound-display" style="display:none">
+          <div style="margin-bottom:6px;display:flex;align-items:baseline;justify-content:center;gap:8px;flex-wrap:wrap">
+            <span id="writing-word-full" style="font-family:'Noto Serif SC',serif;font-size:1.5rem;font-weight:700"></span>
+            <span id="writing-word-pinyin" style="font-size:0.82rem;color:var(--red)"></span>
+          </div>
+          <div style="font-size:0.72rem;color:var(--muted);margin-bottom:6px" id="writing-word-meaning"></div>
+          <div id="compound-dots" style="display:flex;justify-content:center;gap:6px;margin-bottom:4px"></div>
+          <div style="font-size:0.62rem;color:var(--muted)" id="compound-char-label"></div>
+        </div>
       </div>
-      <!-- Dot nav: clickable -->
-      <div id="compound-dots" style="display:flex;justify-content:center;gap:10px;margin-bottom:10px"></div>
-      <!-- Current char label -->
-      <div style="font-size:0.8rem;color:#888" id="compound-char-label"></div>
+      <button class="writing-nav-btn" id="btn-writing-next" onclick="writingNav(1)" aria-label="Carácter siguiente" disabled>
+        <i data-lucide="chevron-right"></i>
+      </button>
     </div>
 
-    <div id="hanzi-container"></div>
-    <div id="writing-status" style="font-size:0.8rem;color:#888;min-height:1.2em;margin-top:6px;text-align:center"></div>
-    <div class="writing-actions">
-      <div class="action-group" id="action-group-ver">
-        <div class="action-group-label">Ver</div>
-        <div class="action-group-row">
-          <div class="btn-split">
-            <button class="btn-secondary" id="btn-animate" onclick="toggleAnimate()"><i data-lucide="play"></i>Animar</button><button class="btn-secondary btn-split-loop" id="btn-loop-toggle" onclick="toggleLoopMode()" aria-label="Repetir en bucle"><i data-lucide="repeat"></i></button>
-          </div>
-          <button class="btn-secondary" onclick="resetChar()"><i data-lucide="eye"></i>Mostrar</button>
-        </div>
+    <!-- Canvas -->
+    <div id="hanzi-container">
+      <div id="mode-badge"></div>
+      <div id="hz-done-flash"><span class="done-check">✓</span></div>
+    </div>
+    <div id="writing-status"></div>
+
+    <!-- Controls -->
+    <div class="writing-controls">
+      <!-- Segmented mode toggle -->
+      <div class="mode-seg" role="group" aria-label="Modo de práctica">
+        <button class="mode-seg-btn" id="mseg-animate" onclick="modeSegClick('animate')" aria-pressed="false">
+          <i data-lucide="play"></i>Animar
+        </button>
+        <button class="mode-seg-btn" id="mseg-hints" onclick="modeSegClick('hints')" aria-pressed="false">
+          <i data-lucide="pencil"></i>Con guías
+        </button>
+        <button class="mode-seg-btn" id="mseg-free" onclick="modeSegClick('free')" aria-pressed="false">
+          <i data-lucide="target"></i>Sin guías
+        </button>
       </div>
-      <div class="action-group action-group-practice">
-        <div class="action-group-label">Practicar</div>
-        <div class="action-group-row">
-          <button class="btn-secondary btn-hints" id="btn-quiz-hints" onclick="quizChar(true)"><i data-lucide="pencil"></i>Con guías</button>
-          <button class="btn-secondary btn-quiz" id="btn-quiz-free" onclick="quizChar(false)"><i data-lucide="target"></i>Sin guías</button>
-        </div>
+      <!-- Aux: Mostrar + loop -->
+      <div class="writing-aux">
+        <button class="btn-secondary" onclick="resetChar()"><i data-lucide="eye"></i>Mostrar</button>
+        <button class="btn-secondary" id="btn-loop-toggle" onclick="toggleLoopMode()" aria-label="Repetir animación en bucle"><i data-lucide="repeat"></i>Bucle</button>
       </div>
     </div>
   </div>
@@ -1791,29 +1867,49 @@ let collapsedCats = new Set();
 let isAnimating = false;
 let loopMode = false;
 let activeQuizMode = null;
+let lastPracticeMode = null; // persists across character changes
 
 function setAnimating(val) {
   isAnimating = val;
-  const btn = document.getElementById('btn-animate');
+  const btn = document.getElementById('mseg-animate');
   if (!btn) return;
-  btn.classList.toggle('btn-animating', val);
-  btn.innerHTML = val ? '<i data-lucide="square"></i>Parar' : '<i data-lucide="play"></i>Animar';
+  btn.classList.toggle('active-animate', val);
+  btn.innerHTML = val
+    ? '<i data-lucide="square"></i>Parar'
+    : '<i data-lucide="play"></i>Animar';
   lucide.createIcons();
 }
 
 function toggleLoopMode() {
   loopMode = !loopMode;
-  document.getElementById('btn-loop-toggle')?.classList.toggle('loop-on', loopMode);
+  document.getElementById('btn-loop-toggle')?.classList.toggle('btn-loop-on', loopMode);
 }
 
 function setQuizMode(mode) {
   activeQuizMode = mode;
-  document.getElementById('action-group-ver')
-    ?.classList.toggle('action-group-ver-locked', mode !== null);
-  ['btn-quiz-hints', 'btn-quiz-free'].forEach(id =>
-    document.getElementById(id)?.classList.remove('btn-quiz-active'));
-  if (mode === 'hints') document.getElementById('btn-quiz-hints')?.classList.add('btn-quiz-active');
-  if (mode === 'free')  document.getElementById('btn-quiz-free')?.classList.add('btn-quiz-active');
+  ['mseg-hints','mseg-free'].forEach(id => {
+    const el = document.getElementById(id);
+    if (el) { el.classList.remove('active-hints','active-free'); el.setAttribute('aria-pressed','false'); }
+  });
+  if (mode === 'hints') {
+    const el = document.getElementById('mseg-hints');
+    if (el) { el.classList.add('active-hints'); el.setAttribute('aria-pressed','true'); }
+  }
+  if (mode === 'free') {
+    const el = document.getElementById('mseg-free');
+    if (el) { el.classList.add('active-free'); el.setAttribute('aria-pressed','true'); }
+  }
+  // Mode badge
+  const badge = document.getElementById('mode-badge');
+  const container = document.getElementById('hanzi-container');
+  if (badge && container) {
+    badge.className = mode ? `visible ${mode}` : '';
+    badge.textContent = mode === 'hints' ? 'Con guías' : mode === 'free' ? 'Sin guías' : '';
+    container.className = mode ? `mode-${mode}` : '';
+  }
+  // Loop button locked while quizzing
+  const loopBtn = document.getElementById('btn-loop-toggle');
+  if (loopBtn) loopBtn.style.opacity = mode ? '0.3' : '';
 }
 
 const CAT_ORDER = ['Pronombres','Números','Verbos','Adverbios','Adjetivos',
@@ -1845,6 +1941,7 @@ function buildCatChips() {
       document.getElementById('writing-search-clear').style.display = 'none';
       buildCatChips();
       buildGroupedSelector();
+      updateWritingNavBtns();
     };
     bar.appendChild(chip);
   });
@@ -1930,24 +2027,59 @@ function buildGroupedSelector(query = '') {
 
 function filterWriting(query) {
   buildGroupedSelector(query.trim());
+  updateWritingNavBtns();
 }
 
 function clearWritingSearch() {
   document.getElementById('writing-search').value = '';
   buildGroupedSelector('');
+  updateWritingNavBtns();
 }
 
 function setStatus(msg) {
   document.getElementById('writing-status').textContent = msg;
 }
 
-function selectWritingVocab(vocab, btn) {
+function getFilteredVocabList() {
+  const q = (document.getElementById('writing-search')?.value || '').trim().toLowerCase();
+  let pool = activeWritingCat === 'Todas' ? VOCAB : VOCAB.filter(v => v.cat === activeWritingCat);
+  if (q) pool = pool.filter(v =>
+    v.char.includes(q) || v.pinyin.toLowerCase().includes(q) || v.es.toLowerCase().includes(q)
+  );
+  return pool;
+}
+
+function updateWritingNavBtns() {
+  const list = getFilteredVocabList();
+  const idx = selectedVocab ? list.findIndex(v => v.char === selectedVocab.char) : -1;
+  const prevBtn = document.getElementById('btn-writing-prev');
+  const nextBtn = document.getElementById('btn-writing-next');
+  if (prevBtn) prevBtn.disabled = idx <= 0;
+  if (nextBtn) nextBtn.disabled = idx < 0 || idx >= list.length - 1;
+}
+
+function writingNav(dir) {
+  const list = getFilteredVocabList();
+  const idx = selectedVocab ? list.findIndex(v => v.char === selectedVocab.char) : -1;
+  const newIdx = idx + dir;
+  if (newIdx < 0 || newIdx >= list.length) return;
+  selectWritingVocab(list[newIdx], null, true);
+}
+
+function selectWritingVocab(vocab, btn, keepMode) {
   selectedVocab = vocab;
   compoundChars = [...vocab.char];
   compoundIdx = 0;
 
   document.querySelectorAll('.char-btn').forEach(b => b.classList.remove('active'));
-  if (btn) btn.classList.add('active');
+  if (btn) {
+    btn.classList.add('active');
+  } else {
+    // highlight matching button in list
+    document.querySelectorAll('.char-btn').forEach(b => {
+      if (b.textContent === vocab.char) b.classList.add('active');
+    });
+  }
 
   const isMulti = compoundChars.length > 1;
   document.getElementById('single-char-display').style.display = isMulti ? 'none' : 'block';
@@ -1964,7 +2096,8 @@ function selectWritingVocab(vocab, btn) {
   }
 
   updateCompoundDots();
-  loadHanziWriter(compoundChars[0]);
+  updateWritingNavBtns();
+  loadHanziWriter(compoundChars[0], keepMode ? lastPracticeMode : null);
 }
 
 function updateCompoundDots() {
@@ -1986,16 +2119,20 @@ function updateCompoundDots() {
 function loadCharAtIndex(idx) {
   compoundIdx = idx;
   updateCompoundDots();
-  loadHanziWriter(compoundChars[idx]);
+  loadHanziWriter(compoundChars[idx], lastPracticeMode);
 }
 
-function loadHanziWriter(char) {
+function loadHanziWriter(char, autoMode) {
   writer = null;
   setAnimating(false);
+  setQuizMode(null);
   const container = document.getElementById('hanzi-container');
-  container.innerHTML =
-    '<div class="hz-loading"><div class="hz-spinner"></div></div>' +
-    '<div id="hz-target" style="display:none"></div>';
+  // preserve badge + flash elements
+  const badge = document.getElementById('mode-badge');
+  const flash = document.getElementById('hz-done-flash');
+  container.innerHTML = '<div class="hz-loading"><div class="hz-spinner"></div></div><div id="hz-target" style="display:none"></div>';
+  if (badge) container.appendChild(badge);
+  if (flash) container.appendChild(flash);
   setStatus('');
 
   const hzSize = Math.round(parseFloat(
@@ -2014,8 +2151,12 @@ function loadHanziWriter(char) {
       container.querySelector('.hz-loading')?.remove();
       document.getElementById('hz-target').style.display = '';
       setStatus('');
-      setAnimating(true);
-      writer.animateCharacter({ onComplete: () => setAnimating(false) });
+      if (autoMode === 'hints' || autoMode === 'free') {
+        quizChar(autoMode === 'hints');
+      } else {
+        setAnimating(true);
+        writer.animateCharacter({ onComplete: () => setAnimating(false) });
+      }
     },
     onLoadCharDataError: () => {
       container.querySelector('.hz-loading')?.remove();
@@ -2036,6 +2177,7 @@ function resetWriter() {
 }
 
 function toggleAnimate() {
+  // Called when Animar seg button is clicked while already animating → stop
   if (isAnimating) {
     if (!writer) return;
     try { writer.cancelAnimation(); } catch(e) {}
@@ -2044,15 +2186,7 @@ function toggleAnimate() {
     try { writer.showCharacter(); } catch(e) {}
     return;
   }
-  if (!resetWriter()) return;
-  setStatus('');
-  writer.showCharacter({ duration: 0 });
-  setAnimating(true);
-  if (loopMode) {
-    writer.loopCharacterAnimation();
-  } else {
-    writer.animateCharacter({ onComplete: () => setAnimating(false) });
-  }
+  modeSegClick('animate');
 }
 
 function resetChar() {
@@ -2061,24 +2195,68 @@ function resetChar() {
   writer.showCharacter();
 }
 
+function modeSegClick(mode) {
+  if (mode === 'animate') {
+    lastPracticeMode = null;
+    resetWriter();
+    if (!writer) return;
+    setStatus('');
+    writer.showCharacter({ duration: 0 });
+    setAnimating(true);
+    if (loopMode) {
+      writer.loopCharacterAnimation();
+    } else {
+      writer.animateCharacter({ onComplete: () => setAnimating(false) });
+    }
+  } else {
+    lastPracticeMode = mode;
+    quizChar(mode === 'hints');
+  }
+}
+
+function showDoneFlash(onDone) {
+  const flash = document.getElementById('hz-done-flash');
+  const container = document.getElementById('hanzi-container');
+  if (!flash) { onDone(); return; }
+  container.classList.add('mode-done');
+  flash.style.animation = 'flashGreen 0.7s ease forwards';
+  flash.style.opacity = '1';
+  const check = flash.querySelector('.done-check');
+  if (check) { check.style.animation = 'none'; check.offsetHeight; check.style.animation = ''; }
+  setTimeout(() => {
+    flash.style.opacity = '0';
+    flash.style.animation = '';
+    container.classList.remove('mode-done');
+    onDone();
+  }, 800);
+}
+
 function quizChar(withHints) {
   if (!resetWriter()) return;
   setQuizMode(withHints ? 'hints' : 'free');
   const isMulti = compoundChars.length > 1;
-  const msg = withHints ? 'Dibuja cada trazo en orden. Te dará pistas si fallas.'
-                        : 'Dibuja el carácter completo sin ayuda. ¡Ánimo!';
-  setStatus(msg);
+  setStatus(withHints ? 'Dibuja cada trazo en orden.' : 'Dibuja el carácter sin ayuda. ¡Ánimo!');
   writer.quiz({
     showHintAfterMisses: withHints ? 2 : false,
     onComplete: () => {
-      const hasNext = isMulti && compoundIdx < compoundChars.length - 1;
-      if (hasNext) {
-        setStatus('¡Bien! Pasando al siguiente...');
-        setTimeout(() => loadCharAtIndex(compoundIdx + 1), 800);
+      const hasNextInCompound = isMulti && compoundIdx < compoundChars.length - 1;
+      if (hasNextInCompound) {
+        setStatus('¡Bien! Siguiente...');
+        showDoneFlash(() => loadCharAtIndex(compoundIdx + 1));
       } else {
-        setStatus('¡Completado!');
+        // Word / char done — mark learned, then auto-advance to next vocab
         setQuizMode(null);
         markWordLearned(selectedVocab.char);
+        showDoneFlash(() => {
+          setStatus('¡Completado!');
+          // auto-advance after brief pause if there's a next char in list
+          const list = getFilteredVocabList();
+          const idx = list.findIndex(v => v.char === selectedVocab.char);
+          if (idx >= 0 && idx < list.length - 1) {
+            setStatus('¡Completado! Pasando al siguiente...');
+            setTimeout(() => selectWritingVocab(list[idx + 1], null, true), 700);
+          }
+        });
       }
     },
   });
@@ -2298,11 +2476,13 @@ document.addEventListener('keydown', e => {
     if (e.key === 'ArrowRight') { e.preventDefault(); nextCard(); }
   }
   if (activeSection === 'writing') {
-    if (e.key === 'a') toggleAnimate();
+    if (e.key === 'a') modeSegClick('animate');
     if (e.key === 'l') toggleLoopMode();
     if (e.key === 's') resetChar();
-    if (e.key === 'q') quizChar(true);
-    if (e.key === 'w') quizChar(false);
+    if (e.key === 'q') { lastPracticeMode = 'hints'; quizChar(true); }
+    if (e.key === 'w') { lastPracticeMode = 'free'; quizChar(false); }
+    if (e.key === 'ArrowRight') { e.preventDefault(); writingNav(1); }
+    if (e.key === 'ArrowLeft')  { e.preventDefault(); writingNav(-1); }
   }
   if (activeSection === 'grammar') {
     if (e.key === 'Enter' || e.key === 'ArrowRight') {
@@ -2354,7 +2534,7 @@ window.addEventListener('resize', () => {
   clearTimeout(_resizeTimer);
   _resizeTimer = setTimeout(() => {
     if (document.getElementById('writing').classList.contains('active') && compoundChars.length) {
-      loadHanziWriter(compoundChars[compoundIdx]);
+      loadHanziWriter(compoundChars[compoundIdx], lastPracticeMode);
     }
   }, 200);
 });
@@ -2380,6 +2560,7 @@ window.addEventListener('resize', () => {
     <div class="shortcut-section">词汇 — Tarjetas</div>
     <div class="shortcut-row"><span>Anterior / Siguiente</span><kbd>← →</kbd></div>
     <div class="shortcut-section">汉字 — Escritura</div>
+    <div class="shortcut-row"><span>Carácter anterior / siguiente</span><kbd>← →</kbd></div>
     <div class="shortcut-row"><span>Animar / Parar</span><kbd>A</kbd></div>
     <div class="shortcut-row"><span>Activar / pausar bucle</span><kbd>L</kbd></div>
     <div class="shortcut-row"><span>Mostrar</span><kbd>S</kbd></div>
