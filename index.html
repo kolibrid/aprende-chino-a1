@@ -306,7 +306,7 @@
   .writing-area .meaning { font-size: 0.75rem; color: var(--muted); margin-bottom: 0; }
 
   /* 米字格 grid behind HanziWriter */
-  #hanzi-container { display: flex; justify-content: center; margin: 4px 0 4px; position: relative; overflow: hidden; }
+  #hanzi-container { width: var(--hz-size); height: var(--hz-size); margin: 4px auto; position: relative; overflow: hidden; flex-shrink: 0; }
   #hanzi-container::before {
     content: '';
     position: absolute;
@@ -2258,9 +2258,10 @@ function loadHanziWriter(char, autoMode) {
   if (flash) container.appendChild(flash);
   setStatus('');
 
-  const hzSize = Math.round(parseFloat(
-    getComputedStyle(document.body).getPropertyValue('--hz-size')
-  )) || 220;
+  // CSS custom properties with min()/calc() don't resolve via getComputedStyle,
+  // so calculate directly to match the CSS rules.
+  const vw = window.innerWidth;
+  const hzSize = vw < 600 ? Math.min(vw - 24, 380) : Math.min(vw - 84, 260);
   writer = HanziWriter.create('hz-target', char, {
     width: hzSize, height: hzSize,
     padding: window.innerWidth < 600 ? 6 : 12,
