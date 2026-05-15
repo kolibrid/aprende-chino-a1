@@ -95,26 +95,24 @@
   /* ── NAV ── */
   nav { display: flex; background: var(--surface); border-bottom: 1px solid var(--border); }
   nav button {
-    flex: 1; padding: 11px 8px;
+    flex: 1; padding: 13px 4px;
     background: none; border: none;
-    cursor: pointer; font-family: 'Space Grotesk', sans-serif;
-    display: flex; flex-direction: row; align-items: center; justify-content: center; gap: 10px;
-    position: relative; opacity: 0.4; transition: opacity 0.2s;
+    color: var(--muted);
+    font-family: 'Space Grotesk', sans-serif;
+    font-size: 0.72rem; letter-spacing: 0.8px; text-transform: uppercase;
+    cursor: pointer; transition: color 0.2s;
+    position: relative;
   }
   nav button::after {
     content: '';
-    position: absolute; bottom: 0; left: 20%; right: 20%; height: 2px;
-    background: var(--red); border-radius: 1px;
+    position: absolute; bottom: 0; left: 25%; width: 50%; height: 2px;
+    background: var(--red);
     transform: scaleX(0);
     transition: transform 0.25s cubic-bezier(0.34,1.56,0.64,1);
   }
-  nav button.active { opacity: 1; }
+  nav button.active { color: var(--text); font-weight: 600; }
   nav button.active::after { transform: scaleX(1); }
-  nav button:hover:not(.active) { opacity: 0.7; }
-  .nav-text { display: flex; flex-direction: column; gap: 3px; text-align: left; }
-  .nav-zh { font-family: 'Noto Sans SC', sans-serif; font-size: 0.62rem; color: var(--text); line-height: 1; }
-  .nav-es { font-size: 0.38rem; font-weight: 700; letter-spacing: 1.5px; text-transform: uppercase; color: var(--muted); }
-  nav button.active .nav-es { color: var(--red); }
+  nav button:hover:not(.active) { color: var(--text-dim); }
 
   /* ── SECTIONS ── */
   .section { display: none; padding: 20px 18px 80px; max-width: 600px; margin: 0 auto; }
@@ -126,26 +124,14 @@
 
   /* ── FILTER BARS ── */
   .filter-bar, .writing-filter-bar {
-    display: flex; flex-wrap: wrap; gap: 6px; margin-bottom: 0;
-    overflow: hidden; transition: max-height 0.3s ease;
+    display: flex; flex-wrap: wrap; gap: 6px; margin-bottom: 16px;
   }
   .filter-bar button, .writing-filter-bar button {
     padding: 5px 12px; border-radius: 20px;
     border: 1px solid var(--border); background: transparent;
     color: var(--muted); font-family: 'Space Grotesk', sans-serif;
     font-size: 0.7rem; letter-spacing: 0.3px; cursor: pointer; transition: all 0.15s;
-    flex-shrink: 0; white-space: nowrap;
   }
-  .filter-toggle {
-    display: none; align-items: center; gap: 4px;
-    background: none; border: none; color: var(--muted);
-    font-family: 'Space Grotesk', sans-serif; font-size: 0.6rem;
-    cursor: pointer; padding: 4px 0; margin-bottom: 10px; transition: color 0.15s;
-  }
-  .filter-toggle:hover { color: var(--text-dim); }
-  .filter-toggle svg { width: 12px; height: 12px; transition: transform 0.25s; flex-shrink: 0; }
-  .filter-toggle.expanded svg { transform: rotate(180deg); }
-  .filter-bar-wrap { margin-bottom: 16px; }
   .filter-bar button:hover, .writing-filter-bar button:hover { color: var(--text); border-color: var(--text-dim); }
   .filter-bar button.active, .writing-filter-bar button.active { background: var(--red); color: white; border-color: var(--red); }
   .btn-only-unknown { border-color: rgba(74,158,107,0.5) !important; color: var(--green) !important; margin-left: 4px; }
@@ -234,9 +220,6 @@
     margin-top: 8px;
   }
   .hint { font-size: 0.7rem; color: var(--muted); margin-top: 18px; letter-spacing: 0.3px; }
-  .hint-row { display: flex; gap: 18px; justify-content: center; margin-bottom: 10px; }
-  .hint-item { font-size: 0.52rem; color: var(--muted); letter-spacing: 0.2px; }
-  @media (max-width: 600px) { .hint-row { display: none; } }
 
   /* ── CARD NAV ── */
   .card-nav {
@@ -406,10 +389,10 @@
   /* Writing category chip bar */
   .writing-cat-bar {
     display: flex; gap: 6px; flex-wrap: wrap;
-    overflow: hidden; margin-bottom: 0; transition: max-height 0.3s ease;
+    margin-bottom: 14px;
   }
   .writing-cat-chip {
-    flex-shrink: 0; white-space: nowrap; padding: 4px 12px; border-radius: 20px;
+    flex-shrink: 0; padding: 4px 12px; border-radius: 20px;
     border: 1px solid var(--border); background: transparent;
     color: var(--muted); font-family: 'Space Grotesk', sans-serif;
     font-size: 0.68rem; letter-spacing: 0.3px; cursor: pointer;
@@ -514,6 +497,12 @@
   #next-exercise { display: none; }
 
   /* ── ICONS ── */
+  nav button { display: flex; flex-direction: column; align-items: center; gap: 2px; }
+  .nav-es {
+    font-size: 0.52rem; letter-spacing: 0.5px; text-transform: uppercase;
+    color: var(--muted); line-height: 1; font-weight: 400;
+  }
+  nav button.active .nav-es { color: var(--text-dim); }
   nav button svg { width: 17px; height: 17px; stroke-width: 1.6; flex-shrink: 0; }
   .btn-control svg { width: 15px; height: 15px; vertical-align: middle; margin-right: 5px; stroke-width: 1.8; }
   .btn-secondary svg { width: 13px; height: 13px; vertical-align: middle; margin-right: 4px; stroke-width: 1.8; }
@@ -529,10 +518,8 @@
       padding-bottom: env(safe-area-inset-bottom, 0);
       background: rgba(28,26,23,0.95); backdrop-filter: blur(14px);
     }
-    nav button { padding: 10px 4px; flex-direction: column; align-items: center; gap: 3px; }
+    nav button { padding: 10px 4px; font-size: 0.66rem; }
     nav button::after { bottom: auto; top: 0; }
-    .nav-zh { display: none; }
-    .nav-es { font-size: 0.42rem; }
     .section { padding-bottom: 100px; }
 
     /* Writing section: canvas first, selector below */
@@ -737,18 +724,9 @@
 </header>
 
 <nav>
-  <button class="active" data-section="vocab" onclick="showSection('vocab')">
-    <i data-lucide="layers"></i>
-    <div class="nav-text"><span class="nav-zh">词汇</span><span class="nav-es">Vocabulario</span></div>
-  </button>
-  <button data-section="writing" onclick="showSection('writing')">
-    <i data-lucide="pen-line"></i>
-    <div class="nav-text"><span class="nav-zh">汉字</span><span class="nav-es">Caracteres</span></div>
-  </button>
-  <button data-section="grammar" onclick="showSection('grammar')">
-    <i data-lucide="list-checks"></i>
-    <div class="nav-text"><span class="nav-zh">语法</span><span class="nav-es">Gramática</span></div>
-  </button>
+  <button class="active" data-section="vocab" onclick="showSection('vocab')"><i data-lucide="layers"></i><span>词汇</span><span class="nav-es">Vocab.</span></button>
+  <button data-section="writing" onclick="showSection('writing')"><i data-lucide="pen-line"></i><span>汉字</span><span class="nav-es">Caracteres</span></button>
+  <button data-section="grammar" onclick="showSection('grammar')"><i data-lucide="list-checks"></i><span>语法</span><span class="nav-es">Gramática</span></button>
 </nav>
 
 <!-- ======================== VOCAB ======================== -->
@@ -780,18 +758,7 @@
     </div>
   </div>
 
-  <div class="filter-bar-wrap">
-    <div class="filter-bar" id="category-filters"></div>
-    <button class="filter-toggle" id="filter-toggle-vocab" onclick="toggleFilterBar('category-filters','filter-toggle-vocab')">
-      <svg viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2.5" stroke-linecap="round" stroke-linejoin="round"><polyline points="6 9 12 15 18 9"/></svg>
-      <span id="filter-toggle-vocab-label">Ver más</span>
-    </button>
-  </div>
-
-  <div class="hint-row">
-    <span class="hint-item">← → navegar</span>
-    <span class="hint-item">Enter marcar conocida</span>
-  </div>
+  <div class="filter-bar" id="category-filters"></div>
 
   <div class="progress-bar-wrap"><div class="progress-bar" id="progress-bar" style="width:0%"></div></div>
 
@@ -840,13 +807,7 @@
         <i data-lucide="x" aria-hidden="true"></i>
       </button>
     </div>
-    <div class="filter-bar-wrap">
-      <div class="writing-cat-bar" id="writing-cat-bar"></div>
-      <button class="filter-toggle" id="filter-toggle-writing" onclick="toggleFilterBar('writing-cat-bar','filter-toggle-writing')">
-        <svg viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2.5" stroke-linecap="round" stroke-linejoin="round"><polyline points="6 9 12 15 18 9"/></svg>
-        <span id="filter-toggle-writing-label">Ver más</span>
-      </button>
-    </div>
+    <div class="writing-cat-bar" id="writing-cat-bar"></div>
     <div id="char-selector"></div>
   </div>
 
@@ -1741,7 +1702,6 @@ function initVocab() {
   tog.onclick = toggleOnlyUnknown;
   bar.appendChild(tog);
   restartSession();
-  initCollapsibleFilter('category-filters', 'filter-toggle-vocab');
 }
 
 function restartSession() {
@@ -1888,7 +1848,6 @@ function buildCatChips() {
     };
     bar.appendChild(chip);
   });
-  initCollapsibleFilter('writing-cat-bar', 'filter-toggle-writing');
 }
 
 function makeCharBtn(v) {
@@ -2310,47 +2269,6 @@ function nextExercise() {
 
 
 // ================================================================
-// COLLAPSIBLE FILTER BARS
-// ================================================================
-function initCollapsibleFilter(barId, toggleId) {
-  const bar = document.getElementById(barId);
-  const toggle = document.getElementById(toggleId);
-  if (!bar || !toggle) return;
-  bar.style.maxHeight = '';
-  toggle.classList.remove('expanded');
-
-  requestAnimationFrame(() => {
-    const items = Array.from(bar.children);
-    if (!items.length) { toggle.style.display = 'none'; return; }
-    const barTop = bar.getBoundingClientRect().top;
-    const firstTop = items[0].getBoundingClientRect().top;
-    const hasSecondRow = items.some(el => el.getBoundingClientRect().top > firstTop + 4);
-    if (!hasSecondRow) { toggle.style.display = 'none'; bar.style.maxHeight = ''; return; }
-    const lastFirstRow = items.reduce((last, el) =>
-      el.getBoundingClientRect().top <= firstTop + 4 ? el : last, items[0]);
-    const collapsedH = lastFirstRow.getBoundingClientRect().bottom - barTop + 6;
-    bar.style.maxHeight = collapsedH + 'px';
-    bar._collapsedH = collapsedH;
-    toggle.style.display = 'flex';
-    document.getElementById(toggleId + '-label').textContent = 'Ver más';
-    toggle.classList.remove('expanded');
-  });
-}
-
-function toggleFilterBar(barId, toggleId) {
-  const bar = document.getElementById(barId);
-  const toggle = document.getElementById(toggleId);
-  const isExpanded = toggle.classList.toggle('expanded');
-  if (isExpanded) {
-    bar.style.maxHeight = bar.scrollHeight + 'px';
-    document.getElementById(toggleId + '-label').textContent = 'Ver menos';
-  } else {
-    bar.style.maxHeight = bar._collapsedH + 'px';
-    document.getElementById(toggleId + '-label').textContent = 'Ver más';
-  }
-}
-
-// ================================================================
 // SWIPE GESTURES (flashcards)
 // ================================================================
 (function() {
@@ -2378,7 +2296,6 @@ document.addEventListener('keydown', e => {
   if (activeSection === 'vocab') {
     if (e.key === 'ArrowLeft')  { e.preventDefault(); prevCard(); }
     if (e.key === 'ArrowRight') { e.preventDefault(); nextCard(); }
-    if (e.key === 'Enter') { e.preventDefault(); toggleKnown(); }
   }
   if (activeSection === 'writing') {
     if (e.key === 'a') toggleAnimate();
