@@ -310,6 +310,7 @@
   #hanzi-container::before {
     content: '';
     position: absolute;
+    left: 50%; transform: translateX(-50%);
     width: var(--hz-size); height: var(--hz-size);
     background-image:
       /* horizontal lines */
@@ -1030,9 +1031,6 @@
         <i data-lucide="chevron-right"></i>
       </button>
     </div>
-
-    <!-- Mode badge row (above canvas, no overlap) -->
-    <div id="mode-badge-wrap"><div id="mode-badge"></div></div>
 
     <!-- Canvas -->
     <div id="hanzi-container">
@@ -2031,14 +2029,9 @@ function setQuizMode(mode) {
     const el = document.getElementById('mseg-free');
     if (el) { el.classList.add('active-free'); el.setAttribute('aria-pressed','true'); }
   }
-  // Mode badge
-  const badge = document.getElementById('mode-badge');
+  // Canvas border class (glow only — badge text hidden per user request)
   const container = document.getElementById('hanzi-container');
-  if (badge && container) {
-    badge.className = mode ? `visible ${mode}` : '';
-    badge.textContent = mode === 'hints' ? 'Con guías' : mode === 'free' ? 'Sin guías' : '';
-    container.className = mode ? `mode-${mode}` : '';
-  }
+  if (container) container.className = mode ? `mode-${mode}` : '';
   // Loop button locked while quizzing
   const loopBtn = document.getElementById('btn-loop-toggle');
   if (loopBtn) loopBtn.style.opacity = mode ? '0.3' : '';
