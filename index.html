@@ -306,7 +306,7 @@
   .writing-area .meaning { font-size: 0.75rem; color: var(--muted); margin-bottom: 0; }
 
   /* 田字格 grid behind HanziWriter */
-  #hanzi-container { display: flex; justify-content: center; margin: 4px 0 4px; position: relative; }
+  #hanzi-container { display: flex; justify-content: center; margin: 4px 0 4px; position: relative; overflow: hidden; }
   #hanzi-container::before {
     content: '';
     position: absolute;
@@ -2256,7 +2256,7 @@ function loadHanziWriter(char, autoMode) {
   setStatus('');
 
   const hzSize = Math.round(parseFloat(
-    getComputedStyle(document.documentElement).getPropertyValue('--hz-size')
+    getComputedStyle(document.body).getPropertyValue('--hz-size')
   )) || 220;
   writer = HanziWriter.create('hz-target', char, {
     width: hzSize, height: hzSize,
