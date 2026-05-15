@@ -346,6 +346,18 @@
   }
   #hz-target { position: relative; z-index: 1; }
 
+  /* Eye button inside canvas corner */
+  #btn-show-char {
+    position: absolute; bottom: 8px; right: 8px; z-index: 10;
+    width: 30px; height: 30px; border-radius: 8px;
+    background: rgba(28,26,23,0.75); border: 1px solid rgba(255,255,255,0.1);
+    color: var(--muted); cursor: pointer;
+    display: flex; align-items: center; justify-content: center;
+    backdrop-filter: blur(4px); transition: all 0.15s;
+  }
+  #btn-show-char:hover { color: var(--text); border-color: var(--text-dim); background: rgba(28,26,23,0.95); }
+  #btn-show-char svg { width: 14px; height: 14px; stroke-width: 1.8; }
+
   /* Mode badge — sits above the canvas, not inside it */
   #mode-badge-wrap {
     display: flex; justify-content: center; align-items: center;
@@ -708,6 +720,7 @@
       padding: 9px 10px; font-size: 0.65rem;
     }
     body:has(#writing.active) #btn-loop-toggle { display: none; }
+    body:has(#writing.active) #btn-mostrar-aux { display: none; }
 
     /* 7. Collapse search bar: show only icon + placeholder, expand on focus */
     body:has(#writing.active) .writing-search-wrap {
@@ -1027,6 +1040,9 @@
     <!-- Canvas -->
     <div id="hanzi-container">
       <div id="hz-done-flash"><span class="done-check">✓</span></div>
+      <button id="btn-show-char" onclick="resetChar()" aria-label="Mostrar carácter">
+        <i data-lucide="eye"></i>
+      </button>
     </div>
     <div id="writing-status"></div>
 
@@ -1046,7 +1062,7 @@
       </div>
       <!-- Aux: Mostrar + loop -->
       <div class="writing-aux">
-        <button class="btn-secondary" onclick="resetChar()"><i data-lucide="eye"></i>Mostrar</button>
+        <button class="btn-secondary" id="btn-mostrar-aux" onclick="resetChar()"><i data-lucide="eye"></i>Mostrar</button>
         <button class="btn-secondary" id="btn-loop-toggle" onclick="toggleLoopMode()" aria-label="Repetir animación en bucle"><i data-lucide="repeat"></i>Bucle</button>
       </div>
     </div>
