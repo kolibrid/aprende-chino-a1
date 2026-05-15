@@ -305,16 +305,26 @@
   .writing-area .pinyin { font-family: 'Space Grotesk', sans-serif; font-size: 0.88rem; color: var(--red); margin-bottom: 2px; }
   .writing-area .meaning { font-size: 0.75rem; color: var(--muted); margin-bottom: 0; }
 
-  /* 田字格 grid behind HanziWriter */
+  /* 米字格 grid behind HanziWriter */
   #hanzi-container { display: flex; justify-content: center; margin: 4px 0 4px; position: relative; overflow: hidden; }
   #hanzi-container::before {
     content: '';
     position: absolute;
     width: var(--hz-size); height: var(--hz-size);
     background-image:
+      /* horizontal lines */
       linear-gradient(var(--border) 1px, transparent 1px),
-      linear-gradient(90deg, var(--border) 1px, transparent 1px);
-    background-size: calc(var(--hz-size) / 2) calc(var(--hz-size) / 2);
+      /* vertical lines */
+      linear-gradient(90deg, var(--border) 1px, transparent 1px),
+      /* diagonal ╲ */
+      linear-gradient(135deg, transparent calc(50% - 0.5px), var(--border) 50%, transparent calc(50% + 0.5px)),
+      /* diagonal ╱ */
+      linear-gradient(45deg,  transparent calc(50% - 0.5px), var(--border) 50%, transparent calc(50% + 0.5px));
+    background-size:
+      calc(var(--hz-size) / 2) calc(var(--hz-size) / 2),
+      calc(var(--hz-size) / 2) calc(var(--hz-size) / 2),
+      100% 100%,
+      100% 100%;
     background-position: center center;
     border: 1px solid var(--border);
     border-radius: 8px;
@@ -2260,7 +2270,7 @@ function loadHanziWriter(char, autoMode) {
   )) || 220;
   writer = HanziWriter.create('hz-target', char, {
     width: hzSize, height: hzSize,
-    padding: window.innerWidth < 600 ? 20 : 12,
+    padding: window.innerWidth < 600 ? 6 : 12,
     showOutline: true,
     strokeColor: '#d44030',
     outlineColor: '#3a3530',
