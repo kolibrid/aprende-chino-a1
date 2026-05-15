@@ -2658,9 +2658,13 @@ function loadHanziWriter(char, autoMode) {
   // preserve overlay elements before clearing
   const flash = document.getElementById('hz-done-flash');
   const eyeBtn = document.getElementById('btn-show-char');
+  const infoBtn = document.getElementById('btn-char-info');
+  const infoPanel = document.getElementById('char-info-panel');
   container.innerHTML = '<div class="hz-loading"><div class="hz-spinner"></div></div><div id="hz-target" style="display:none"></div>';
   if (flash) container.appendChild(flash);
   if (eyeBtn) container.appendChild(eyeBtn);
+  if (infoBtn) container.appendChild(infoBtn);
+  if (infoPanel) container.appendChild(infoPanel);
   setStatus('');
 
   // CSS custom properties with min()/calc() don't resolve via getComputedStyle,
