@@ -413,28 +413,30 @@
 
   /* Segmented mode toggle */
   .mode-seg {
-    display: flex; border: 1px solid var(--border); border-radius: 10px;
-    overflow: hidden; background: var(--surface2);
+    display: flex; gap: 6px; background: transparent;
   }
   .mode-seg-btn {
-    flex: 1; padding: 10px 6px; background: transparent; border: none;
-    font-family: 'Space Grotesk', sans-serif; font-size: 0.72rem; font-weight: 500;
-    color: var(--muted); cursor: pointer; display: flex; align-items: center;
-    justify-content: center; gap: 5px; transition: all 0.15s; position: relative;
+    flex: 1; padding: 11px 8px;
+    background: var(--surface2); border: 1px solid var(--border); border-radius: 10px;
+    font-family: 'Space Grotesk', sans-serif; font-size: 0.72rem; font-weight: 600;
+    color: var(--text-dim); cursor: pointer; display: flex; align-items: center;
+    justify-content: center; gap: 6px; transition: all 0.18s; position: relative;
   }
-  .mode-seg-btn + .mode-seg-btn { border-left: 1px solid var(--border); }
-  .mode-seg-btn:hover:not(.active):not(:disabled) { color: var(--text); background: rgba(255,255,255,0.04); }
+  .mode-seg-btn:hover:not(:disabled) { color: var(--text); border-color: var(--border2); }
   .mode-seg-btn:disabled { opacity: 0.3; cursor: default; pointer-events: none; }
-  .mode-seg-btn svg { width: 13px; height: 13px; flex-shrink: 0; }
+  .mode-seg-btn svg { width: 14px; height: 14px; flex-shrink: 0; }
 
   .mode-seg-btn.active-animate {
-    background: rgba(212,64,48,0.14); color: var(--red);
+    background: rgba(212,64,48,0.18); border-color: rgba(212,64,48,0.5);
+    color: #f07060; box-shadow: 0 0 0 1px rgba(212,64,48,0.2);
   }
   .mode-seg-btn.active-hints {
-    background: rgba(74,144,217,0.16); color: #6ab0e8;
+    background: rgba(74,144,217,0.2); border-color: rgba(74,144,217,0.55);
+    color: #7ec0f0; box-shadow: 0 0 0 1px rgba(74,144,217,0.2);
   }
   .mode-seg-btn.active-free {
-    background: rgba(212,64,48,0.14); color: var(--red);
+    background: rgba(212,64,48,0.18); border-color: rgba(212,64,48,0.5);
+    color: #f07060; box-shadow: 0 0 0 1px rgba(212,64,48,0.2);
   }
 
   /* Aux row: Mostrar + loop */
@@ -711,9 +713,9 @@
       padding: 7px 10px 5px;
       gap: 5px; margin-top: 0;
     }
-    body:has(#writing.active) .mode-seg { flex: 1; }
-    body:has(#writing.active) .mode-seg-btn { padding: 9px 4px; font-size: 0.62rem; gap: 3px; }
-    body:has(#writing.active) .mode-seg-btn svg { width: 11px; height: 11px; }
+    body:has(#writing.active) .mode-seg { flex: 1; gap: 5px; }
+    body:has(#writing.active) .mode-seg-btn { padding: 10px 4px; font-size: 0.65rem; gap: 4px; border-radius: 8px; }
+    body:has(#writing.active) .mode-seg-btn svg { width: 12px; height: 12px; }
     /* Aux row: Mostrar visible, Bucle hidden on mobile */
     body:has(#writing.active) .writing-aux { gap: 5px; }
     body:has(#writing.active) .writing-aux .btn-secondary {
