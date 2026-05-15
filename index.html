@@ -627,58 +627,94 @@
     body:has(#writing.active) header { display: none; }
 
     /* 2. Bigger canvas — nearly full width */
-    body:has(#writing.active) { --hz-size: min(calc(100vw - 16px), 380px); }
+    body:has(#writing.active) { --hz-size: min(calc(100vw - 20px), 380px); }
 
-    /* 3. Compact char info: single inline row */
+    /* 3. Compact writing card */
     body:has(#writing.active) .writing-area {
-      padding: 10px 10px 10px;
-      border-radius: 16px;
+      padding: 8px 8px 6px;
+      border-radius: 14px;
+      border-color: transparent;
+      box-shadow: none;
     }
-    body:has(#writing.active) .writing-header {
-      margin-bottom: 6px;
-    }
+
+    /* 3a. Single compact info row: 我  wǒ  yo */
+    body:has(#writing.active) .writing-header { margin-bottom: 4px; }
     body:has(#writing.active) #single-char-display {
       display: flex; align-items: baseline;
-      justify-content: center; gap: 8px; flex-wrap: wrap;
+      justify-content: center; gap: 7px;
     }
     body:has(#writing.active) #writing-char {
-      font-size: 1.5rem; margin-bottom: 0;
+      font-size: 1.3rem !important; margin-bottom: 0 !important;
     }
     body:has(#writing.active) .writing-area .pinyin {
-      font-size: 0.78rem; margin-bottom: 0;
+      font-size: 0.75rem !important; margin-bottom: 0 !important;
     }
     body:has(#writing.active) .writing-area .meaning {
-      font-size: 0.68rem; margin-bottom: 0;
-    }
-    /* Compound display compact */
-    body:has(#writing.active) #compound-display {
-      display: flex; flex-direction: column; gap: 2px;
+      font-size: 0.65rem !important; margin-bottom: 0 !important;
+      color: var(--muted);
     }
 
-    /* 4. Status text overlaid at bottom of canvas, no extra height */
-    body:has(#writing.active) #writing-status {
-      min-height: 0; margin-top: 2px; font-size: 0.65rem;
+    /* 3b. Smaller nav arrows */
+    body:has(#writing.active) .writing-nav-btn {
+      width: 26px; height: 26px;
     }
-    /* Badge row takes no space when empty */
+
+    /* 3c. Badge row: zero height when no badge, tiny when showing */
     body:has(#writing.active) #mode-badge-wrap {
-      min-height: 0;
+      min-height: 0; margin-bottom: 0;
+    }
+    body:has(#writing.active) #mode-badge {
+      font-size: 0.38rem; padding: 2px 8px;
     }
 
-    /* 5. Sticky controls bar above bottom nav */
+    /* 4. Remove status text below canvas — no space wasted */
+    body:has(#writing.active) #writing-status {
+      display: none;
+    }
+
+    /* 5. Canvas border: no hard outline, just faint grid */
+    body:has(#writing.active) #hanzi-container::before {
+      border-color: rgba(255,255,255,0.06);
+    }
+    body:has(#writing.active) #hanzi-container.mode-hints::before {
+      border-color: rgba(74,144,217,0.2);
+      box-shadow: 0 0 0 2px rgba(74,144,217,0.06);
+    }
+    body:has(#writing.active) #hanzi-container.mode-free::before {
+      border-color: rgba(212,64,48,0.2);
+      box-shadow: 0 0 0 2px rgba(212,64,48,0.06);
+    }
+
+    /* 6. Sticky controls: single row (mode seg only) + Mostrar as icon */
     body:has(#writing.active) .writing-controls {
       position: fixed; bottom: calc(56px + env(safe-area-inset-bottom, 0px));
       left: 0; right: 0; z-index: 90;
-      background: rgba(28,26,23,0.97); backdrop-filter: blur(14px);
+      background: rgba(15,13,12,0.97); backdrop-filter: blur(16px);
       border-top: 1px solid var(--border);
-      padding: 8px 12px 6px;
-      gap: 6px; margin-top: 0;
+      padding: 7px 10px 5px;
+      gap: 5px; margin-top: 0;
     }
-    body:has(#writing.active) .mode-seg-btn { padding: 10px 6px; font-size: 0.68rem; }
-    body:has(#writing.active) .writing-aux .btn-secondary { padding: 8px 12px; font-size: 0.72rem; }
+    body:has(#writing.active) .mode-seg { flex: 1; }
+    body:has(#writing.active) .mode-seg-btn { padding: 9px 4px; font-size: 0.62rem; gap: 3px; }
+    body:has(#writing.active) .mode-seg-btn svg { width: 11px; height: 11px; }
+    /* Aux row: Mostrar visible, Bucle hidden on mobile */
+    body:has(#writing.active) .writing-aux { gap: 5px; }
+    body:has(#writing.active) .writing-aux .btn-secondary {
+      padding: 9px 10px; font-size: 0.65rem;
+    }
+    body:has(#writing.active) #btn-loop-toggle { display: none; }
 
-    /* Extra bottom padding so content doesn't hide behind fixed controls */
+    /* 7. Collapse search bar: show only icon + placeholder, expand on focus */
+    body:has(#writing.active) .writing-search-wrap {
+      padding: 0 10px;
+    }
+    body:has(#writing.active) .writing-search-wrap input {
+      font-size: 0.75rem; padding: 9px 0;
+    }
+
+    /* 8. Extra bottom padding for fixed controls */
     body:has(#writing.active) #writing.active {
-      padding-bottom: 140px;
+      padding-bottom: 130px;
     }
   }
 
@@ -2222,7 +2258,7 @@ function loadHanziWriter(char, autoMode) {
   )) || 220;
   writer = HanziWriter.create('hz-target', char, {
     width: hzSize, height: hzSize,
-    padding: 12,
+    padding: window.innerWidth < 600 ? 20 : 12,
     showOutline: true,
     strokeColor: '#d44030',
     outlineColor: '#3a3530',
