@@ -697,15 +697,16 @@
       background: rgba(15,13,12,0.97); backdrop-filter: blur(16px);
       border-top: 1px solid var(--border);
       padding: 7px 10px 5px;
-      gap: 5px; margin-top: 0;
+      flex-direction: row; align-items: stretch;
+      gap: 6px; margin-top: 0;
     }
     body:has(#writing.active) .mode-seg { flex: 1; }
     body:has(#writing.active) .mode-seg-btn { padding: 9px 4px; font-size: 0.62rem; gap: 3px; }
     body:has(#writing.active) .mode-seg-btn svg { width: 11px; height: 11px; }
-    /* Aux row: Mostrar visible, Bucle hidden on mobile */
-    body:has(#writing.active) .writing-aux { gap: 5px; }
+    /* Mostrar sits inline with the seg control; Bucle hidden */
+    body:has(#writing.active) .writing-aux { flex-direction: row; gap: 0; }
     body:has(#writing.active) .writing-aux .btn-secondary {
-      padding: 9px 10px; font-size: 0.65rem;
+      padding: 9px 12px; font-size: 0.65rem; white-space: nowrap;
     }
     body:has(#writing.active) #btn-loop-toggle { display: none; }
 
