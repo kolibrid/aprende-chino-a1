@@ -626,16 +626,18 @@
     /* 1. Hide header when writing tab is active */
     body:has(#writing.active) header { display: none; }
 
-    /* 2. Bigger canvas — nearly full width */
-    body:has(#writing.active) { --hz-size: min(calc(100vw - 20px), 380px); }
-
-    /* 3. Compact writing card */
+    /* 2. Bigger canvas — strip section + card padding so hz-size is exact */
+    body:has(#writing.active) #writing.active {
+      padding-left: 6px; padding-right: 6px; overflow-x: hidden;
+    }
     body:has(#writing.active) .writing-area {
-      padding: 8px 8px 6px;
+      padding: 8px 6px 6px;
       border-radius: 14px;
       border-color: transparent;
       box-shadow: none;
     }
+    /* section: 6px, card: 6px each side → total 24px */
+    body:has(#writing.active) { --hz-size: min(calc(100vw - 24px), 380px); }
 
     /* 3a. Single compact info row: 我  wǒ  yo */
     body:has(#writing.active) .writing-header { margin-bottom: 4px; }
