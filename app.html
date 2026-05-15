@@ -1,0 +1,2338 @@
+<!DOCTYPE html>
+<html lang="es">
+<head>
+<meta charset="UTF-8">
+<meta name="viewport" content="width=device-width, initial-scale=1.0">
+<title>练习中文 · Práctica de Chino</title>
+<link rel="icon" type="image/svg+xml" href="data:image/svg+xml,<svg xmlns='http://www.w3.org/2000/svg' viewBox='0 0 32 32'><rect width='32' height='32' rx='6' fill='%231c1a17'/><text x='16' y='25' font-size='22' text-anchor='middle' font-family='serif' fill='%23d44030'>文</text></svg>">
+<link rel="preconnect" href="https://fonts.googleapis.com">
+<link rel="preconnect" href="https://fonts.gstatic.com" crossorigin>
+<link href="https://fonts.googleapis.com/css2?family=Cormorant+Garamond:wght@400;600;700&family=Noto+Serif+SC:wght@400;700&family=JetBrains+Mono:wght@400;500&family=DM+Sans:ital,opsz,wght@0,9..40,400;0,9..40,500;0,9..40,600&display=swap" rel="stylesheet">
+<script src="https://cdn.jsdelivr.net/npm/hanzi-writer@3.5/dist/hanzi-writer.min.js"></script>
+<script src="https://unpkg.com/lucide@latest/dist/umd/lucide.min.js"></script>
+<style>
+  :root {
+    --bg: #0f0e0d;
+    --surface: #1c1a17;
+    --surface2: #222019;
+    --border: #2e2b25;
+    --red: #d44030;
+    --gold: #c9922a;
+    --green: #4a9e6b;
+    --blue: #4a90d9;
+    --text: #f0ebe3;
+    --text-dim: #a09488;
+    --muted: #6a6460;
+    --hz-size: 260px;
+  }
+
+  html { font-size: 21px; }
+
+  * { box-sizing: border-box; margin: 0; padding: 0; }
+
+  body {
+    font-family: 'DM Sans', -apple-system, sans-serif;
+    background: var(--bg);
+    color: var(--text);
+    min-height: 100vh;
+    overflow-x: hidden;
+  }
+
+  /* Subtle noise texture */
+  body::after {
+    content: '';
+    position: fixed;
+    inset: 0;
+    background-image: url("data:image/svg+xml,%3Csvg xmlns='http://www.w3.org/2000/svg' width='300' height='300'%3E%3Cfilter id='n'%3E%3CfeTurbulence type='fractalNoise' baseFrequency='0.75' numOctaves='4' stitchTiles='stitch'/%3E%3C/filter%3E%3Crect width='300' height='300' filter='url(%23n)' opacity='0.035'/%3E%3C/svg%3E");
+    pointer-events: none;
+    z-index: 9999;
+    opacity: 1;
+  }
+
+  /* ── HEADER ── */
+  header {
+    position: relative;
+    padding: 18px 24px 14px;
+    text-align: center;
+    background: var(--surface);
+    border-bottom: 1px solid var(--border);
+    overflow: hidden;
+  }
+  header::before {
+    content: '文';
+    position: absolute;
+    font-family: 'Noto Serif SC', serif;
+    font-size: 8rem;
+    color: rgba(212,64,48,0.05);
+    top: 50%; left: 50%;
+    transform: translate(-50%, -50%);
+    pointer-events: none;
+    line-height: 1;
+  }
+  header h1 {
+    font-family: 'Cormorant Garamond', serif;
+    font-size: 1.7rem;
+    font-weight: 700;
+    letter-spacing: 2px;
+    color: var(--text);
+    position: relative;
+  }
+  header h1 em { color: var(--red); font-style: normal; }
+  header p {
+    font-size: 0.65rem;
+    color: var(--muted);
+    letter-spacing: 2.5px;
+    text-transform: uppercase;
+    margin-top: 3px;
+    position: relative;
+  }
+
+  /* ── NAV ── */
+  nav { display: flex; background: var(--surface); border-bottom: 1px solid var(--border); }
+  nav button {
+    flex: 1; padding: 13px 4px;
+    background: none; border: none;
+    color: var(--muted);
+    font-family: 'DM Sans', sans-serif;
+    font-size: 0.72rem; letter-spacing: 0.8px; text-transform: uppercase;
+    cursor: pointer; transition: color 0.2s;
+    position: relative;
+  }
+  nav button::after {
+    content: '';
+    position: absolute; bottom: 0; left: 25%; width: 50%; height: 2px;
+    background: var(--red);
+    transform: scaleX(0);
+    transition: transform 0.25s cubic-bezier(0.34,1.56,0.64,1);
+  }
+  nav button.active { color: var(--text); font-weight: 600; }
+  nav button.active::after { transform: scaleX(1); }
+  nav button:hover:not(.active) { color: var(--text-dim); }
+
+  /* ── SECTIONS ── */
+  .section { display: none; padding: 20px 18px 80px; max-width: 600px; margin: 0 auto; }
+  .section.active { display: block; animation: fadeUp 0.3s ease; }
+  @keyframes fadeUp {
+    from { opacity: 0; transform: translateY(10px); }
+    to   { opacity: 1; transform: translateY(0); }
+  }
+
+  /* ── FILTER BARS ── */
+  .filter-bar, .writing-filter-bar {
+    display: flex; flex-wrap: wrap; gap: 6px; margin-bottom: 16px;
+  }
+  .filter-bar button, .writing-filter-bar button {
+    padding: 5px 12px; border-radius: 20px;
+    border: 1px solid var(--border); background: transparent;
+    color: var(--muted); font-family: 'DM Sans', sans-serif;
+    font-size: 0.7rem; letter-spacing: 0.3px; cursor: pointer; transition: all 0.15s;
+  }
+  .filter-bar button:hover, .writing-filter-bar button:hover { color: var(--text); border-color: var(--text-dim); }
+  .filter-bar button.active, .writing-filter-bar button.active { background: var(--red); color: white; border-color: var(--red); }
+  .btn-only-unknown { border-color: rgba(74,158,107,0.5) !important; color: var(--green) !important; margin-left: 4px; }
+  .btn-only-unknown:hover { border-color: var(--green) !important; background: rgba(74,158,107,0.08) !important; }
+  .btn-only-unknown.active { background: rgba(74,158,107,0.2) !important; border-color: var(--green) !important; box-shadow: 0 0 0 1px var(--green); }
+
+  /* ── STATS ── */
+  .stats-row { display: flex; gap: 8px; margin-bottom: 12px; }
+  .stat-box {
+    flex: 1; background: var(--surface); border: 1px solid var(--border);
+    border-radius: 10px; padding: 8px 6px; text-align: center;
+  }
+  .stat-num {
+    font-family: 'Cormorant Garamond', serif;
+    font-size: 1.4rem; font-weight: 700; color: var(--red); line-height: 1;
+  }
+  .stat-label { font-size: 0.55rem; color: var(--muted); text-transform: uppercase; letter-spacing: 0.8px; margin-top: 3px; }
+
+  /* ── PROGRESS ── */
+  .progress-bar-wrap { background: var(--surface); border-radius: 4px; height: 3px; margin-bottom: 8px; overflow: hidden; }
+  .progress-bar { background: linear-gradient(90deg, var(--red), var(--gold)); height: 3px; border-radius: 4px; transition: width 0.4s cubic-bezier(0.34,1.56,0.64,1); }
+  .progress-text { font-family: 'JetBrains Mono', monospace; font-size: 0.68rem; color: var(--muted); text-align: right; margin-bottom: 12px; }
+
+  /* ── FLASHCARD ── */
+  .flashcard-wrap { margin: 6px 0; }
+  .flashcard {
+    background: var(--surface);
+    border: 1px solid var(--border);
+    border-radius: 20px;
+    box-shadow: 0 12px 50px rgba(0,0,0,0.5), inset 0 1px 0 rgba(255,255,255,0.04);
+    min-height: 310px;
+    display: flex; flex-direction: column; align-items: center; justify-content: center;
+    padding: 32px 24px;
+    position: relative; user-select: none;
+  }
+
+  /* Gold shimmer border */
+  .flashcard::after {
+    content: '';
+    position: absolute; inset: 0; border-radius: 20px;
+    border: 1px solid transparent;
+    background: linear-gradient(135deg, rgba(201,146,42,0.4) 0%, transparent 55%) border-box;
+    -webkit-mask: linear-gradient(#fff 0 0) padding-box, linear-gradient(#fff 0 0);
+    -webkit-mask-composite: destination-out; mask-composite: exclude;
+    pointer-events: none;
+  }
+
+  .card-content {
+    display: flex; flex-direction: column; align-items: center; justify-content: center;
+    width: 100%; gap: 4px;
+  }
+
+  .btn-known {
+    position: absolute; top: 12px; right: 12px;
+    width: 32px; height: 32px; border-radius: 50%;
+    border: 1.5px solid var(--border);
+    background: transparent;
+    color: var(--muted);
+    cursor: pointer; display: flex; align-items: center; justify-content: center;
+    transition: all 0.2s; z-index: 1;
+  }
+  .btn-known:hover { border-color: var(--green); color: var(--green); }
+  .btn-known.known { background: rgba(74,158,107,0.15); border-color: var(--green); color: var(--green); }
+
+  .char-big {
+    font-family: 'Noto Serif SC', 'STKaiti', 'KaiTi', serif;
+    font-size: 4.5rem; line-height: 1; margin-bottom: 10px;
+    color: var(--text);
+    text-shadow: 0 4px 24px rgba(212,64,48,0.25);
+  }
+  .pinyin {
+    font-family: 'JetBrains Mono', monospace;
+    font-size: 1rem; color: var(--red); margin-bottom: 4px; letter-spacing: 0.5px;
+  }
+  .category-tag {
+    font-size: 0.58rem; font-weight: 600; letter-spacing: 1.8px; text-transform: uppercase;
+    color: var(--gold); border: 1px solid rgba(201,146,42,0.35);
+    padding: 2px 10px; border-radius: 10px; margin-bottom: 14px;
+  }
+  .translation {
+    font-family: 'Cormorant Garamond', serif;
+    font-size: 1.3rem; font-weight: 600; color: var(--text); text-align: center;
+    margin-top: 10px;
+  }
+  .hint { font-size: 0.7rem; color: var(--muted); margin-top: 18px; letter-spacing: 0.3px; }
+
+  /* ── CARD NAV ── */
+  .card-nav {
+    display: flex; align-items: center; justify-content: space-between;
+    margin: 12px 0 4px; gap: 10px;
+  }
+  .btn-nav {
+    background: transparent; border: 1px solid var(--border); border-radius: 8px;
+    color: var(--muted); padding: 8px 14px; cursor: pointer;
+    font-family: 'DM Sans', sans-serif; font-size: 0.78rem;
+    transition: all 0.15s; display: flex; align-items: center; gap: 5px;
+  }
+  .btn-nav:hover { border-color: var(--text-dim); color: var(--text); }
+  .btn-nav:disabled { opacity: 0.25; cursor: default; pointer-events: none; }
+  .btn-nav svg { width: 14px; height: 14px; stroke-width: 2; }
+  .card-nav-counter {
+    font-family: 'JetBrains Mono', monospace; font-size: 0.72rem;
+    color: var(--muted); text-align: center; flex: 1;
+  }
+
+
+  /* ── SESSION DONE ── */
+  .session-done { text-align: center; padding: 50px 20px; }
+  .session-done h2 {
+    font-family: 'Cormorant Garamond', serif;
+    font-size: 2.2rem; font-weight: 700; color: var(--gold); margin-bottom: 10px;
+  }
+  .session-done p { color: var(--muted); margin-bottom: 24px; }
+
+  .btn-primary {
+    background: var(--red); color: white; border: none; border-radius: 10px;
+    padding: 13px 32px; font-family: 'DM Sans', sans-serif;
+    font-size: 0.88rem; font-weight: 600; cursor: pointer; letter-spacing: 0.3px;
+    transition: all 0.2s; box-shadow: 0 4px 20px rgba(212,64,48,0.35);
+  }
+  .btn-primary:hover { transform: translateY(-2px); box-shadow: 0 6px 28px rgba(212,64,48,0.5); }
+
+  /* ── WRITING ── */
+  .char-selector {
+    display: flex; flex-wrap: wrap; gap: 5px; margin-bottom: 16px;
+    max-height: 180px; overflow-y: auto;
+    scrollbar-width: thin; scrollbar-color: var(--border) transparent;
+  }
+  .char-btn {
+    min-width: 44px; height: 44px; padding: 0 8px;
+    border: 1px solid var(--border); border-radius: 8px;
+    background: var(--surface); color: var(--text-dim);
+    font-family: 'Noto Serif SC', serif; font-size: 1.2rem;
+    cursor: pointer; transition: all 0.15s;
+    display: flex; align-items: center; justify-content: center;
+  }
+  .char-btn:hover { border-color: var(--red); color: var(--red); background: rgba(212,64,48,0.08); }
+  .char-btn.active { border-color: var(--red); background: rgba(212,64,48,0.12); color: var(--red); }
+  .char-btn.learned { border-color: var(--green); background: rgba(74,158,107,0.1); color: var(--green); }
+  .char-btn.multi { font-size: 0.88rem; border-style: dashed; }
+
+  /* Ink stone writing area */
+  .writing-area {
+    background: var(--surface);
+    border: 1px solid var(--border);
+    border-radius: 20px; padding: 24px; text-align: center;
+    box-shadow: 0 8px 40px rgba(0,0,0,0.35);
+  }
+  #writing-char {
+    font-family: 'Noto Serif SC', 'STKaiti', serif;
+    color: var(--text); margin-bottom: 6px;
+  }
+  .writing-area .pinyin { font-family: 'JetBrains Mono', monospace; font-size: 0.95rem; color: var(--red); margin-bottom: 4px; }
+  .writing-area .meaning { font-size: 0.82rem; color: var(--muted); margin-bottom: 12px; }
+
+  /* 田字格 grid behind HanziWriter */
+  #hanzi-container { display: flex; justify-content: center; margin: 10px 0; position: relative; }
+  #hanzi-container::before {
+    content: '';
+    position: absolute;
+    width: var(--hz-size); height: var(--hz-size);
+    background-image:
+      linear-gradient(var(--border) 1px, transparent 1px),
+      linear-gradient(90deg, var(--border) 1px, transparent 1px);
+    background-size: calc(var(--hz-size) / 2) calc(var(--hz-size) / 2);
+    background-position: center center;
+    border: 1px solid var(--border);
+    border-radius: 4px;
+    pointer-events: none; z-index: 0;
+  }
+  #hz-target { position: relative; z-index: 1; }
+
+  #writing-status {
+    font-family: 'DM Sans', sans-serif; font-size: 0.76rem;
+    color: var(--muted); min-height: 1.4em; margin-top: 8px; text-align: center;
+  }
+  .btn-secondary {
+    background: transparent; color: var(--text-dim);
+    border: 1px solid var(--border); border-radius: 8px;
+    padding: 8px 13px; font-family: 'DM Sans', sans-serif; font-size: 0.78rem;
+    cursor: pointer; transition: all 0.15s;
+  }
+  .btn-secondary:hover { border-color: var(--red); color: var(--red); background: rgba(212,64,48,0.06); }
+
+  /* ── WRITING ACTION GROUPS ── */
+  .writing-actions { margin-top: 16px; display: flex; flex-direction: column; gap: 10px; }
+  .action-group { display: flex; flex-direction: column; gap: 5px; }
+  .action-group-label {
+    font-family: 'DM Sans', sans-serif; font-size: 0.58rem; font-weight: 600;
+    letter-spacing: 1.8px; text-transform: uppercase; color: var(--muted);
+  }
+  .action-group-row { display: flex; gap: 6px; flex-wrap: wrap; }
+  .action-group-practice .btn-secondary { flex: 1; padding: 11px 16px; }
+
+  /* Split button: Animar (left) + loop toggle (right) */
+  .btn-split { display: flex; }
+  .btn-split > .btn-secondary:first-child {
+    border-top-right-radius: 0; border-bottom-right-radius: 0; border-right: none;
+  }
+  .btn-split-loop { border-top-left-radius: 0; border-bottom-left-radius: 0; padding: 8px 10px; }
+  .btn-animating { background: rgba(212,64,48,0.15) !important; color: var(--red) !important; border-color: rgba(212,64,48,0.4) !important; border-right: none !important; }
+  .btn-split-loop.loop-on {
+    background: rgba(201,146,42,0.15) !important; color: var(--gold) !important;
+    border-color: rgba(201,146,42,0.35) !important;
+  }
+
+  /* Practice button colours */
+  .btn-hints { background: rgba(74,144,217,0.12); color: #6ab0e8; border-color: rgba(74,144,217,0.3); }
+  .btn-quiz  { background: rgba(212,64,48,0.12);  color: var(--red); border-color: rgba(212,64,48,0.3); }
+  .btn-quiz-active { box-shadow: 0 0 0 2px currentColor; font-weight: 600; }
+
+  /* Ver group locked while quizzing */
+  .action-group-ver-locked { opacity: 0.35; pointer-events: none; transition: opacity 0.25s; }
+
+  /* Compound dots */
+  .dot {
+    width: 38px; height: 38px; border-radius: 50%;
+    background: var(--surface2); border: 1px solid var(--border);
+    transition: all 0.2s; cursor: pointer;
+    display: flex; align-items: center; justify-content: center;
+    font-family: 'Noto Serif SC', serif; font-size: 1rem; color: var(--muted);
+  }
+  .dot:hover { border-color: var(--red); color: var(--text); transform: scale(1.05); }
+  .dot.done    { background: rgba(74,158,107,0.15); border-color: var(--green); color: var(--green); }
+  .dot.current { background: rgba(212,64,48,0.15);  border-color: var(--red);   color: var(--red);   transform: scale(1.15); }
+
+  #writing-word-full  { font-family: 'Noto Serif SC', serif; }
+  #writing-word-pinyin { font-family: 'JetBrains Mono', monospace; }
+  #compound-char-label { font-family: 'JetBrains Mono', monospace; font-size: 0.7rem; color: var(--muted); margin-top: 4px; }
+
+  /* ── WRITING SEARCH ── */
+  .writing-search-wrap {
+    display: flex; align-items: center; gap: 8px;
+    background: var(--surface); border: 1px solid var(--border);
+    border-radius: 10px; padding: 0 12px; margin-bottom: 10px;
+  }
+  .writing-search-wrap svg { width: 14px; height: 14px; color: var(--muted); flex-shrink: 0; }
+  .writing-search-wrap input {
+    flex: 1; background: transparent; border: none; outline: none;
+    color: var(--text); font-family: 'DM Sans', sans-serif;
+    font-size: 0.82rem; padding: 11px 0;
+  }
+  .writing-search-wrap input::placeholder { color: var(--muted); }
+  #writing-search-clear {
+    background: none; border: none; color: var(--muted);
+    cursor: pointer; padding: 3px; display: none; align-items: center;
+    border-radius: 4px; transition: color 0.15s;
+  }
+  #writing-search-clear:hover { color: var(--text); }
+  #writing-search-clear svg { width: 14px; height: 14px; }
+
+  /* Writing category chip bar */
+  .writing-cat-bar {
+    display: flex; gap: 6px; flex-wrap: wrap;
+    margin-bottom: 14px;
+  }
+  .writing-cat-chip {
+    flex-shrink: 0; padding: 4px 12px; border-radius: 20px;
+    border: 1px solid var(--border); background: transparent;
+    color: var(--muted); font-family: 'DM Sans', sans-serif;
+    font-size: 0.68rem; letter-spacing: 0.3px; cursor: pointer;
+    transition: all 0.15s; white-space: nowrap;
+  }
+  .writing-cat-chip:hover { color: var(--text); border-color: var(--text-dim); }
+  .writing-cat-chip.active { background: var(--red); color: white; border-color: var(--red); }
+
+  /* Writing category groups */
+  #char-selector { margin-bottom: 16px; }
+  .cat-group { margin-bottom: 14px; }
+  .cat-group-header {
+    display: flex; align-items: center; justify-content: space-between;
+    padding: 5px 0; cursor: pointer;
+    border-bottom: 1px solid var(--border); margin-bottom: 8px;
+  }
+  .cat-group-header-left { display: flex; align-items: center; gap: 8px; }
+  .cat-group-title {
+    font-family: 'DM Sans', sans-serif; font-size: 0.65rem;
+    font-weight: 600; letter-spacing: 1.5px; text-transform: uppercase;
+    color: var(--muted);
+  }
+  .cat-progress {
+    font-family: 'JetBrains Mono', monospace; font-size: 0.6rem;
+    color: var(--muted); background: var(--surface);
+    border: 1px solid var(--border); border-radius: 8px; padding: 1px 7px;
+  }
+  .cat-group-chevron {
+    width: 14px; height: 14px; color: var(--muted); transition: transform 0.2s;
+  }
+  .cat-group.collapsed .cat-group-chevron { transform: rotate(-90deg); }
+  .cat-group-body { display: flex; flex-wrap: wrap; gap: 5px; }
+  .cat-group.collapsed .cat-group-body { display: none; }
+
+  /* ── GRAMMAR ── */
+  .grammar-nav { display: flex; justify-content: space-between; align-items: center; margin-bottom: 16px; }
+  .grammar-nav strong { font-family: 'Cormorant Garamond', serif; font-size: 1.4rem; font-weight: 700; }
+  .grammar-score { font-family: 'JetBrains Mono', monospace; font-size: 0.85rem; color: var(--gold); }
+
+  .exercise-card {
+    background: var(--surface); border: 1px solid var(--border);
+    border-radius: 16px; padding: 24px; margin-bottom: 16px;
+    animation: fadeUp 0.3s ease;
+  }
+  .exercise-type {
+    font-size: 0.58rem; font-weight: 700; letter-spacing: 2px; color: var(--gold);
+    text-transform: uppercase; margin-bottom: 12px;
+    border-left: 2px solid var(--gold); padding-left: 8px;
+  }
+  .exercise-question { font-size: 0.95rem; line-height: 1.7; margin-bottom: 18px; color: var(--text-dim); }
+  .exercise-question span { font-family: 'Noto Serif SC', serif; font-size: 1.45rem; color: var(--text); display: block; margin-top: 8px; }
+
+  .blank {
+    display: inline-block; min-width: 44px;
+    border-bottom: 2px solid var(--red); text-align: center;
+    color: var(--red); font-weight: 700; padding: 0 4px;
+    font-family: 'Noto Serif SC', serif;
+  }
+  .exercise-q-pinyin {
+    font-family: 'JetBrains Mono', monospace; font-size: 0.72rem;
+    color: var(--red); letter-spacing: 0.3px; margin-top: 5px; opacity: 0.8;
+  }
+  .options { display: flex; flex-wrap: wrap; gap: 8px; }
+  .option-btn {
+    padding: 10px 20px; border: 1px solid var(--border); border-radius: 10px;
+    background: var(--surface2); color: var(--text);
+    cursor: pointer; font-family: 'Noto Serif SC', serif; font-size: 1.15rem;
+    transition: all 0.15s;
+    display: flex; flex-direction: column; align-items: center; gap: 2px;
+  }
+  .opt-pinyin {
+    font-family: 'JetBrains Mono', monospace; font-size: 0.6rem;
+    color: var(--muted); letter-spacing: 0.3px; line-height: 1;
+  }
+  .option-btn.correct .opt-pinyin { color: rgba(90,191,130,0.85); }
+  .option-btn.wrong .opt-pinyin   { color: rgba(224,112,96,0.85); }
+  .option-btn:hover { border-color: var(--blue); background: rgba(74,144,217,0.1); }
+  .option-btn.correct {
+    border-color: var(--green); background: rgba(74,158,107,0.15); color: #5abf82;
+    animation: correctPop 0.35s cubic-bezier(0.34,1.56,0.64,1);
+  }
+  .option-btn.wrong {
+    border-color: var(--red); background: rgba(212,64,48,0.1); color: #e07060;
+    animation: wrongShake 0.3s ease;
+  }
+  @keyframes correctPop { 0%,100%{transform:scale(1)} 50%{transform:scale(1.1)} }
+  @keyframes wrongShake { 0%,100%{transform:translateX(0)} 25%{transform:translateX(-5px)} 75%{transform:translateX(5px)} }
+  .option-btn:disabled { cursor: default; }
+
+  .feedback {
+    margin-top: 12px; font-size: 0.8rem; padding: 10px 14px; border-radius: 8px;
+    display: none; line-height: 1.5; border-left: 3px solid transparent;
+  }
+  .feedback.correct { background: rgba(74,158,107,0.1); color: #5abf82; border-left-color: var(--green); display: block; }
+  .feedback.wrong   { background: rgba(212,64,48,0.08);  color: #e07060; border-left-color: var(--red);   display: block; }
+
+  #next-exercise { display: none; }
+
+  /* ── ICONS ── */
+  nav button { display: flex; flex-direction: column; align-items: center; gap: 2px; }
+  .nav-es {
+    font-size: 0.52rem; letter-spacing: 0.5px; text-transform: uppercase;
+    color: var(--muted); line-height: 1; font-weight: 400;
+  }
+  nav button.active .nav-es { color: var(--text-dim); }
+  nav button svg { width: 17px; height: 17px; stroke-width: 1.6; flex-shrink: 0; }
+  .btn-control svg { width: 15px; height: 15px; vertical-align: middle; margin-right: 5px; stroke-width: 1.8; }
+  .btn-secondary svg { width: 13px; height: 13px; vertical-align: middle; margin-right: 4px; stroke-width: 1.8; }
+  .btn-primary svg { width: 15px; height: 15px; vertical-align: middle; margin-right: 5px; stroke-width: 1.8; }
+
+  /* ── MOBILE BOTTOM NAV ── */
+  @media (max-width: 600px) {
+    :root { --hz-size: min(calc(100vw - 84px), 260px); }
+
+    nav {
+      position: fixed; bottom: 0; left: 0; right: 0; z-index: 100;
+      border-top: 1px solid var(--border); border-bottom: none;
+      padding-bottom: env(safe-area-inset-bottom, 0);
+      background: rgba(28,26,23,0.95); backdrop-filter: blur(14px);
+    }
+    nav button { padding: 10px 4px; font-size: 0.66rem; }
+    nav button::after { bottom: auto; top: 0; }
+    .section { padding-bottom: 100px; }
+
+    /* Writing section: canvas first, selector below */
+    #writing.active {
+      display: flex;
+      flex-direction: column;
+      gap: 14px;
+      padding-top: 16px;
+    }
+    #writing .writing-area { order: -1; }
+    #writing .writing-left { order: 1; }
+
+    /* Compact character selector on mobile */
+    #char-selector { max-height: 200px; overflow-y: auto; }
+
+    /* Larger touch targets for writing buttons */
+    .writing-actions { gap: 10px; }
+    .btn-secondary { padding: 10px 14px; font-size: 0.8rem; }
+    .action-group-practice .btn-secondary { padding: 12px 14px; }
+  }
+
+  /* ── ACCESSIBILITY & GLOBAL INTERACTION ── */
+  button, input { touch-action: manipulation; }
+  button:focus-visible { outline: 2px solid var(--red); outline-offset: 2px; border-radius: inherit; }
+  input:focus-visible { outline: none; }
+  .sr-only {
+    position: absolute; width: 1px; height: 1px; padding: 0;
+    margin: -1px; overflow: hidden; clip: rect(0,0,0,0); white-space: nowrap; border: 0;
+  }
+  @media (prefers-reduced-motion: reduce) {
+    *, *::before, *::after { animation-duration: 0.01ms !important; transition-duration: 0.01ms !important; }
+  }
+
+  /* ── HELP BUTTON (header) ── */
+  .header-help-btn {
+    position: absolute; top: 12px; right: 14px;
+    background: none; border: 1px solid var(--border); border-radius: 8px;
+    color: var(--muted); padding: 6px 8px; cursor: pointer; transition: all 0.15s;
+    display: flex; align-items: center;
+  }
+  .header-help-btn:hover { color: var(--text); border-color: var(--text-dim); }
+  .header-help-btn svg { width: 14px; height: 14px; }
+
+  /* ── MASTERY BAR ── */
+  .mastery-row {
+    display: flex; justify-content: space-between; align-items: center;
+    margin-bottom: 6px;
+  }
+  .mastery-label {
+    font-family: 'JetBrains Mono', monospace; font-size: 0.6rem;
+    color: var(--muted); letter-spacing: 0.3px;
+  }
+  .btn-reset {
+    background: none; border: none; color: var(--muted);
+    font-family: 'DM Sans', sans-serif; font-size: 0.65rem;
+    cursor: pointer; padding: 0; transition: color 0.15s;
+  }
+  .btn-reset:hover { color: var(--red); }
+  .mastery-bar-wrap {
+    background: var(--surface); border-radius: 4px; height: 4px;
+    margin-bottom: 14px; overflow: hidden;
+  }
+  .mastery-bar {
+    background: linear-gradient(90deg, var(--green), #6abf82);
+    height: 4px; border-radius: 4px;
+    transition: width 0.6s cubic-bezier(0.34,1.56,0.64,1);
+  }
+
+  /* ── EXAMPLE SENTENCE ── */
+  .example-sentence {
+    margin-top: 12px; padding-top: 12px;
+    border-top: 1px solid var(--border);
+    text-align: center; width: 100%;
+  }
+  .example-zh {
+    font-family: 'Noto Serif SC', serif;
+    font-size: 0.9rem; color: var(--text); line-height: 1.6; margin-bottom: 2px;
+  }
+  .example-py {
+    font-family: 'JetBrains Mono', monospace;
+    font-size: 0.58rem; color: var(--text-dim); letter-spacing: 0.3px; margin-bottom: 2px;
+  }
+  .example-es {
+    font-size: 0.62rem; color: var(--muted); font-style: italic;
+  }
+
+  /* ── HZ SPINNER ── */
+  .hz-loading {
+    width: var(--hz-size); height: var(--hz-size);
+    display: flex; align-items: center; justify-content: center;
+  }
+  .hz-spinner {
+    width: 32px; height: 32px;
+    border: 3px solid var(--border); border-top-color: var(--red);
+    border-radius: 50%; animation: spin 0.75s linear infinite;
+  }
+  @keyframes spin { to { transform: rotate(360deg); } }
+
+  /* ── TOAST ── */
+  #toast {
+    position: fixed; bottom: 88px; left: 50%;
+    transform: translateX(-50%) translateY(8px);
+    background: var(--surface); border: 1px solid var(--border);
+    border-radius: 10px; padding: 9px 18px;
+    font-family: 'DM Sans', sans-serif; font-size: 0.78rem; color: var(--text);
+    box-shadow: 0 8px 30px rgba(0,0,0,0.4); z-index: 500;
+    opacity: 0; transition: opacity 0.2s, transform 0.2s;
+    pointer-events: none; white-space: nowrap;
+  }
+  #toast.show { opacity: 1; transform: translateX(-50%) translateY(0); }
+
+  /* ── KEYBOARD SHORTCUTS OVERLAY ── */
+  #shortcuts-overlay {
+    position: fixed; inset: 0; background: rgba(0,0,0,0.65);
+    z-index: 400; display: flex; align-items: center; justify-content: center;
+    backdrop-filter: blur(6px); animation: fadeIn 0.2s ease;
+  }
+  @keyframes fadeIn { from { opacity:0 } to { opacity:1 } }
+  .shortcuts-panel {
+    background: var(--surface); border: 1px solid var(--border);
+    border-radius: 18px; padding: 28px 24px; max-width: 360px; width: 90%;
+    box-shadow: 0 24px 60px rgba(0,0,0,0.5);
+  }
+  .shortcuts-panel h3 {
+    font-family: 'Cormorant Garamond', serif; font-size: 1.3rem;
+    font-weight: 700; margin-bottom: 18px; color: var(--text);
+  }
+  .shortcut-section {
+    font-size: 0.6rem; font-weight: 600; letter-spacing: 1.5px;
+    text-transform: uppercase; color: var(--gold); margin: 12px 0 6px;
+  }
+  .shortcut-row {
+    display: flex; justify-content: space-between; align-items: center;
+    padding: 5px 0; border-bottom: 1px solid rgba(255,255,255,0.05);
+    font-size: 0.78rem; color: var(--text-dim);
+  }
+  .shortcut-row kbd {
+    font-family: 'JetBrains Mono', monospace; font-size: 0.68rem;
+    background: var(--surface2); border: 1px solid var(--border);
+    border-radius: 5px; padding: 2px 7px; color: var(--gold);
+  }
+
+  /* ── GRAMMAR BREAKDOWN ── */
+  .grammar-wrong-list {
+    text-align: left; background: var(--surface2); border: 1px solid var(--border);
+    border-radius: 12px; padding: 14px; margin: 14px 0;
+    max-height: 220px; overflow-y: auto;
+    scrollbar-width: thin; scrollbar-color: var(--border) transparent;
+  }
+  .grammar-wrong-title {
+    font-size: 0.6rem; font-weight: 600; letter-spacing: 1.5px;
+    text-transform: uppercase; color: var(--muted); margin-bottom: 10px;
+  }
+  .grammar-wrong-item {
+    padding: 7px 0; border-bottom: 1px solid var(--border); font-size: 0.78rem;
+  }
+  .grammar-wrong-item:last-child { border-bottom: none; }
+  .grammar-wrong-answer { color: var(--green); font-size: 0.72rem; margin-top: 3px; }
+
+  /* ── DESKTOP: wider content + remove mobile bottom padding ── */
+  @media (min-width: 601px) {
+    .section { padding-bottom: 24px; max-width: 980px; padding-left: 28px; padding-right: 28px; }
+  }
+
+  /* ── 2-COLUMN WRITING LAYOUT (desktop) ── */
+  @media (min-width: 700px) {
+    html:has(#writing.active),
+    body:has(#writing.active) { overflow: hidden; }
+
+    #writing.active {
+      max-width: 980px;
+      display: grid;
+      grid-template-columns: 1fr 332px;
+      column-gap: 22px;
+      align-items: stretch;
+      height: calc(100dvh - 122px);
+      padding-bottom: 0;
+      overflow: hidden;
+    }
+    .writing-left {
+      min-height: 0;
+      overflow-y: auto;
+      padding-right: 6px;
+      padding-bottom: 32px;
+      scrollbar-width: thin;
+      scrollbar-color: var(--border) transparent;
+    }
+    .writing-left::-webkit-scrollbar { width: 4px; }
+    .writing-left::-webkit-scrollbar-thumb { background: var(--border); border-radius: 2px; }
+    #writing.active .writing-area { align-self: start; }
+  }
+</style>
+</head>
+<body>
+
+<header>
+  <h1><em>练习</em>中文</h1>
+  <p>Práctica de Chino · Curso 2025–2026</p>
+  <button class="header-help-btn" onclick="showShortcuts()" aria-label="Atajos de teclado">
+    <i data-lucide="keyboard" aria-hidden="true"></i>
+  </button>
+</header>
+
+<nav>
+  <button class="active" data-section="vocab" onclick="showSection('vocab')"><i data-lucide="layers"></i><span>词汇</span><span class="nav-es">Vocab.</span></button>
+  <button data-section="writing" onclick="showSection('writing')"><i data-lucide="pen-line"></i><span>汉字</span><span class="nav-es">Caracteres</span></button>
+  <button data-section="grammar" onclick="showSection('grammar')"><i data-lucide="list-checks"></i><span>语法</span><span class="nav-es">Gramática</span></button>
+</nav>
+
+<!-- ======================== VOCAB ======================== -->
+<div id="vocab" class="section active">
+  <div class="stats-row">
+    <div class="stat-box"><div class="stat-num" id="stat-learned">0</div><div class="stat-label">Conocidas</div></div>
+    <div class="stat-box"><div class="stat-num" id="stat-total">0</div><div class="stat-label">Total</div></div>
+  </div>
+  <div class="mastery-row">
+    <div class="mastery-label" id="mastery-label"></div>
+    <button class="btn-reset" onclick="confirmReset()" aria-label="Reiniciar progreso">Reiniciar</button>
+  </div>
+  <div class="mastery-bar-wrap"><div class="mastery-bar" id="mastery-bar" style="width:0%"></div></div>
+
+  <div class="filter-bar" id="category-filters"></div>
+
+  <div class="progress-bar-wrap"><div class="progress-bar" id="progress-bar" style="width:0%"></div></div>
+
+  <div class="card-nav">
+    <button class="btn-nav" id="btn-prev" onclick="prevCard()" aria-label="Tarjeta anterior">
+      <i data-lucide="chevron-left"></i>Anterior
+    </button>
+    <div class="card-nav-counter" id="progress-text"></div>
+    <button class="btn-nav" id="btn-next" onclick="nextCard()" aria-label="Tarjeta siguiente">
+      Siguiente<i data-lucide="chevron-right"></i>
+    </button>
+  </div>
+
+  <div class="flashcard-wrap">
+    <div class="flashcard" id="flashcard">
+      <button class="btn-known" id="btn-known" onclick="toggleKnown()" aria-label="Marcar como conocida">
+        <i data-lucide="check"></i>
+      </button>
+      <div class="card-content">
+        <div class="category-tag" id="card-cat"></div>
+        <div class="char-big" id="card-char"></div>
+        <div class="pinyin" id="card-pinyin"></div>
+        <div class="translation" id="card-translation"></div>
+        <div id="card-example" class="example-sentence" style="display:none"></div>
+      </div>
+    </div>
+  </div>
+
+  <div class="session-done" id="session-done" style="display:none">
+    <h2>¡Sesión completada!</h2>
+    <p>Has repasado todas las tarjetas de esta sesión.</p>
+    <button class="btn-primary" onclick="restartSession()"><i data-lucide="refresh-cw"></i>Otra ronda</button>
+  </div>
+</div>
+
+<!-- ======================== WRITING ======================== -->
+<div id="writing" class="section">
+  <!-- Left column: search + chips + character list -->
+  <div class="writing-left">
+    <div class="writing-search-wrap">
+      <i data-lucide="search" aria-hidden="true"></i>
+      <label for="writing-search" class="sr-only">Buscar caracteres</label>
+      <input type="text" id="writing-search" placeholder="Buscar carácter, pinyin o español..."
+        oninput="filterWriting(this.value)" autocomplete="off" spellcheck="false">
+      <button id="writing-search-clear" onclick="clearWritingSearch()" aria-label="Borrar búsqueda">
+        <i data-lucide="x" aria-hidden="true"></i>
+      </button>
+    </div>
+    <div class="writing-cat-bar" id="writing-cat-bar"></div>
+    <div id="char-selector"></div>
+  </div>
+
+  <!-- Right column: writing canvas -->
+  <div class="writing-area">
+    <!-- For single chars: big char + pinyin + meaning -->
+    <div id="single-char-display">
+      <h2 id="writing-char" style="font-size:4rem;margin-bottom:4px"></h2>
+      <div class="pinyin" id="writing-pinyin"></div>
+      <div class="meaning" id="writing-meaning"></div>
+    </div>
+    <!-- For compound words: full word header + dot navigation -->
+    <div id="compound-display" style="display:none">
+      <div style="margin-bottom:10px">
+        <span id="writing-word-full" style="font-size:1.8rem;font-weight:700"></span>
+        <span id="writing-word-pinyin" style="font-size:0.9rem;color:#c0392b;margin-left:8px"></span>
+        <div style="font-size:0.82rem;color:#888;margin-top:2px" id="writing-word-meaning"></div>
+      </div>
+      <!-- Dot nav: clickable -->
+      <div id="compound-dots" style="display:flex;justify-content:center;gap:10px;margin-bottom:10px"></div>
+      <!-- Current char label -->
+      <div style="font-size:0.8rem;color:#888" id="compound-char-label"></div>
+    </div>
+
+    <div id="hanzi-container"></div>
+    <div id="writing-status" style="font-size:0.8rem;color:#888;min-height:1.2em;margin-top:6px;text-align:center"></div>
+    <div class="writing-actions">
+      <div class="action-group" id="action-group-ver">
+        <div class="action-group-label">Ver</div>
+        <div class="action-group-row">
+          <div class="btn-split">
+            <button class="btn-secondary" id="btn-animate" onclick="toggleAnimate()"><i data-lucide="play"></i>Animar</button><button class="btn-secondary btn-split-loop" id="btn-loop-toggle" onclick="toggleLoopMode()" aria-label="Repetir en bucle"><i data-lucide="repeat"></i></button>
+          </div>
+          <button class="btn-secondary" onclick="resetChar()"><i data-lucide="eye"></i>Mostrar</button>
+        </div>
+      </div>
+      <div class="action-group action-group-practice">
+        <div class="action-group-label">Practicar</div>
+        <div class="action-group-row">
+          <button class="btn-secondary btn-hints" id="btn-quiz-hints" onclick="quizChar(true)"><i data-lucide="pencil"></i>Con guías</button>
+          <button class="btn-secondary btn-quiz" id="btn-quiz-free" onclick="quizChar(false)"><i data-lucide="target"></i>Sin guías</button>
+        </div>
+      </div>
+    </div>
+  </div>
+</div>
+
+<!-- ======================== GRAMMAR ======================== -->
+<div id="grammar" class="section">
+  <div class="grammar-nav">
+    <div>
+      <strong>Ejercicios de gramática</strong>
+    </div>
+    <div class="grammar-score" id="grammar-score">0 / 0</div>
+  </div>
+
+  <div class="filter-bar" id="grammar-filters"></div>
+
+  <div id="exercise-container"></div>
+
+  <div style="text-align:center;margin-top:16px">
+    <button class="btn-primary" id="next-exercise" onclick="nextExercise()"><i data-lucide="arrow-right"></i>Siguiente</button>
+  </div>
+</div>
+
+<script>
+// ================================================================
+// DATA
+// ================================================================
+const VOCAB = [
+  // Pronombres
+  {char:'我',pinyin:'wǒ',es:'yo',cat:'Pronombres'},
+  {char:'你',pinyin:'nǐ',es:'tú',cat:'Pronombres'},
+  {char:'您',pinyin:'nín',es:'usted (formal)',cat:'Pronombres'},
+  {char:'她',pinyin:'tā',es:'ella',cat:'Pronombres'},
+  {char:'他',pinyin:'tā',es:'él',cat:'Pronombres'},
+  {char:'它',pinyin:'tā',es:'ello / objeto',cat:'Pronombres'},
+  {char:'们',pinyin:'men',es:'sufijo plural (personas)',cat:'Pronombres'},
+  // Números
+  {char:'一',pinyin:'yī',es:'uno',cat:'Números'},
+  {char:'二',pinyin:'èr',es:'dos',cat:'Números'},
+  {char:'三',pinyin:'sān',es:'tres',cat:'Números'},
+  {char:'四',pinyin:'sì',es:'cuatro',cat:'Números'},
+  {char:'五',pinyin:'wǔ',es:'cinco',cat:'Números'},
+  {char:'六',pinyin:'liù',es:'seis',cat:'Números'},
+  {char:'七',pinyin:'qī',es:'siete',cat:'Números'},
+  {char:'八',pinyin:'bā',es:'ocho',cat:'Números'},
+  {char:'九',pinyin:'jiǔ',es:'nueve',cat:'Números'},
+  {char:'十',pinyin:'shí',es:'diez',cat:'Números'},
+  {char:'零',pinyin:'líng',es:'cero',cat:'Números'},
+  {char:'百',pinyin:'bǎi',es:'cien',cat:'Números'},
+  {char:'千',pinyin:'qiān',es:'mil',cat:'Números'},
+  // Verbos
+  {char:'在',pinyin:'zài',es:'estar / encontrarse',cat:'Verbos'},
+  {char:'是',pinyin:'shì',es:'ser',cat:'Verbos'},
+  {char:'用',pinyin:'yòng',es:'usar / utilizar',cat:'Verbos'},
+  {char:'行',pinyin:'xíng',es:'estar bien',cat:'Verbos'},
+  {char:'学',pinyin:'xué',es:'aprender',cat:'Verbos'},
+  {char:'练习',pinyin:'liànxí',es:'practicar',cat:'Verbos'},
+  {char:'学习',pinyin:'xuéxí',es:'estudiar',cat:'Verbos'},
+  {char:'上课',pinyin:'shàngkè',es:'asistir a clase',cat:'Verbos'},
+  {char:'吃',pinyin:'chī',es:'comer',cat:'Verbos'},
+  {char:'喝',pinyin:'hē',es:'beber',cat:'Verbos'},
+  {char:'请',pinyin:'qǐng',es:'invitar / pedir',cat:'Verbos'},
+  {char:'做',pinyin:'zuò',es:'hacer',cat:'Verbos'},
+  {char:'坐',pinyin:'zuò',es:'sentarse',cat:'Verbos'},
+  {char:'喜欢',pinyin:'xǐhuān',es:'gustar / amar',cat:'Verbos'},
+  {char:'想',pinyin:'xiǎng',es:'pensar / extrañar',cat:'Verbos'},
+  {char:'到',pinyin:'dào',es:'llegar / alcanzar',cat:'Verbos'},
+  {char:'进',pinyin:'jìn',es:'entrar',cat:'Verbos'},
+  {char:'来',pinyin:'lái',es:'venir',cat:'Verbos'},
+  {char:'去',pinyin:'qù',es:'ir',cat:'Verbos'},
+  {char:'走',pinyin:'zǒu',es:'irse / marchar',cat:'Verbos'},
+  {char:'见',pinyin:'jiàn',es:'ver / encontrarse',cat:'Verbos'},
+  {char:'看',pinyin:'kàn',es:'mirar / ver',cat:'Verbos'},
+  {char:'听',pinyin:'tīng',es:'escuchar',cat:'Verbos'},
+  {char:'说',pinyin:'shuō',es:'decir / hablar',cat:'Verbos'},
+  {char:'叫',pinyin:'jiào',es:'llamarse / llamar',cat:'Verbos'},
+  {char:'姓',pinyin:'xìng',es:'apellidarse',cat:'Verbos'},
+  {char:'要',pinyin:'yào',es:'querer / necesitar',cat:'Verbos'},
+  {char:'有',pinyin:'yǒu',es:'tener / haber',cat:'Verbos'},
+  {char:'可以',pinyin:'kěyǐ',es:'poder / estar permitido',cat:'Verbos'},
+  {char:'会',pinyin:'huì',es:'poder (capacidad mental)',cat:'Verbos'},
+  {char:'能',pinyin:'néng',es:'poder (capacidad física)',cat:'Verbos'},
+  {char:'问',pinyin:'wèn',es:'preguntar',cat:'Verbos'},
+  {char:'知道',pinyin:'zhīdào',es:'saber',cat:'Verbos'},
+  {char:'认识',pinyin:'rènshi',es:'conocer',cat:'Verbos'},
+  {char:'谢',pinyin:'xiè',es:'agradecer',cat:'Verbos'},
+  {char:'微笑',pinyin:'wēixiào',es:'sonreír',cat:'Verbos'},
+  {char:'握手',pinyin:'wòshǒu',es:'dar la mano',cat:'Verbos'},
+  // Adverbios
+  {char:'很',pinyin:'hěn',es:'muy',cat:'Adverbios'},
+  {char:'非常',pinyin:'fēicháng',es:'extremadamente',cat:'Adverbios'},
+  {char:'太',pinyin:'tài',es:'demasiado',cat:'Adverbios'},
+  {char:'不',pinyin:'bù',es:'no',cat:'Adverbios'},
+  {char:'也',pinyin:'yě',es:'también',cat:'Adverbios'},
+  {char:'最',pinyin:'zuì',es:'el más / más',cat:'Adverbios'},
+  {char:'都',pinyin:'dōu',es:'todos',cat:'Adverbios'},
+  {char:'再',pinyin:'zài',es:'de nuevo / otra vez (futuro)',cat:'Adverbios'},
+  {char:'还',pinyin:'hái',es:'aún / todavía',cat:'Adverbios'},
+  {char:'真',pinyin:'zhēn',es:'verdaderamente',cat:'Adverbios'},
+  {char:'一起',pinyin:'yíqǐ',es:'juntos',cat:'Adverbios'},
+  {char:'最近',pinyin:'zuìjìn',es:'últimamente',cat:'Adverbios'},
+  // Adjetivos
+  {char:'好',pinyin:'hǎo',es:'bueno',cat:'Adjetivos'},
+  {char:'忙',pinyin:'máng',es:'ocupado',cat:'Adjetivos'},
+  {char:'大',pinyin:'dà',es:'grande',cat:'Adjetivos'},
+  {char:'小',pinyin:'xiǎo',es:'pequeño',cat:'Adjetivos'},
+  {char:'对',pinyin:'duì',es:'correcto',cat:'Adjetivos'},
+  {char:'错',pinyin:'cuò',es:'incorrecto',cat:'Adjetivos'},
+  {char:'累',pinyin:'lèi',es:'cansado',cat:'Adjetivos'},
+  {char:'高兴',pinyin:'gāoxìng',es:'feliz',cat:'Adjetivos'},
+  {char:'渴',pinyin:'kě',es:'sediento',cat:'Adjetivos'},
+  {char:'饿',pinyin:'è',es:'hambriento',cat:'Adjetivos'},
+  {char:'老',pinyin:'lǎo',es:'viejo / mayor',cat:'Adjetivos'},
+  {char:'新',pinyin:'xīn',es:'nuevo',cat:'Adjetivos'},
+  {char:'贵',pinyin:'guì',es:'caro',cat:'Adjetivos'},
+  {char:'便宜',pinyin:'piányi',es:'barato',cat:'Adjetivos'},
+  {char:'多',pinyin:'duō',es:'mucho',cat:'Adjetivos'},
+  {char:'少',pinyin:'shǎo',es:'poco',cat:'Adjetivos'},
+  {char:'好吃',pinyin:'hǎochī',es:'delicioso',cat:'Adjetivos'},
+  {char:'快',pinyin:'kuài',es:'rápido',cat:'Adjetivos'},
+  {char:'漂亮',pinyin:'piàoliang',es:'bonita (femenino)',cat:'Adjetivos'},
+  {char:'帅',pinyin:'shuài',es:'guapo',cat:'Adjetivos'},
+  // Comida
+  {char:'饭',pinyin:'fàn',es:'comida / arroz',cat:'Comida'},
+  {char:'水',pinyin:'shuǐ',es:'agua',cat:'Comida'},
+  {char:'茶',pinyin:'chá',es:'té',cat:'Comida'},
+  {char:'咖啡',pinyin:'kāfēi',es:'café',cat:'Comida'},
+  {char:'牛奶',pinyin:'niúnǎi',es:'leche',cat:'Comida'},
+  {char:'米饭',pinyin:'mǐfàn',es:'arroz blanco cocido',cat:'Comida'},
+  {char:'饺子',pinyin:'jiǎozi',es:'gyoza / dumpling',cat:'Comida'},
+  {char:'面条',pinyin:'miàntiáo',es:'tallarines',cat:'Comida'},
+  {char:'包子',pinyin:'bāozi',es:'bao',cat:'Comida'},
+  {char:'面包',pinyin:'miànbāo',es:'pan',cat:'Comida'},
+  {char:'可乐',pinyin:'kělè',es:'cola',cat:'Comida'},
+  {char:'巧克力',pinyin:'qiǎokèlì',es:'chocolate',cat:'Comida'},
+  // Animales
+  {char:'猫',pinyin:'māo',es:'gato',cat:'Animales'},
+  {char:'狗',pinyin:'gǒu',es:'perro',cat:'Animales'},
+  {char:'牛',pinyin:'niú',es:'vaca',cat:'Animales'},
+  {char:'马',pinyin:'mǎ',es:'caballo',cat:'Animales'},
+  {char:'虎',pinyin:'hǔ',es:'tigre',cat:'Animales'},
+  {char:'龙',pinyin:'lóng',es:'dragón',cat:'Animales'},
+  {char:'兔子',pinyin:'tùzi',es:'conejo',cat:'Animales'},
+  {char:'猴子',pinyin:'hóuzi',es:'mono',cat:'Animales'},
+  {char:'羊',pinyin:'yáng',es:'cabra',cat:'Animales'},
+  {char:'猪',pinyin:'zhū',es:'cerdo',cat:'Animales'},
+  {char:'鸡',pinyin:'jī',es:'gallo / gallina',cat:'Animales'},
+  {char:'鹿',pinyin:'lù',es:'ciervo',cat:'Animales'},
+  // Profesiones
+  {char:'老师',pinyin:'lǎoshī',es:'profesor',cat:'Profesiones'},
+  {char:'学生',pinyin:'xuéshēng',es:'estudiante',cat:'Profesiones'},
+  {char:'医生',pinyin:'yīshēng',es:'doctor',cat:'Profesiones'},
+  {char:'律师',pinyin:'lǜshī',es:'abogado',cat:'Profesiones'},
+  {char:'记者',pinyin:'jìzhě',es:'reportero',cat:'Profesiones'},
+  {char:'演员',pinyin:'yǎnyuán',es:'actor',cat:'Profesiones'},
+  {char:'经理',pinyin:'jīnglǐ',es:'gerente',cat:'Profesiones'},
+  {char:'工程师',pinyin:'gōngchéngshī',es:'ingeniero',cat:'Profesiones'},
+  // Tiempo
+  {char:'今天',pinyin:'jīntiān',es:'hoy',cat:'Tiempo'},
+  {char:'昨天',pinyin:'zuótiān',es:'ayer',cat:'Tiempo'},
+  {char:'明天',pinyin:'míngtiān',es:'mañana',cat:'Tiempo'},
+  {char:'早上',pinyin:'zǎoshàng',es:'mañana temprana',cat:'Tiempo'},
+  {char:'上午',pinyin:'shàngwǔ',es:'mañana (horario)',cat:'Tiempo'},
+  {char:'下午',pinyin:'xiàwǔ',es:'tarde',cat:'Tiempo'},
+  {char:'晚上',pinyin:'wǎnshàng',es:'noche',cat:'Tiempo'},
+  {char:'中午',pinyin:'zhōngwǔ',es:'mediodía',cat:'Tiempo'},
+  {char:'年',pinyin:'nián',es:'año',cat:'Tiempo'},
+  {char:'月',pinyin:'yuè',es:'mes / luna',cat:'Tiempo'},
+  {char:'天',pinyin:'tiān',es:'día / cielo',cat:'Tiempo'},
+  {char:'现在',pinyin:'xiànzài',es:'ahora',cat:'Tiempo'},
+  // Lugares
+  {char:'学校',pinyin:'xuéxiào',es:'escuela',cat:'Lugares'},
+  {char:'大学',pinyin:'dàxué',es:'universidad',cat:'Lugares'},
+  {char:'图书馆',pinyin:'túshūguǎn',es:'biblioteca',cat:'Lugares'},
+  {char:'餐厅',pinyin:'cāntīng',es:'restaurante',cat:'Lugares'},
+  {char:'洗手间',pinyin:'xǐshǒujiān',es:'baño',cat:'Lugares'},
+  {char:'中国',pinyin:'zhōngguó',es:'China',cat:'Lugares'},
+  {char:'北京',pinyin:'běijīng',es:'Beijing',cat:'Lugares'},
+  {char:'上海',pinyin:'shànghǎi',es:'Shanghai',cat:'Lugares'},
+  {char:'西班牙',pinyin:'xībānyá',es:'España',cat:'Lugares'},
+  {char:'日本',pinyin:'rìběn',es:'Japón',cat:'Lugares'},
+  // Partículas
+  {char:'吗',pinyin:'ma',es:'¿? (pregunta directa)',cat:'Partículas'},
+  {char:'呢',pinyin:'ne',es:'¿? (pregunta de seguimiento)',cat:'Partículas'},
+  {char:'的',pinyin:'de',es:'posesión / relación',cat:'Partículas'},
+  {char:'吧',pinyin:'ba',es:'sugerencia / acuerdo',cat:'Partículas'},
+  {char:'了',pinyin:'le',es:'conclusión / cambio',cat:'Partículas'},
+  {char:'啊',pinyin:'a',es:'confirmación / énfasis',cat:'Partículas'},
+  // Clasificadores
+  {char:'个',pinyin:'gè',es:'clasificador general',cat:'Clasificadores'},
+  {char:'只',pinyin:'zhī',es:'para animales',cat:'Clasificadores'},
+  {char:'本',pinyin:'běn',es:'para libros',cat:'Clasificadores'},
+  {char:'张',pinyin:'zhāng',es:'para objetos planos',cat:'Clasificadores'},
+  {char:'杯',pinyin:'bēi',es:'para bebidas / taza',cat:'Clasificadores'},
+  {char:'辆',pinyin:'liàng',es:'para vehículos',cat:'Clasificadores'},
+  {char:'件',pinyin:'jiàn',es:'para ropa / asuntos',cat:'Clasificadores'},
+  {char:'条',pinyin:'tiáo',es:'para objetos largos',cat:'Clasificadores'},
+  {char:'岁',pinyin:'suì',es:'años (de edad)',cat:'Clasificadores'},
+  // Interrogativas
+  {char:'谁',pinyin:'shéi',es:'quién',cat:'Interrogativas'},
+  {char:'什么',pinyin:'shénme',es:'qué',cat:'Interrogativas'},
+  {char:'哪里',pinyin:'nǎlǐ',es:'dónde',cat:'Interrogativas'},
+  {char:'为什么',pinyin:'wèishénme',es:'por qué',cat:'Interrogativas'},
+  {char:'怎么样',pinyin:'zěnmeyàng',es:'cómo / qué tal',cat:'Interrogativas'},
+  {char:'几',pinyin:'jǐ',es:'cuántos (< 10)',cat:'Interrogativas'},
+  {char:'多少',pinyin:'duōshǎo',es:'cuántos (cualquier cantidad)',cat:'Interrogativas'},
+  {char:'哪',pinyin:'nǎ',es:'cuál',cat:'Interrogativas'},
+  // Partículas (faltantes)
+  {char:'呀',pinyin:'ya',es:'confirmación (tras vocal)',cat:'Partículas'},
+  {char:'嘛',pinyin:'ma',es:'para obviedades',cat:'Partículas'},
+  {char:'啦',pinyin:'la',es:'contracción de 了+啊',cat:'Partículas'},
+  // Determinantes
+  {char:'这',pinyin:'zhè',es:'este / esta',cat:'Determinantes'},
+  {char:'那',pinyin:'nà',es:'ese / esa',cat:'Determinantes'},
+  {char:'两',pinyin:'liǎng',es:'dos (con clasificador)',cat:'Determinantes'},
+  {char:'半',pinyin:'bàn',es:'mitad',cat:'Determinantes'},
+  {char:'每',pinyin:'měi',es:'cada / todo',cat:'Determinantes'},
+  // Adverbios (faltantes)
+  {char:'刚',pinyin:'gāng',es:'recién / justo ahora',cat:'Adverbios'},
+  {char:'才',pinyin:'cái',es:'únicamente / solo entonces',cat:'Adverbios'},
+  {char:'遍',pinyin:'biàn',es:'una vez (cantidad de veces)',cat:'Adverbios'},
+  {char:'更',pinyin:'gèng',es:'aún más / todavía más',cat:'Adverbios'},
+  // Adjetivos (faltantes)
+  {char:'困',pinyin:'kùn',es:'somnoliento',cat:'Adjetivos'},
+  {char:'女',pinyin:'nǚ',es:'femenino',cat:'Adjetivos'},
+  {char:'胖',pinyin:'pàng',es:'gordo',cat:'Adjetivos'},
+  {char:'白',pinyin:'bái',es:'blanco / claro',cat:'Adjetivos'},
+  {char:'黑',pinyin:'hēi',es:'negro',cat:'Adjetivos'},
+  {char:'红',pinyin:'hóng',es:'rojo',cat:'Adjetivos'},
+  {char:'黄',pinyin:'huáng',es:'amarillo',cat:'Adjetivos'},
+  {char:'早',pinyin:'zǎo',es:'temprano',cat:'Adjetivos'},
+  {char:'明',pinyin:'míng',es:'brillante / claro',cat:'Adjetivos'},
+  {char:'故',pinyin:'gù',es:'antiguo / viejo',cat:'Adjetivos'},
+  // Verbos (faltantes)
+  {char:'欲',pinyin:'yù',es:'querer / desear',cat:'Verbos'},
+  {char:'思',pinyin:'sī',es:'pensar en / añorar',cat:'Verbos'},
+  {char:'起',pinyin:'qǐ',es:'levantarse / empezar',cat:'Verbos'},
+  {char:'举',pinyin:'jǔ',es:'levantar / alzar',cat:'Verbos'},
+  {char:'低',pinyin:'dī',es:'bajar / inclinar',cat:'Verbos'},
+  {char:'没',pinyin:'méi',es:'no (pasado) / no tener',cat:'Verbos'},
+  {char:'吻',pinyin:'wěn',es:'besar',cat:'Verbos'},
+  {char:'疑',pinyin:'yí',es:'dudar / sospechar',cat:'Verbos'},
+  {char:'望',pinyin:'wàng',es:'contemplar / mirar a lo lejos',cat:'Verbos'},
+  {char:'依',pinyin:'yī',es:'apoyarse en / junto a',cat:'Verbos'},
+  {char:'入',pinyin:'rù',es:'entrar / ingresar',cat:'Verbos'},
+  {char:'流',pinyin:'liú',es:'fluir',cat:'Verbos'},
+  {char:'尽',pinyin:'jìn',es:'terminar / agotarse',cat:'Verbos'},
+  {char:'差',pinyin:'chà',es:'faltar / carecer',cat:'Verbos'},
+  {char:'穷',pinyin:'qióng',es:'agotar / llegar al límite',cat:'Verbos'},
+  // Posición
+  {char:'上',pinyin:'shàng',es:'arriba / antes / precedente',cat:'Posición'},
+  {char:'下',pinyin:'xià',es:'abajo / después',cat:'Posición'},
+  {char:'中',pinyin:'zhōng',es:'medio / centro',cat:'Posición'},
+  {char:'前',pinyin:'qián',es:'delante / antes',cat:'Posición'},
+  // Tiempo (faltantes)
+  {char:'分',pinyin:'fēn',es:'minuto',cat:'Tiempo'},
+  {char:'刻',pinyin:'kè',es:'cuarto de hora',cat:'Tiempo'},
+  {char:'钟',pinyin:'zhōng',es:'hora (con 点)',cat:'Tiempo'},
+  {char:'日',pinyin:'rì',es:'día / sol',cat:'Tiempo'},
+  // Clasificadores (faltantes)
+  {char:'支',pinyin:'zhī',es:'objetos largos rígidos',cat:'Clasificadores'},
+  {char:'把',pinyin:'bǎ',es:'objetos con mango',cat:'Clasificadores'},
+  {char:'些',pinyin:'xiē',es:'algunos / unos (con 一)',cat:'Clasificadores'},
+  {char:'台',pinyin:'tái',es:'para máquinas',cat:'Clasificadores'},
+  {char:'口',pinyin:'kǒu',es:'miembros de familia / bocas',cat:'Clasificadores'},
+  {char:'块',pinyin:'kuài',es:'trozos / pedazos',cat:'Clasificadores'},
+  {char:'份',pinyin:'fèn',es:'porciones',cat:'Clasificadores'},
+  {char:'片',pinyin:'piàn',es:'rebanadas / piezas',cat:'Clasificadores'},
+  {char:'部',pinyin:'bù',es:'secciones / departamentos',cat:'Clasificadores'},
+  {char:'层',pinyin:'céng',es:'pisos / niveles',cat:'Clasificadores'},
+  {char:'秒',pinyin:'miǎo',es:'segundos',cat:'Clasificadores'},
+  {char:'点',pinyin:'diǎn',es:'en punto (hora)',cat:'Clasificadores'},
+  // Naturaleza
+  {char:'英',pinyin:'yīng',es:'florecimiento / flor',cat:'Naturaleza'},
+  {char:'山',pinyin:'shān',es:'montaña',cat:'Naturaleza'},
+  {char:'木',pinyin:'mù',es:'árbol / madera',cat:'Naturaleza'},
+  {char:'林',pinyin:'lín',es:'arboleda',cat:'Naturaleza'},
+  {char:'森',pinyin:'sēn',es:'bosque denso',cat:'Naturaleza'},
+  {char:'云',pinyin:'yún',es:'nube',cat:'Naturaleza'},
+  {char:'地',pinyin:'dì',es:'tierra / suelo',cat:'Naturaleza'},
+  {char:'霜',pinyin:'shuāng',es:'escarcha',cat:'Naturaleza'},
+  {char:'河',pinyin:'hé',es:'río',cat:'Naturaleza'},
+  {char:'海',pinyin:'hǎi',es:'mar',cat:'Naturaleza'},
+  {char:'光',pinyin:'guāng',es:'luz / resplandor',cat:'Naturaleza'},
+  {char:'乡',pinyin:'xiāng',es:'tierra natal / pueblo',cat:'Naturaleza'},
+  // Animales (faltante)
+  {char:'蛇',pinyin:'shé',es:'serpiente',cat:'Animales'},
+  // Familia
+  {char:'家',pinyin:'jiā',es:'familia / casa',cat:'Familia'},
+  {char:'妈妈',pinyin:'māma',es:'mamá',cat:'Familia'},
+  {char:'爸爸',pinyin:'bàba',es:'papá',cat:'Familia'},
+  {char:'孩子',pinyin:'háizi',es:'niño / hijo',cat:'Familia'},
+  {char:'儿子',pinyin:'érzi',es:'hijo',cat:'Familia'},
+  {char:'女儿',pinyin:"nǚ'er",es:'hija',cat:'Familia'},
+  {char:'哥哥',pinyin:'gēge',es:'hermano mayor',cat:'Familia'},
+  {char:'弟弟',pinyin:'dìdi',es:'hermano menor',cat:'Familia'},
+  {char:'姐姐',pinyin:'jiějie',es:'hermana mayor',cat:'Familia'},
+  {char:'妹妹',pinyin:'mèimei',es:'hermana menor',cat:'Familia'},
+  {char:'爷爷',pinyin:'yéye',es:'abuelo paterno',cat:'Familia'},
+  {char:'奶奶',pinyin:'nǎinai',es:'abuela paterna',cat:'Familia'},
+  {char:'外公',pinyin:'wàigōng',es:'abuelo materno',cat:'Familia'},
+  {char:'外婆',pinyin:'wàipó',es:'abuela materna',cat:'Familia'},
+  {char:'朋友',pinyin:'péngyǒu',es:'amigo',cat:'Familia'},
+  {char:'女朋友',pinyin:'nǚpéngyǒu',es:'novia',cat:'Familia'},
+  {char:'男朋友',pinyin:'nánpéngyǒu',es:'novio',cat:'Familia'},
+  {char:'先生',pinyin:'xiānshēng',es:'señor',cat:'Familia'},
+  {char:'太太',pinyin:'tàitai',es:'señora / esposa',cat:'Familia'},
+  {char:'小姐',pinyin:'xiǎojiě',es:'señorita',cat:'Familia'},
+  // Países (faltantes)
+  {char:'人',pinyin:'rén',es:'persona',cat:'Países'},
+  {char:'国',pinyin:'guó',es:'país',cat:'Países'},
+  {char:'英国',pinyin:'yīngguó',es:'Inglaterra',cat:'Países'},
+  {char:'美国',pinyin:'měiguó',es:'EEUU',cat:'Países'},
+  {char:'加拿大',pinyin:'jiānádà',es:'Canadá',cat:'Países'},
+  {char:'澳大利亚',pinyin:'àodàlìyǎ',es:'Australia',cat:'Países'},
+  {char:'法国',pinyin:'fǎguó',es:'Francia',cat:'Países'},
+  {char:'德国',pinyin:'déguó',es:'Alemania',cat:'Países'},
+  {char:'意大利',pinyin:'yìdàlì',es:'Italia',cat:'Países'},
+  {char:'印度',pinyin:'yìndù',es:'India',cat:'Países'},
+  {char:'泰国',pinyin:'tàiguó',es:'Tailandia',cat:'Países'},
+  {char:'俄罗斯',pinyin:'èluósī',es:'Rusia',cat:'Países'},
+  {char:'韩国',pinyin:'hánguó',es:'Corea del Sur',cat:'Países'},
+  {char:'埃及',pinyin:'āijí',es:'Egipto',cat:'Países'},
+  {char:'阿根廷',pinyin:'āgēntíng',es:'Argentina',cat:'Países'},
+  // Lugares (faltantes)
+  {char:'小学',pinyin:'xiǎoxué',es:'primaria',cat:'Lugares'},
+  {char:'初中',pinyin:'chūzhōng',es:'secundaria',cat:'Lugares'},
+  {char:'宿舍楼',pinyin:'sùshèlóu',es:'edificio de residencias',cat:'Lugares'},
+  // Comida (faltantes)
+  {char:'菜',pinyin:'cài',es:'plato típico / verdura',cat:'Comida'},
+  {char:'盘子',pinyin:'pánzi',es:'plato de cerámica',cat:'Comida'},
+  {char:'豆浆',pinyin:'dòujiāng',es:'leche de soja',cat:'Comida'},
+  {char:'橙汁',pinyin:'chéngzhī',es:'zumo de naranja',cat:'Comida'},
+  {char:'比萨饼',pinyin:'bǐsàbǐng',es:'pizza',cat:'Comida'},
+  {char:'汉堡包',pinyin:'hànbǎobāo',es:'hamburguesa',cat:'Comida'},
+  {char:'东西',pinyin:'dōngxi',es:'cosa / objeto',cat:'Comida'},
+  // Varios / Objetos
+  {char:'目',pinyin:'mù',es:'ojo',cat:'Varios'},
+  {char:'王',pinyin:'wáng',es:'rey',cat:'Varios'},
+  {char:'匕',pinyin:'bǐ',es:'daga',cat:'Varios'},
+  {char:'弓',pinyin:'gōng',es:'arco',cat:'Varios'},
+  {char:'贝',pinyin:'bèi',es:'crustáceo / concha',cat:'Varios'},
+  {char:'玉',pinyin:'yù',es:'jade',cat:'Varios'},
+  {char:'头',pinyin:'tóu',es:'cabeza',cat:'Varios'},
+  {char:'床',pinyin:'chuáng',es:'cama',cat:'Varios'},
+  {char:'里',pinyin:'lǐ',es:'li (medida china)',cat:'Varios'},
+  {char:'楼',pinyin:'lóu',es:'edificio / torre',cat:'Varios'},
+  {char:'话',pinyin:'huà',es:'idioma / palabra',cat:'Varios'},
+  {char:'课',pinyin:'kè',es:'clase / asignatura',cat:'Varios'},
+  {char:'班',pinyin:'bān',es:'clase / turno',cat:'Varios'},
+  {char:'照片',pinyin:'zhàopiàn',es:'foto',cat:'Varios'},
+  {char:'钢琴',pinyin:'gāngqín',es:'piano',cat:'Varios'},
+  {char:'电影',pinyin:'diànyǐng',es:'película',cat:'Varios'},
+  {char:'电话',pinyin:'diànhuà',es:'teléfono',cat:'Varios'},
+  {char:'电脑',pinyin:'diànnǎo',es:'ordenador',cat:'Varios'},
+  {char:'活动',pinyin:'huódòng',es:'actividad / evento',cat:'Varios'},
+  {char:'名字',pinyin:'míngzi',es:'nombre',cat:'Varios'},
+  {char:'工作',pinyin:'gōngzuò',es:'trabajo',cat:'Varios'},
+  // Profesiones (faltantes)
+  {char:'同学',pinyin:'tóngxué',es:'compañero de clase',cat:'Profesiones'},
+  {char:'服务员',pinyin:'fúwùyuán',es:'camarero',cat:'Profesiones'},
+  {char:'商人',pinyin:'shāngrén',es:'comerciante',cat:'Profesiones'},
+  // Idioma
+  {char:'汉语',pinyin:'hànyǔ',es:'chino hablado',cat:'Idioma'},
+  {char:'中文',pinyin:'zhōngwén',es:'chino escrito',cat:'Idioma'},
+  {char:'普通话',pinyin:'pǔtōnghuà',es:'mandarín',cat:'Idioma'},
+  // Tiempo (faltantes)
+  {char:'去年',pinyin:'qùnián',es:'año pasado',cat:'Tiempo'},
+  {char:'今年',pinyin:'jīnnián',es:'este año',cat:'Tiempo'},
+  {char:'明年',pinyin:'míngnián',es:'año que viene',cat:'Tiempo'},
+  {char:'午夜',pinyin:'wǔyè',es:'medianoche',cat:'Tiempo'},
+  {char:'小时',pinyin:'xiǎoshí',es:'hora (duración)',cat:'Tiempo'},
+  {char:'时间',pinyin:'shíjiān',es:'tiempo',cat:'Tiempo'},
+  // Verbos (faltantes)
+  {char:'点头',pinyin:'diǎntóu',es:'asentir con la cabeza',cat:'Verbos'},
+  {char:'招手',pinyin:'zhāoshǒu',es:'saludar con la mano',cat:'Verbos'},
+  {char:'抱拳',pinyin:'bàoquán',es:'saludo tradicional (puño envuelto)',cat:'Verbos'},
+  {char:'鞠躬',pinyin:'jūgōng',es:'inclinarse (reverencia)',cat:'Verbos'},
+  {char:'对了',pinyin:'duìle',es:'a propósito / bueno / sí',cat:'Verbos'},
+  // Adverbios (faltantes)
+  {char:'特别',pinyin:'tèbié',es:'especialmente',cat:'Adverbios'},
+  {char:'一共',pinyin:'yīgòng',es:'en total',cat:'Adverbios'},
+  {char:'恐怕',pinyin:'kǒngpà',es:'me temo que',cat:'Adverbios'},
+  // Familia (faltantes)
+  {char:'姑娘',pinyin:'gūniáng',es:'jovencita / chica',cat:'Familia'},
+  {char:'新娘',pinyin:'xīnniáng',es:'novia / prometida',cat:'Familia'},
+  {char:'男人',pinyin:'nánrén',es:'hombre',cat:'Familia'},
+  {char:'女人',pinyin:'nǚrén',es:'mujer',cat:'Familia'},
+  {char:'公子',pinyin:'gōngzǐ',es:'jovencito / hijo de noble',cat:'Familia'},
+  {char:'兄弟',pinyin:'xiōngdì',es:'hermanos',cat:'Familia'},
+  {char:'姐妹',pinyin:'jiěmèi',es:'hermanas',cat:'Familia'},
+  {char:'外祖母',pinyin:'wàizǔmǔ',es:'abuela materna (formal)',cat:'Familia'},
+  {char:'祖母',pinyin:'zǔmǔ',es:'abuela paterna (formal)',cat:'Familia'},
+  {char:'姥姥',pinyin:'lǎolao',es:'abuela materna (coloquial norte)',cat:'Familia'},
+  {char:'贵姓',pinyin:'guìxìng',es:'¿cómo se apellida usted? (formal)',cat:'Familia'},
+  // Posición (faltantes)
+  {char:'左边',pinyin:'zuǒbiān',es:'izquierda',cat:'Posición'},
+  {char:'右边',pinyin:'yòubiān',es:'derecha',cat:'Posición'},
+  // Animales (faltantes)
+  {char:'动物',pinyin:'dòngwù',es:'animal',cat:'Animales'},
+  {char:'老鼠',pinyin:'lǎoshǔ',es:'rata / ratón',cat:'Animales'},
+  {char:'蜜蜂',pinyin:'mìfēng',es:'abeja',cat:'Animales'},
+];
+
+// ================================================================
+// PINYIN LOOKUP
+// ================================================================
+const _pinyinMap = Object.fromEntries(VOCAB.map(v => [v.char, v.pinyin]));
+function pinyinFor(char) { return _pinyinMap[char] || ''; }
+
+// ================================================================
+// EXAMPLE SENTENCES
+// ================================================================
+const EXAMPLES = {
+  // Pronombres
+  '我':   {zh:'我是学生。',              py:'Wǒ shì xuéshēng。',                    es:'Soy estudiante.'},
+  '你':   {zh:'你好吗？',               py:'Nǐ hǎo ma？',                          es:'¿Estás bien?'},
+  '您':   {zh:'您好，请坐！',            py:'Nín hǎo, qǐng zuò！',                  es:'Buenos días, siéntese.'},
+  '她':   {zh:'她是我的老师。',          py:'Tā shì wǒ de lǎoshī。',                es:'Ella es mi profesora.'},
+  '他':   {zh:'他很忙。',               py:'Tā hěn máng。',                         es:'Él está muy ocupado.'},
+  '它':   {zh:'它是我的猫。',            py:'Tā shì wǒ de māo。',                   es:'Es mi gato.'},
+  // Números
+  '一':   {zh:'我有一个朋友。',          py:'Wǒ yǒu yī gè péngyǒu。',              es:'Tengo un amigo.'},
+  '二':   {zh:'我有二十岁。',            py:'Wǒ yǒu èrshí suì。',                   es:'Tengo veinte años.'},
+  '三':   {zh:'这有三只猫。',            py:'Zhè yǒu sān zhī māo。',               es:'Aquí hay tres gatos.'},
+  '四':   {zh:'我家有四口人。',          py:'Wǒ jiā yǒu sì kǒu rén。',             es:'Mi familia tiene cuatro miembros.'},
+  '五':   {zh:'他有五本书。',            py:'Tā yǒu wǔ běn shū。',                  es:'Él tiene cinco libros.'},
+  '六':   {zh:'今天六号。',              py:'Jīntiān liù hào。',                    es:'Hoy es día seis.'},
+  '七':   {zh:'一周有七天。',            py:'Yī zhōu yǒu qī tiān。',               es:'Una semana tiene siete días.'},
+  '八':   {zh:'八月天气很热。',          py:'Bā yuè tiānqì hěn rè。',               es:'En agosto hace mucho calor.'},
+  '九':   {zh:'他九岁了。',              py:'Tā jiǔ suì le。',                       es:'Él tiene nueve años.'},
+  '十':   {zh:'我有十本书。',            py:'Wǒ yǒu shí běn shū。',                es:'Tengo diez libros.'},
+  '零':   {zh:'零度很冷。',              py:'Líng dù hěn lěng。',                   es:'Cero grados es muy frío.'},
+  '百':   {zh:'这个一百块。',            py:'Zhège yī bǎi kuài。',                  es:'Esto cuesta cien yuanes.'},
+  '千':   {zh:'一千个学生。',            py:'Yī qiān gè xuéshēng。',               es:'Mil estudiantes.'},
+  // Verbos
+  '在':   {zh:'他在学校。',              py:'Tā zài xuéxiào。',                     es:'Él está en la escuela.'},
+  '是':   {zh:'我是学生。',              py:'Wǒ shì xuéshēng。',                    es:'Soy estudiante.'},
+  '学':   {zh:'我学中文。',              py:'Wǒ xué zhōngwén。',                    es:'Estudio chino.'},
+  '学习': {zh:'他每天学习两小时。',       py:'Tā měitiān xuéxí liǎng xiǎoshí。',    es:'Él estudia dos horas al día.'},
+  '吃':   {zh:'我喜欢吃饺子。',          py:'Wǒ xǐhuān chī jiǎozi。',              es:'Me gustan los dumplings.'},
+  '喝':   {zh:'他喝茶。',               py:'Tā hē chá。',                           es:'Él bebe té.'},
+  '请':   {zh:'请坐！',                 py:'Qǐng zuò！',                            es:'¡Por favor, siéntese!'},
+  '做':   {zh:'你在做什么？',            py:'Nǐ zài zuò shénme？',                  es:'¿Qué estás haciendo?'},
+  '坐':   {zh:'请坐。',                 py:'Qǐng zuò。',                            es:'Por favor, siéntese.'},
+  '喜欢': {zh:'我喜欢中国菜。',          py:'Wǒ xǐhuān zhōngguó cài。',            es:'Me gusta la comida china.'},
+  '想':   {zh:'我想喝茶。',              py:'Wǒ xiǎng hē chá。',                    es:'Quiero beber té.'},
+  '来':   {zh:'他来了。',               py:'Tā lái le。',                           es:'Él ha llegado.'},
+  '去':   {zh:'我去学校。',              py:'Wǒ qù xuéxiào。',                      es:'Voy a la escuela.'},
+  '看':   {zh:'我看电影。',              py:'Wǒ kàn diànyǐng。',                    es:'Veo películas.'},
+  '听':   {zh:'我听音乐。',              py:'Wǒ tīng yīnyuè。',                     es:'Escucho música.'},
+  '说':   {zh:'他说中文。',              py:'Tā shuō zhōngwén。',                   es:'Él habla chino.'},
+  '叫':   {zh:'我叫小明。',              py:'Wǒ jiào Xiǎo Míng。',                  es:'Me llamo Xiao Ming.'},
+  '要':   {zh:'我要一杯茶。',            py:'Wǒ yào yī bēi chá。',                  es:'Quiero una taza de té.'},
+  '有':   {zh:'我有一只猫。',            py:'Wǒ yǒu yī zhī māo。',                 es:'Tengo un gato.'},
+  '会':   {zh:'他会说西班牙语。',         py:'Tā huì shuō xībānyáyǔ。',             es:'Él sabe hablar español.'},
+  '能':   {zh:'我能去。',               py:'Wǒ néng qù。',                          es:'Puedo ir.'},
+  '知道': {zh:'我知道了。',              py:'Wǒ zhīdào le。',                        es:'Ya lo sé.'},
+  '可以': {zh:'我可以进来吗？',          py:'Wǒ kěyǐ jìnlái ma？',                 es:'¿Puedo entrar?'},
+  // Adverbios
+  '很':   {zh:'我很好。',               py:'Wǒ hěn hǎo。',                          es:'Estoy muy bien.'},
+  '不':   {zh:'我不饿。',               py:'Wǒ bù è。',                             es:'No tengo hambre.'},
+  '也':   {zh:'我也是学生。',            py:'Wǒ yě shì xuéshēng。',                 es:'Yo también soy estudiante.'},
+  '都':   {zh:'我们都是朋友。',          py:'Wǒmen dōu shì péngyǒu。',              es:'Todos somos amigos.'},
+  '再':   {zh:'再见！',                 py:'Zàijiàn！',                             es:'¡Hasta luego!'},
+  '还':   {zh:'他还在学习。',            py:'Tā hái zài xuéxí。',                   es:'Él sigue estudiando.'},
+  '非常': {zh:'这里非常漂亮。',          py:'Zhèlǐ fēicháng piàoliang。',            es:'Aquí es extremadamente bonito.'},
+  '太':   {zh:'这个太贵了。',            py:'Zhège tài guì le。',                   es:'Esto es demasiado caro.'},
+  '最':   {zh:'他是最好的学生。',         py:'Tā shì zuì hǎo de xuéshēng。',        es:'Él es el mejor estudiante.'},
+  // Adjetivos
+  '好':   {zh:'他的中文很好。',          py:'Tā de zhōngwén hěn hǎo。',             es:'Su chino es muy bueno.'},
+  '忙':   {zh:'今天我很忙。',            py:'Jīntiān wǒ hěn máng。',               es:'Hoy estoy muy ocupado.'},
+  '大':   {zh:'这个学校很大。',          py:'Zhège xuéxiào hěn dà。',               es:'Esta escuela es muy grande.'},
+  '小':   {zh:'这只猫很小。',            py:'Zhè zhī māo hěn xiǎo。',              es:'Este gato es muy pequeño.'},
+  '累':   {zh:'我今天很累。',            py:'Wǒ jīntiān hěn lèi。',                es:'Hoy estoy muy cansado.'},
+  '高兴': {zh:'我很高兴见到你。',         py:'Wǒ hěn gāoxìng jiàn dào nǐ。',       es:'Me alegra conocerte.'},
+  '饿':   {zh:'我很饿。',               py:'Wǒ hěn è。',                            es:'Tengo mucha hambre.'},
+  '渴':   {zh:'你渴吗？',               py:'Nǐ kě ma？',                            es:'¿Tienes sed?'},
+  '好吃': {zh:'这个菜很好吃！',          py:'Zhège cài hěn hǎochī！',               es:'¡Este plato está muy rico!'},
+  '漂亮': {zh:'她非常漂亮。',            py:'Tā fēicháng piàoliang。',              es:'Ella es muy bonita.'},
+  '对':   {zh:'你说得对。',              py:'Nǐ shuō de duì。',                     es:'Tienes razón.'},
+  '快':   {zh:'你走得很快。',            py:'Nǐ zǒu de hěn kuài。',                es:'Caminas muy rápido.'},
+  '贵':   {zh:'这个太贵了。',            py:'Zhège tài guì le。',                   es:'Esto es demasiado caro.'},
+  '便宜': {zh:'这里的菜很便宜。',         py:'Zhèlǐ de cài hěn piányi。',           es:'La comida aquí es muy barata.'},
+  // Partículas
+  '吗':   {zh:'你是学生吗？',            py:'Nǐ shì xuéshēng ma？',                es:'¿Eres estudiante?'},
+  '呢':   {zh:'你呢？',                 py:'Nǐ ne？',                               es:'¿Y tú?'},
+  '的':   {zh:'这是我的书。',            py:'Zhè shì wǒ de shū。',                  es:'Este es mi libro.'},
+  '吧':   {zh:'你是学生吧？',            py:'Nǐ shì xuéshēng ba？',                es:'Eres estudiante, ¿verdad?'},
+  '了':   {zh:'他来了。',               py:'Tā lái le。',                           es:'Él ya ha llegado.'},
+  // Interrogativas
+  '谁':   {zh:'他是谁？',               py:'Tā shì shéi？',                         es:'¿Quién es él?'},
+  '什么': {zh:'这是什么？',              py:'Zhè shì shénme？',                      es:'¿Qué es esto?'},
+  '哪里': {zh:'你在哪里？',              py:'Nǐ zài nǎlǐ？',                        es:'¿Dónde estás?'},
+  '为什么':{zh:'你为什么学中文？',        py:'Nǐ wèishénme xué zhōngwén？',         es:'¿Por qué estudias chino?'},
+  '怎么样':{zh:'最近怎么样？',           py:'Zuìjìn zěnmeyàng？',                   es:'¿Cómo estás últimamente?'},
+  '几':   {zh:'你有几本书？',            py:'Nǐ yǒu jǐ běn shū？',                 es:'¿Cuántos libros tienes?'},
+  '多少': {zh:'这个多少钱？',            py:'Zhège duōshǎo qián？',                 es:'¿Cuánto cuesta esto?'},
+  // Familia
+  '家':   {zh:'我家有四口人。',          py:'Wǒ jiā yǒu sì kǒu rén。',             es:'Mi familia tiene cuatro miembros.'},
+  '妈妈': {zh:'我妈妈是老师。',          py:'Wǒ māma shì lǎoshī。',                es:'Mi madre es profesora.'},
+  '爸爸': {zh:'我爸爸在家。',            py:'Wǒ bàba zài jiā。',                   es:'Mi padre está en casa.'},
+  '孩子': {zh:'他们有两个孩子。',         py:'Tāmen yǒu liǎng gè háizi。',          es:'Ellos tienen dos hijos.'},
+  '朋友': {zh:'他是我的好朋友。',         py:'Tā shì wǒ de hǎo péngyǒu。',         es:'Él es mi buen amigo.'},
+  '女儿': {zh:'她是我的女儿。',          py:'Tā shì wǒ de nǚ\'ér。',               es:'Ella es mi hija.'},
+  '儿子': {zh:'我儿子很聪明。',          py:'Wǒ érzi hěn cōngmíng。',              es:'Mi hijo es muy listo.'},
+  // Tiempo
+  '今天': {zh:'今天天气很好。',          py:'Jīntiān tiānqì hěn hǎo。',             es:'Hoy hace buen tiempo.'},
+  '明天': {zh:'明天见！',               py:'Míngtiān jiàn！',                       es:'¡Hasta mañana!'},
+  '昨天': {zh:'昨天我很忙。',            py:'Zuótiān wǒ hěn máng。',               es:'Ayer estaba muy ocupado.'},
+  '现在': {zh:'现在几点？',              py:'Xiànzài jǐ diǎn？',                    es:'¿Qué hora es ahora?'},
+  '早上': {zh:'早上好！',               py:'Zǎoshàng hǎo！',                        es:'¡Buenos días!'},
+  '晚上': {zh:'晚上好！',               py:'Wǎnshàng hǎo！',                        es:'¡Buenas noches!'},
+  '上午': {zh:'上午十点见。',            py:'Shàngwǔ shí diǎn jiàn。',             es:'Nos vemos a las diez de la mañana.'},
+  '下午': {zh:'下午我有课。',            py:'Xiàwǔ wǒ yǒu kè。',                   es:'Por la tarde tengo clase.'},
+  '中午': {zh:'中午吃饭了吗？',          py:'Zhōngwǔ chīfàn le ma？',              es:'¿Has comido al mediodía?'},
+  // Lugares
+  '学校': {zh:'我每天去学校。',          py:'Wǒ měitiān qù xuéxiào。',             es:'Voy a la escuela todos los días.'},
+  '餐厅': {zh:'我们去餐厅吃饭吧。',       py:'Wǒmen qù cāntīng chīfàn ba。',        es:'Vamos a comer al restaurante.'},
+  '中国': {zh:'我想去中国旅游。',         py:'Wǒ xiǎng qù zhōngguó lǚyóu。',       es:'Quiero viajar a China.'},
+  '图书馆':{zh:'我在图书馆学习。',        py:'Wǒ zài túshūguǎn xuéxí。',            es:'Estudio en la biblioteca.'},
+  // Profesiones
+  '老师': {zh:'她是一个好老师。',         py:'Tā shì yī gè hǎo lǎoshī。',          es:'Ella es una buena profesora.'},
+  '学生': {zh:'我是大学生。',            py:'Wǒ shì dàxuéshēng。',                 es:'Soy universitario.'},
+  '医生': {zh:'他是医生。',              py:'Tā shì yīshēng。',                     es:'Él es médico.'},
+  // Comida
+  '饭':   {zh:'我们一起吃饭吧。',         py:'Wǒmen yīqǐ chīfàn ba。',             es:'Comamos juntos.'},
+  '水':   {zh:'我想喝水。',              py:'Wǒ xiǎng hē shuǐ。',                  es:'Quiero beber agua.'},
+  '茶':   {zh:'请喝茶。',               py:'Qǐng hē chá。',                         es:'Por favor, tome té.'},
+  '米饭': {zh:'我喜欢吃米饭。',          py:'Wǒ xǐhuān chī mǐfàn。',              es:'Me gusta el arroz.'},
+  '饺子': {zh:'这个饺子很好吃。',         py:'Zhège jiǎozi hěn hǎochī。',           es:'Estos dumplings están muy ricos.'},
+  '咖啡': {zh:'我喜欢喝咖啡。',          py:'Wǒ xǐhuān hē kāfēi。',               es:'Me gusta el café.'},
+  // Varios
+  '工作': {zh:'我的工作很好。',          py:'Wǒ de gōngzuò hěn hǎo。',             es:'Mi trabajo es muy bueno.'},
+  '电话': {zh:'你的电话是多少？',         py:'Nǐ de diànhuà shì duōshǎo？',         es:'¿Cuál es tu teléfono?'},
+  '电影': {zh:'我们去看电影吧。',         py:'Wǒmen qù kàn diànyǐng ba。',          es:'Vamos a ver una película.'},
+  '名字': {zh:'你的名字叫什么？',         py:'Nǐ de míngzi jiào shénme？',          es:'¿Cómo te llamas?'},
+  // Idioma
+  '汉语': {zh:'我在学汉语。',            py:'Wǒ zài xué hànyǔ。',                  es:'Estoy aprendiendo chino.'},
+  '中文': {zh:'他的中文很好。',          py:'Tā de zhōngwén hěn hǎo。',             es:'Su chino es muy bueno.'},
+  '普通话':{zh:'他会说普通话。',          py:'Tā huì shuō pǔtōnghuà。',             es:'Él sabe hablar mandarín.'},
+  // Naturaleza
+  '山':   {zh:'这座山很高。',            py:'Zhè zuò shān hěn gāo。',              es:'Esta montaña es muy alta.'},
+  '海':   {zh:'我喜欢大海。',            py:'Wǒ xǐhuān dàhǎi。',                   es:'Me gusta el mar.'},
+  '云':   {zh:'今天云很多。',            py:'Jīntiān yún hěn duō。',               es:'Hoy hay muchas nubes.'},
+  '地':   {zh:'地上很脏。',              py:'Dì shàng hěn zāng。',                 es:'El suelo está muy sucio.'},
+  '河':   {zh:'河里的水很清澈。',         py:'Hé lǐ de shuǐ hěn qīngchè。',        es:'El agua del río es muy clara.'},
+  '光':   {zh:'太阳光很强。',            py:'Tàiyáng guāng hěn qiáng。',           es:'La luz del sol es muy intensa.'},
+  '林':   {zh:'树林里很安静。',          py:'Shùlín lǐ hěn ānjìng。',              es:'El bosque es muy tranquilo.'},
+  '森':   {zh:'森林里有很多动物。',       py:'Sēnlín lǐ yǒu hěn duō dòngwù。',     es:'En el bosque hay muchos animales.'},
+  '乡':   {zh:'我的家乡在农村。',        py:'Wǒ de jiāxiāng zài nóngcūn。',        es:'Mi tierra natal está en el campo.'},
+  '霜':   {zh:'冬天早上有霜。',          py:'Dōngtiān zǎoshang yǒu shuāng。',      es:'En invierno hay escarcha por la mañana.'},
+  // Animales
+  '猫':   {zh:'我有一只猫。',            py:'Wǒ yǒu yī zhī māo。',                es:'Tengo un gato.'},
+  '狗':   {zh:'他的狗很可爱。',          py:'Tā de gǒu hěn kě\'ài。',              es:'Su perro es muy adorable.'},
+  '牛':   {zh:'农场里有很多牛。',        py:'Nóngchǎng lǐ yǒu hěn duō niú。',      es:'En la granja hay muchas vacas.'},
+  '马':   {zh:'他喜欢骑马。',            py:'Tā xǐhuān qí mǎ。',                   es:'Le gusta montar a caballo.'},
+  '虎':   {zh:'老虎很危险。',            py:'Lǎohǔ hěn wēixiǎn。',                 es:'Los tigres son muy peligrosos.'},
+  '龙':   {zh:'龙是中国的象征。',        py:'Lóng shì zhōngguó de xiàngzhēng。',    es:'El dragón es el símbolo de China.'},
+  '兔子': {zh:'这只兔子很可爱。',        py:'Zhè zhī tùzi hěn kě\'ài。',            es:'Este conejo es muy adorable.'},
+  '猴子': {zh:'猴子会爬树。',            py:'Hóuzi huì pá shù。',                  es:'Los monos saben trepar árboles.'},
+  '羊':   {zh:'草地上有很多羊。',        py:'Cǎodì shàng yǒu hěn duō yáng。',      es:'En el prado hay muchas ovejas.'},
+  '猪':   {zh:'猪在农场里。',            py:'Zhū zài nóngchǎng lǐ。',              es:'El cerdo está en la granja.'},
+  '鸡':   {zh:'早上鸡叫了。',            py:'Zǎoshang jī jiào le。',               es:'Por la mañana cantó el gallo.'},
+  '鹿':   {zh:'森林里有鹿。',            py:'Sēnlín lǐ yǒu lù。',                  es:'En el bosque hay ciervos.'},
+  '蛇':   {zh:'我怕蛇。',               py:'Wǒ pà shé。',                          es:'Le tengo miedo a las serpientes.'},
+  '动物': {zh:'我喜欢动物。',            py:'Wǒ xǐhuān dòngwù。',                  es:'Me gustan los animales.'},
+  '老鼠': {zh:'家里有老鼠。',            py:'Jiā lǐ yǒu lǎoshǔ。',                 es:'Hay ratones en casa.'},
+  '蜜蜂': {zh:'蜜蜂在采花蜜。',          py:'Mìfēng zài cǎi huāmì。',              es:'Las abejas están recogiendo néctar.'},
+  // Familia (adicionales)
+  '们':   {zh:'他们都是学生。',          py:'Tāmen dōu shì xuéshēng。',             es:'Todos ellos son estudiantes.'},
+  '哥哥': {zh:'我哥哥在北京工作。',      py:'Wǒ gēge zài běijīng gōngzuò。',       es:'Mi hermano mayor trabaja en Beijing.'},
+  '弟弟': {zh:'我弟弟很调皮。',          py:'Wǒ dìdi hěn tiáopí。',                es:'Mi hermano menor es muy travieso.'},
+  '姐姐': {zh:'我姐姐是医生。',          py:'Wǒ jiějie shì yīshēng。',             es:'Mi hermana mayor es médica.'},
+  '妹妹': {zh:'我妹妹今年五岁。',        py:'Wǒ mèimei jīnnián wǔ suì。',          es:'Mi hermana menor tiene cinco años.'},
+  '爷爷': {zh:'爷爷每天散步。',          py:'Yéye měitiān sànbù。',                 es:'El abuelo pasea todos los días.'},
+  '奶奶': {zh:'奶奶做的饺子很好吃。',    py:'Nǎinai zuò de jiǎozi hěn hǎochī。',   es:'Los dumplings de la abuela están riquísimos.'},
+  '外公': {zh:'外公住在上海。',          py:'Wàigōng zhù zài shànghǎi。',           es:'El abuelo materno vive en Shanghái.'},
+  '外婆': {zh:'我很想念外婆。',          py:'Wǒ hěn xiǎngniàn wàipó。',            es:'Echo mucho de menos a mi abuela materna.'},
+  '女朋友':{zh:'他有女朋友了。',          py:'Tā yǒu nǚpéngyǒu le。',               es:'Él ya tiene novia.'},
+  '男朋友':{zh:'她男朋友很帅。',          py:'Tā nánpéngyǒu hěn shuài。',           es:'Su novio es muy guapo.'},
+  '先生': {zh:'请问，先生贵姓？',         py:'Qǐngwèn, xiānshēng guìxìng？',       es:'Disculpe, ¿cómo se apellida, señor?'},
+  '太太': {zh:'他太太很漂亮。',          py:'Tā tàitai hěn piàoliang。',            es:'Su esposa es muy bonita.'},
+  '小姐': {zh:'小姐，请问洗手间在哪？',   py:'Xiǎojiě, qǐngwèn xǐshǒujiān zài nǎ？', es:'Señorita, ¿dónde está el baño?'},
+  '男人': {zh:'那个男人是我爸爸。',      py:'Nàgè nánrén shì wǒ bàba。',            es:'Ese hombre es mi padre.'},
+  '女人': {zh:'那个女人是我妈妈。',      py:'Nàgè nǚrén shì wǒ māma。',             es:'Esa mujer es mi madre.'},
+  '兄弟': {zh:'我们是好兄弟。',          py:'Wǒmen shì hǎo xiōngdì。',             es:'Somos buenos hermanos.'},
+  '姐妹': {zh:'她们是姐妹。',            py:'Tāmen shì jiěmèi。',                   es:'Ellas son hermanas.'},
+  '贵姓': {zh:'请问您贵姓？',            py:'Qǐngwèn nín guìxìng？',               es:'¿Cómo se apellida usted?'},
+  '姑娘': {zh:'那个姑娘很漂亮。',        py:'Nàgè gūniáng hěn piàoliang。',         es:'Esa chica es muy bonita.'},
+  // Determinantes
+  '这':   {zh:'这是我的书。',            py:'Zhè shì wǒ de shū。',                 es:'Este es mi libro.'},
+  '那':   {zh:'那个人是谁？',            py:'Nàgè rén shì shéi？',                 es:'¿Quién es esa persona?'},
+  '两':   {zh:'我有两个苹果。',          py:'Wǒ yǒu liǎng gè píngguǒ。',           es:'Tengo dos manzanas.'},
+  '半':   {zh:'我喝了半杯水。',          py:'Wǒ hē le bàn bēi shuǐ。',             es:'Bebí medio vaso de agua.'},
+  '每':   {zh:'我每天学习中文。',        py:'Wǒ měitiān xuéxí zhōngwén。',          es:'Estudio chino todos los días.'},
+  // Posición
+  '上':   {zh:'书在桌子上。',            py:'Shū zài zhuōzi shàng。',              es:'El libro está sobre la mesa.'},
+  '下':   {zh:'猫在桌子下。',            py:'Māo zài zhuōzi xià。',                es:'El gato está debajo de la mesa.'},
+  '中':   {zh:'学校在城市中心。',        py:'Xuéxiào zài chéngshì zhōngxīn。',      es:'La escuela está en el centro.'},
+  '前':   {zh:'银行在学校前面。',        py:'Yínháng zài xuéxiào qiánmiàn。',       es:'El banco está delante de la escuela.'},
+  '左边': {zh:'银行在左边。',            py:'Yínháng zài zuǒbiān。',               es:'El banco está a la izquierda.'},
+  '右边': {zh:'学校在右边。',            py:'Xuéxiào zài yòubiān。',               es:'La escuela está a la derecha.'},
+  // Adjetivos (adicionales)
+  '错':   {zh:'对不起，我错了。',        py:'Duìbuqǐ, wǒ cuò le。',                es:'Lo siento, me equivoqué.'},
+  '老':   {zh:'他的老师很老了。',        py:'Tā de lǎoshī hěn lǎo le。',            es:'Su profesor es muy mayor.'},
+  '新':   {zh:'我买了一件新衣服。',      py:'Wǒ mǎi le yī jiàn xīn yīfú。',        es:'Compré una ropa nueva.'},
+  '多':   {zh:'今天人很多。',            py:'Jīntiān rén hěn duō。',               es:'Hoy hay mucha gente.'},
+  '少':   {zh:'这里水很少。',            py:'Zhèlǐ shuǐ hěn shǎo。',               es:'Aquí hay muy poca agua.'},
+  '帅':   {zh:'他很帅。',               py:'Tā hěn shuài。',                        es:'Él es muy guapo.'},
+  '困':   {zh:'我很困，想睡觉。',        py:'Wǒ hěn kùn, xiǎng shuìjiào。',         es:'Tengo mucho sueño, quiero dormir.'},
+  '白':   {zh:'雪是白色的。',            py:'Xuě shì báisè de。',                   es:'La nieve es blanca.'},
+  '黑':   {zh:'天黑了。',               py:'Tiān hēi le。',                         es:'Ya ha anochecido.'},
+  '红':   {zh:'她穿着红色的裙子。',      py:'Tā chuānzhe hóngsè de qúnzi。',        es:'Ella lleva una falda roja.'},
+  '黄':   {zh:'香蕉是黄色的。',          py:'Xiāngjiāo shì huángsè de。',           es:'El plátano es amarillo.'},
+  '早':   {zh:'今天起得很早。',          py:'Jīntiān qǐ de hěn zǎo。',             es:'Hoy me levanté muy temprano.'},
+  '胖':   {zh:'他最近胖了。',            py:'Tā zuìjìn pàng le。',                  es:'Últimamente ha engordado.'},
+  '女':   {zh:'她是一位女医生。',        py:'Tā shì yī wèi nǚ yīshēng。',           es:'Ella es una médica.'},
+  // Adverbios (adicionales)
+  '真':   {zh:'这真的很好吃！',          py:'Zhè zhēn de hěn hǎochī！',             es:'¡Esto está de verdad muy rico!'},
+  '一起': {zh:'我们一起去吧。',          py:'Wǒmen yīqǐ qù ba。',                  es:'Vamos juntos.'},
+  '最近': {zh:'最近你怎么样？',          py:'Zuìjìn nǐ zěnmeyàng？',               es:'¿Cómo estás últimamente?'},
+  '刚':   {zh:'我刚到。',               py:'Wǒ gāng dào。',                         es:'Acabo de llegar.'},
+  '才':   {zh:'他才来。',               py:'Tā cái lái。',                          es:'Solo entonces llegó.'},
+  '特别': {zh:'这道菜特别好吃。',        py:'Zhè dào cài tèbié hǎochī。',           es:'Este plato está especialmente rico.'},
+  '更':   {zh:'今天比昨天更冷。',        py:'Jīntiān bǐ zuótiān gèng lěng。',       es:'Hoy hace más frío que ayer.'},
+  // Tiempo (adicionales)
+  '年':   {zh:'今年是好年。',            py:'Jīnnián shì hǎo nián。',               es:'Este es un buen año.'},
+  '月':   {zh:'一年有十二个月。',        py:'Yī nián yǒu shí\'èr gè yuè。',         es:'Un año tiene doce meses.'},
+  '天':   {zh:'一周有七天。',            py:'Yī zhōu yǒu qī tiān。',               es:'Una semana tiene siete días.'},
+  '分':   {zh:'现在三点十分。',          py:'Xiànzài sān diǎn shí fēn。',           es:'Ahora son las tres y diez.'},
+  '刻':   {zh:'现在三点一刻。',          py:'Xiànzài sān diǎn yī kè。',             es:'Ahora son las tres y cuarto.'},
+  '钟':   {zh:'等我五分钟。',            py:'Děng wǒ wǔ fēnzhōng。',               es:'Espérame cinco minutos.'},
+  '日':   {zh:'今天是几日？',            py:'Jīntiān shì jǐ rì？',                  es:'¿A qué día estamos hoy?'},
+  '去年': {zh:'去年我去了中国。',        py:'Qùnián wǒ qù le zhōngguó。',           es:'El año pasado fui a China.'},
+  '今年': {zh:'今年我要学中文。',        py:'Jīnnián wǒ yào xué zhōngwén。',        es:'Este año quiero estudiar chino.'},
+  '明年': {zh:'明年我去北京。',          py:'Míngnián wǒ qù běijīng。',             es:'El año que viene voy a Beijing.'},
+  '小时': {zh:'我睡了八个小时。',        py:'Wǒ shuì le bā gè xiǎoshí。',           es:'Dormí ocho horas.'},
+  '时间': {zh:'我没有时间。',            py:'Wǒ méiyǒu shíjiān。',                  es:'No tengo tiempo.'},
+  '午夜': {zh:'现在已经是午夜了。',      py:'Xiànzài yǐjīng shì wǔyè le。',         es:'Ya es medianoche.'},
+  // Lugares (adicionales)
+  '大学': {zh:'我在大学学习中文。',      py:'Wǒ zài dàxué xuéxí zhōngwén。',        es:'Estudio chino en la universidad.'},
+  '洗手间':{zh:'洗手间在哪里？',          py:'Xǐshǒujiān zài nǎlǐ？',               es:'¿Dónde está el baño?'},
+  '北京': {zh:'北京是中国的首都。',      py:'Běijīng shì zhōngguó de shǒudū。',     es:'Beijing es la capital de China.'},
+  '上海': {zh:'上海很繁华。',            py:'Shànghǎi hěn fánhuá。',               es:'Shanghái es muy próspero.'},
+  '西班牙':{zh:'西班牙在欧洲。',          py:'Xībānyá zài ōuzhōu。',                es:'España está en Europa.'},
+  '日本': {zh:'日本的食物很好吃。',      py:'Rìběn de shíwù hěn hǎochī。',          es:'La comida japonesa es muy rica.'},
+  '小学': {zh:'我在小学学了六年。',      py:'Wǒ zài xiǎoxué xué le liù nián。',     es:'Estudié seis años en la primaria.'},
+  '初中': {zh:'我哥哥在上初中。',        py:'Wǒ gēge zài shàng chūzhōng。',         es:'Mi hermano está en secundaria.'},
+  '宿舍楼':{zh:'我住在宿舍楼里。',        py:'Wǒ zhù zài sùshèlóu lǐ。',            es:'Vivo en el edificio de residencias.'},
+  // Países
+  '人':   {zh:'他是中国人。',            py:'Tā shì zhōngguó rén。',               es:'Él es chino.'},
+  '国':   {zh:'你是哪个国的人？',        py:'Nǐ shì nǎgè guó de rén？',             es:'¿De qué país eres?'},
+  '英国': {zh:'他来自英国。',            py:'Tā láizì yīngguó。',                   es:'Él viene de Inglaterra.'},
+  '美国': {zh:'她在美国学习。',          py:'Tā zài měiguó xuéxí。',               es:'Ella estudia en Estados Unidos.'},
+  '法国': {zh:'我想去法国旅游。',        py:'Wǒ xiǎng qù fǎguó lǚyóu。',           es:'Quiero viajar a Francia.'},
+  '德国': {zh:'德国的啤酒很有名。',      py:'Déguó de píjiǔ hěn yǒumíng。',         es:'La cerveza alemana es muy famosa.'},
+  '韩国': {zh:'我喜欢韩国电影。',        py:'Wǒ xǐhuān hánguó diànyǐng。',         es:'Me gustan las películas coreanas.'},
+  '加拿大':{zh:'加拿大很冷。',            py:'Jiānádà hěn lěng。',                   es:'Canadá es muy frío.'},
+  '澳大利亚':{zh:'澳大利亚有袋鼠。',     py:'Àodàlìyǎ yǒu dàishǔ。',               es:'Australia tiene canguros.'},
+  '意大利':{zh:'意大利的披萨很有名。',    py:'Yìdàlì de pīsà hěn yǒumíng。',         es:'La pizza italiana es muy famosa.'},
+  '俄罗斯':{zh:'俄罗斯很大。',            py:'Èluósī hěn dà。',                      es:'Rusia es muy grande.'},
+  '印度': {zh:'印度的咖喱很好吃。',      py:'Yìndù de gālí hěn hǎochī。',           es:'El curry indio está muy rico.'},
+  '泰国': {zh:'泰国的食物很辣。',        py:'Tàiguó de shíwù hěn là。',             es:'La comida tailandesa es muy picante.'},
+  '埃及': {zh:'埃及有金字塔。',          py:'Āijí yǒu jīnzìtǎ。',                  es:'Egipto tiene pirámides.'},
+  '阿根廷':{zh:'阿根廷的足球很有名。',    py:'Āgēntíng de zúqiú hěn yǒumíng。',     es:'El fútbol argentino es muy famoso.'},
+  // Clasificadores
+  '个':   {zh:'我要一个苹果。',          py:'Wǒ yào yī gè píngguǒ。',              es:'Quiero una manzana.'},
+  '只':   {zh:'她有三只猫。',            py:'Tā yǒu sān zhī māo。',                es:'Ella tiene tres gatos.'},
+  '本':   {zh:'我买了两本书。',          py:'Wǒ mǎi le liǎng běn shū。',           es:'Compré dos libros.'},
+  '张':   {zh:'请给我一张纸。',          py:'Qǐng gěi wǒ yī zhāng zhǐ。',          es:'Por favor, dame una hoja de papel.'},
+  '杯':   {zh:'我喝了两杯茶。',          py:'Wǒ hē le liǎng bēi chá。',            es:'Bebí dos tazas de té.'},
+  '辆':   {zh:'他买了一辆新车。',        py:'Tā mǎi le yī liàng xīn chē。',        es:'Él compró un coche nuevo.'},
+  '件':   {zh:'我买了一件新衣服。',      py:'Wǒ mǎi le yī jiàn xīn yīfú。',        es:'Compré una ropa nueva.'},
+  '条':   {zh:'我有一条狗。',            py:'Wǒ yǒu yī tiáo gǒu。',               es:'Tengo un perro.'},
+  '岁':   {zh:'我今年二十岁。',          py:'Wǒ jīnnián èrshí suì。',              es:'Este año tengo veinte años.'},
+  '块':   {zh:'这块蛋糕很好吃。',        py:'Zhè kuài dàngāo hěn hǎochī。',        es:'Este trozo de tarta está muy rico.'},
+  '点':   {zh:'现在八点整。',            py:'Xiànzài bā diǎn zhěng。',             es:'Ahora son las ocho en punto.'},
+  '台':   {zh:'我有一台电脑。',          py:'Wǒ yǒu yī tái diànnǎo。',            es:'Tengo un ordenador.'},
+  '口':   {zh:'我家有三口人。',          py:'Wǒ jiā yǒu sān kǒu rén。',           es:'Mi familia tiene tres miembros.'},
+  '些':   {zh:'我想吃一些饺子。',        py:'Wǒ xiǎng chī yīxiē jiǎozi。',         es:'Quiero comer algunos dumplings.'},
+  '秒':   {zh:'等我十秒钟。',            py:'Děng wǒ shí miǎo zhōng。',            es:'Espérame diez segundos.'},
+  // Interrogativas (adicional)
+  '哪':   {zh:'你去哪？',               py:'Nǐ qù nǎ？',                           es:'¿Adónde vas?'},
+  // Partículas (adicionales)
+  '啊':   {zh:'好啊！',                 py:'Hǎo a！',                              es:'¡Perfecto!'},
+  '啦':   {zh:'走啦！',                 py:'Zǒu la！',                             es:'¡Vámonos!'},
+  // Comida (adicionales)
+  '牛奶': {zh:'我每天喝牛奶。',          py:'Wǒ měitiān hē niúnǎi。',              es:'Bebo leche todos los días.'},
+  '面条': {zh:'这碗面条很好吃。',        py:'Zhè wǎn miàntiáo hěn hǎochī。',        es:'Este tazón de fideos está muy rico.'},
+  '包子': {zh:'早上我吃了两个包子。',    py:'Zǎoshang wǒ chī le liǎng gè bāozi。', es:'Por la mañana comí dos baos.'},
+  '面包': {zh:'我买了一块面包。',        py:'Wǒ mǎi le yī kuài miànbāo。',          es:'Compré un pan.'},
+  '可乐': {zh:'你要可乐还是茶？',        py:'Nǐ yào kělè háishì chá？',             es:'¿Quieres cola o té?'},
+  '巧克力':{zh:'我喜欢吃巧克力。',        py:'Wǒ xǐhuān chī qiǎokèlì。',            es:'Me gusta el chocolate.'},
+  '菜':   {zh:'这道菜很好吃。',          py:'Zhè dào cài hěn hǎochī。',            es:'Este plato está muy rico.'},
+  '东西': {zh:'你在吃什么东西？',        py:'Nǐ zài chī shénme dōngxi？',           es:'¿Qué estás comiendo?'},
+  '豆浆': {zh:'豆浆对身体很好。',        py:'Dòujiāng duì shēntǐ hěn hǎo。',        es:'La leche de soja es muy buena.'},
+  '橙汁': {zh:'我要一杯橙汁。',          py:'Wǒ yào yī bēi chéngzhī。',            es:'Quiero un vaso de zumo de naranja.'},
+  '比萨饼':{zh:'你喜欢吃比萨饼吗？',      py:'Nǐ xǐhuān chī bǐsàbǐng ma？',         es:'¿Te gusta la pizza?'},
+  '汉堡包':{zh:'他喜欢吃汉堡包。',        py:'Tā xǐhuān chī hànbǎobāo。',           es:'Le gustan las hamburguesas.'},
+  '盘子': {zh:'盘子在桌子上。',          py:'Pánzi zài zhuōzi shàng。',            es:'El plato está sobre la mesa.'},
+  // Profesiones (adicionales)
+  '律师': {zh:'他是一名律师。',          py:'Tā shì yī míng lǜshī。',              es:'Él es abogado.'},
+  '同学': {zh:'他是我的同学。',          py:'Tā shì wǒ de tóngxué。',              es:'Él es mi compañero de clase.'},
+  '服务员':{zh:'服务员，买单！',          py:'Fúwùyuán, mǎidān！',                  es:'¡Camarero, la cuenta!'},
+  '经理': {zh:'他是公司的经理。',        py:'Tā shì gōngsī de jīnglǐ。',            es:'Él es el gerente de la empresa.'},
+  '工程师':{zh:'她是软件工程师。',        py:'Tā shì ruǎnjiàn gōngchéngshī。',      es:'Ella es ingeniera de software.'},
+  '记者': {zh:'他是新闻记者。',          py:'Tā shì xīnwén jìzhě。',               es:'Él es periodista.'},
+  '演员': {zh:'她是著名演员。',          py:'Tā shì zhùmíng yǎnyuán。',            es:'Ella es una actriz famosa.'},
+  '商人': {zh:'他是一个商人。',          py:'Tā shì yī gè shāngrén。',             es:'Él es un comerciante.'},
+  // Verbos (adicionales)
+  '用':   {zh:'我用手机学中文。',        py:'Wǒ yòng shǒujī xué zhōngwén。',        es:'Uso el móvil para estudiar chino.'},
+  '行':   {zh:'这样行吗？',              py:'Zhèyàng xíng ma？',                    es:'¿Esto está bien?'},
+  '练习': {zh:'我每天练习写汉字。',      py:'Wǒ měitiān liànxí xiě hànzì。',        es:'Practico escritura de caracteres cada día.'},
+  '上课': {zh:'我们八点上课。',          py:'Wǒmen bā diǎn shàngkè。',             es:'Tenemos clase a las ocho.'},
+  '到':   {zh:'我到了！',               py:'Wǒ dào le！',                           es:'¡Ya llegué!'},
+  '进':   {zh:'请进！',                 py:'Qǐng jìn！',                            es:'¡Pase!'},
+  '走':   {zh:'我们走吧。',              py:'Wǒmen zǒu ba。',                       es:'Vámonos.'},
+  '见':   {zh:'明天见！',               py:'Míngtiān jiàn！',                       es:'¡Hasta mañana!'},
+  '姓':   {zh:'您贵姓？',               py:'Nín guìxìng？',                         es:'¿Cómo se apellida usted?'},
+  '问':   {zh:'我想问你一个问题。',      py:'Wǒ xiǎng wèn nǐ yī gè wèntí。',        es:'Quiero hacerte una pregunta.'},
+  '认识': {zh:'很高兴认识你。',          py:'Hěn gāoxìng rènshi nǐ。',              es:'Encantado de conocerte.'},
+  '谢':   {zh:'谢谢你的帮助。',          py:'Xièxiè nǐ de bāngzhù。',              es:'Gracias por tu ayuda.'},
+  '没':   {zh:'我没有时间。',            py:'Wǒ méiyǒu shíjiān。',                  es:'No tengo tiempo.'},
+  // Varios (adicionales)
+  '话':   {zh:'你说的话我不明白。',      py:'Nǐ shuō de huà wǒ bù míngbái。',       es:'No entiendo lo que dices.'},
+  '课':   {zh:'今天的课很有意思。',      py:'Jīntiān de kè hěn yǒu yìsi。',         es:'La clase de hoy es muy interesante.'},
+  '班':   {zh:'我们班有三十个学生。',    py:'Wǒmen bān yǒu sānshí gè xuéshēng。',  es:'En nuestra clase hay treinta estudiantes.'},
+  '照片': {zh:'这张照片很漂亮。',        py:'Zhè zhāng zhàopiàn hěn piàoliang。',   es:'Esta foto es muy bonita.'},
+  '电脑': {zh:'我用电脑工作。',          py:'Wǒ yòng diànnǎo gōngzuò。',           es:'Trabajo con el ordenador.'},
+  '活动': {zh:'明天有学校活动。',        py:'Míngtiān yǒu xuéxiào huódòng。',       es:'Mañana hay una actividad escolar.'},
+  '床':   {zh:'我的床很舒服。',          py:'Wǒ de chuáng hěn shūfú。',            es:'Mi cama es muy cómoda.'},
+  '楼':   {zh:'我住在三楼。',            py:'Wǒ zhù zài sān lóu。',                es:'Vivo en el tercer piso.'},
+  '钢琴': {zh:'她会弹钢琴。',            py:'Tā huì tán gāngqín。',                 es:'Ella sabe tocar el piano.'},
+  // Verbos de saludo y gesto
+  '微笑': {zh:'她微笑着说你好。',        py:'Tā wēixiào zhe shuō nǐ hǎo。',         es:'Ella sonrió y dijo hola.'},
+  '握手': {zh:'他们握手问好。',          py:'Tāmen wòshǒu wènhǎo。',               es:'Se dieron la mano para saludarse.'},
+  '点头': {zh:'他点头表示同意。',        py:'Tā diǎntóu biǎoshì tóngyì。',           es:'Asintió con la cabeza para mostrar acuerdo.'},
+  '招手': {zh:'她向我招手。',            py:'Tā xiàng wǒ zhāoshǒu。',               es:'Ella me saludó con la mano.'},
+  '抱拳': {zh:'他抱拳行礼。',            py:'Tā bàoquán xínglǐ。',                  es:'Él saludó con el puño envuelto.'},
+  '鞠躬': {zh:'学生向老师鞠躬。',        py:'Xuéshēng xiàng lǎoshī jūgōng。',       es:'El estudiante se inclinó ante el profesor.'},
+  '对了': {zh:'对了，你吃饭了吗？',      py:'Duì le, nǐ chīfàn le ma？',             es:'A propósito, ¿has comido ya?'},
+  // Partículas
+  '呀':   {zh:'好呀！',                 py:'Hǎo ya！',                              es:'¡Claro que sí!'},
+  '嘛':   {zh:'这很简单嘛。',            py:'Zhè hěn jiǎndān ma。',                  es:'Es sencillo, obviamente.'},
+  // Adverbios
+  '遍':   {zh:'请再说一遍。',            py:'Qǐng zài shuō yī biàn。',              es:'Por favor, dilo una vez más.'},
+  '一共': {zh:'一共多少钱？',            py:'Yīgòng duōshǎo qián？',               es:'¿Cuánto es en total?'},
+  '恐怕': {zh:'恐怕我今天不能去。',      py:'Kǒngpà wǒ jīntiān bù néng qù。',       es:'Me temo que hoy no puedo ir.'},
+  // Varios comunes
+  '头':   {zh:'我头很痛。',              py:'Wǒ tóu hěn tòng。',                    es:'Me duele mucho la cabeza.'},
+  '里':   {zh:'书包里有什么？',          py:'Shūbāo lǐ yǒu shénme？',              es:'¿Qué hay dentro de la mochila?'},
+  // Familia
+  '新娘': {zh:'新娘穿着白色婚纱。',      py:'Xīnniáng chuānzhe báisè hūnshā。',     es:'La novia lleva un vestido blanco.'},
+  '姥姥': {zh:'我姥姥住在北京。',        py:'Wǒ lǎolao zhù zài běijīng。',          es:'Mi abuela materna vive en Beijing.'},
+};
+
+function renderExample(vocab, el) {
+  if (!el) return;
+  const ex = EXAMPLES[vocab.char];
+  if (!ex) { el.innerHTML = ''; el.style.display = 'none'; return; }
+  const hl = `<span style="color:var(--red);font-weight:700;font-family:'Noto Serif SC',serif">${vocab.char}</span>`;
+  const zhHl = ex.zh.split(vocab.char).join(hl);
+  el.innerHTML = `<div class="example-zh">${zhHl}</div><div class="example-py">${ex.py}</div><div class="example-es">${ex.es}</div>`;
+  el.style.display = 'block';
+}
+
+// ================================================================
+// STATE
+// ================================================================
+let state = JSON.parse(localStorage.getItem('chino-state') || '{}');
+// state[char] = { level: 0, nextReview: 0 }
+// level: 0=new, 1=learning, 2=known
+
+function saveState() { localStorage.setItem('chino-state', JSON.stringify(state)); }
+
+// ================================================================
+// NAVIGATION
+// ================================================================
+const SECTION_HASH = { vocab: '#vocab', writing: '#characters', grammar: '#grammar' };
+const HASH_SECTION = { '#vocab': 'vocab', '#characters': 'writing', '#grammar': 'grammar' };
+
+function navigateTo(id) {
+  document.querySelectorAll('.section').forEach(s => s.classList.remove('active'));
+  document.querySelectorAll('nav button').forEach(b => b.classList.remove('active'));
+  document.getElementById(id).classList.add('active');
+  const navBtn = document.querySelector(`nav button[data-section="${id}"]`);
+  if (navBtn) navBtn.classList.add('active');
+  if (id === 'vocab') initVocab();
+  if (id === 'writing') initWriting();
+  if (id === 'grammar') initGrammar();
+  lucide.createIcons();
+}
+
+function showSection(id) {
+  history.pushState({ section: id }, '', SECTION_HASH[id] || '#vocab');
+  navigateTo(id);
+}
+
+window.addEventListener('popstate', e => {
+  const id = (e.state && e.state.section) || HASH_SECTION[location.hash] || 'vocab';
+  navigateTo(id);
+});
+
+// ================================================================
+// VOCAB / FLASHCARDS
+// ================================================================
+let currentQueue = [];
+let currentIdx = 0;
+let currentCard = null;
+let activeCategory = 'Todas';
+let onlyUnknown = false;
+
+function getCategories() {
+  const cats = [...new Set(VOCAB.map(v => v.cat))];
+  return ['Todas', ...cats];
+}
+
+function getQueue(cat) {
+  let pool = cat === 'Todas' ? VOCAB : VOCAB.filter(v => v.cat === cat);
+  if (onlyUnknown) pool = pool.filter(v => !(state[v.char] || {}).known);
+  return pool.slice();
+}
+
+function initVocab() {
+  const cats = getCategories();
+  const bar = document.getElementById('category-filters');
+  bar.innerHTML = '';
+  cats.forEach(cat => {
+    const btn = document.createElement('button');
+    btn.textContent = cat;
+    btn.className = cat === activeCategory ? 'active' : '';
+    btn.onclick = () => { activeCategory = cat; restartSession(); initVocab(); };
+    bar.appendChild(btn);
+  });
+  const tog = document.createElement('button');
+  tog.id = 'btn-only-unknown';
+  tog.textContent = 'Solo por aprender';
+  tog.className = 'btn-only-unknown' + (onlyUnknown ? ' active' : '');
+  tog.onclick = toggleOnlyUnknown;
+  bar.appendChild(tog);
+  restartSession();
+}
+
+function restartSession() {
+  currentQueue = getQueue(activeCategory);
+  currentIdx = 0;
+  document.getElementById('session-done').style.display = 'none';
+  document.getElementById('flashcard').style.display = 'flex';
+  updateStats();
+  showCard();
+}
+
+function updateStats() {
+  const known = VOCAB.filter(v => (state[v.char] || {}).known).length;
+  document.getElementById('stat-learned').textContent = known;
+  document.getElementById('stat-total').textContent = VOCAB.length;
+  const pct = Math.round((known / VOCAB.length) * 100);
+  document.getElementById('mastery-bar').style.width = pct + '%';
+  document.getElementById('mastery-label').textContent =
+    `${pct}% conocidas · ${VOCAB.length - known} por aprender`;
+}
+
+function showCard() {
+  if (currentIdx >= currentQueue.length) {
+    document.getElementById('flashcard').style.display = 'none';
+    document.getElementById('session-done').style.display = 'block';
+    return;
+  }
+  currentCard = currentQueue[currentIdx];
+  document.getElementById('card-char').textContent = currentCard.char;
+  document.getElementById('card-pinyin').textContent = currentCard.pinyin;
+  document.getElementById('card-cat').textContent = currentCard.cat;
+  document.getElementById('card-translation').textContent = currentCard.es;
+  renderExample(currentCard, document.getElementById('card-example'));
+  const isKnown = !!(state[currentCard.char] || {}).known;
+  document.getElementById('btn-known').classList.toggle('known', isKnown);
+
+  const pct = Math.round((currentIdx / currentQueue.length) * 100);
+  document.getElementById('progress-bar').style.width = pct + '%';
+  document.getElementById('progress-text').textContent = `${currentIdx + 1} / ${currentQueue.length}`;
+  document.getElementById('btn-prev').disabled = currentIdx === 0;
+  document.getElementById('btn-next').disabled = currentIdx >= currentQueue.length - 1;
+}
+
+function prevCard() {
+  if (currentIdx <= 0) return;
+  currentIdx--;
+  showCard();
+}
+
+function toggleKnown() {
+  if (!currentCard) return;
+  const s = state[currentCard.char] || {level:0, nextReview:0};
+  s.known = !s.known;
+  s.level = s.known ? 2 : 0;
+  state[currentCard.char] = s;
+  saveState();
+  updateStats();
+  document.getElementById('btn-known').classList.toggle('known', s.known);
+}
+
+function toggleOnlyUnknown() {
+  onlyUnknown = !onlyUnknown;
+  const btn = document.getElementById('btn-only-unknown');
+  if (btn) btn.classList.toggle('active', onlyUnknown);
+  restartSession();
+}
+
+function nextCard() {
+  if (currentIdx >= currentQueue.length - 1) return;
+  currentIdx++;
+  showCard();
+}
+
+
+// ================================================================
+// WRITING
+// ================================================================
+let writer = null;
+let selectedVocab = null;
+let compoundChars = [];
+let compoundIdx = 0;
+let activeWritingCat = 'Todas';
+let collapsedCats = new Set();
+let isAnimating = false;
+let loopMode = false;
+let activeQuizMode = null;
+
+function setAnimating(val) {
+  isAnimating = val;
+  const btn = document.getElementById('btn-animate');
+  if (!btn) return;
+  btn.classList.toggle('btn-animating', val);
+  btn.innerHTML = val ? '<i data-lucide="square"></i>Parar' : '<i data-lucide="play"></i>Animar';
+  lucide.createIcons();
+}
+
+function toggleLoopMode() {
+  loopMode = !loopMode;
+  document.getElementById('btn-loop-toggle')?.classList.toggle('loop-on', loopMode);
+}
+
+function setQuizMode(mode) {
+  activeQuizMode = mode;
+  document.getElementById('action-group-ver')
+    ?.classList.toggle('action-group-ver-locked', mode !== null);
+  ['btn-quiz-hints', 'btn-quiz-free'].forEach(id =>
+    document.getElementById(id)?.classList.remove('btn-quiz-active'));
+  if (mode === 'hints') document.getElementById('btn-quiz-hints')?.classList.add('btn-quiz-active');
+  if (mode === 'free')  document.getElementById('btn-quiz-free')?.classList.add('btn-quiz-active');
+}
+
+const CAT_ORDER = ['Pronombres','Números','Verbos','Adverbios','Adjetivos',
+  'Familia','Profesiones','Tiempo','Posición','Comida','Naturaleza',
+  'Animales','Países','Lugares','Clasificadores','Determinantes',
+  'Partículas','Interrogativas','Idioma','Varios'];
+
+
+function initWriting() {
+  buildCatChips();
+  buildGroupedSelector();
+  if (!selectedVocab) {
+    const first = VOCAB[0];
+    if (first) selectWritingVocab(first, null);
+  }
+}
+
+function buildCatChips() {
+  const bar = document.getElementById('writing-cat-bar');
+  bar.innerHTML = '';
+  const cats = ['Todas', ...CAT_ORDER.filter(c => VOCAB.some(v => v.cat === c))];
+  cats.forEach(cat => {
+    const chip = document.createElement('button');
+    chip.className = 'writing-cat-chip' + (cat === activeWritingCat ? ' active' : '');
+    chip.textContent = cat;
+    chip.onclick = () => {
+      activeWritingCat = cat;
+      document.getElementById('writing-search').value = '';
+      document.getElementById('writing-search-clear').style.display = 'none';
+      buildCatChips();
+      buildGroupedSelector();
+    };
+    bar.appendChild(chip);
+  });
+}
+
+function makeCharBtn(v) {
+  const isMulti = [...v.char].length > 1;
+  const isLearned = (state[v.char]||{}).level >= 2;
+  const isActive = selectedVocab && selectedVocab.char === v.char;
+  const btn = document.createElement('button');
+  btn.className = 'char-btn' +
+    (isMulti ? ' multi' : '') +
+    (isLearned ? ' learned' : '') +
+    (isActive ? ' active' : '');
+  btn.textContent = v.char;
+  btn.title = v.pinyin + ' · ' + v.es;
+  btn.onclick = () => selectWritingVocab(v, btn);
+  return btn;
+}
+
+function buildGroupedSelector(query = '') {
+  const sel = document.getElementById('char-selector');
+  sel.innerHTML = '';
+  const clearBtn = document.getElementById('writing-search-clear');
+  clearBtn.style.display = query ? 'flex' : 'none';
+
+  // Flat filtered list when search query or single category
+  if (query || activeWritingCat !== 'Todas') {
+    const q = query.toLowerCase();
+    let pool = activeWritingCat === 'Todas' ? VOCAB : VOCAB.filter(v => v.cat === activeWritingCat);
+    if (q) pool = pool.filter(v =>
+      v.char.includes(query) || v.pinyin.toLowerCase().includes(q) || v.es.toLowerCase().includes(q)
+    );
+    if (!pool.length) {
+      sel.innerHTML = '<div style="color:var(--muted);font-size:0.8rem;padding:10px 0">Sin resultados</div>';
+      return;
+    }
+    const wrap = document.createElement('div');
+    wrap.style.cssText = 'display:flex;flex-wrap:wrap;gap:5px;margin-bottom:8px';
+    pool.forEach(v => wrap.appendChild(makeCharBtn(v)));
+    sel.appendChild(wrap);
+    return;
+  }
+
+  // Grouped view
+  let groupIdx = 0;
+  CAT_ORDER.forEach(cat => {
+    const catVocab = VOCAB.filter(v => v.cat === cat);
+    if (!catVocab.length) return;
+    const learnedCount = catVocab.filter(v => (state[v.char]||{}).level >= 2).length;
+    const isCollapsed = collapsedCats.has(cat);
+
+    const group = document.createElement('div');
+    group.className = 'cat-group' + (isCollapsed ? ' collapsed' : '');
+    group.dataset.cat = cat;
+    group.style.animationDelay = (groupIdx++ * 25) + 'ms';
+
+    const header = document.createElement('div');
+    header.className = 'cat-group-header';
+    header.innerHTML = `
+      <div class="cat-group-header-left">
+        <span class="cat-group-title">${cat}</span>
+        <span class="cat-progress">${learnedCount}/${catVocab.length}</span>
+      </div>
+      <svg class="cat-group-chevron" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2">
+        <polyline points="6 9 12 15 18 9"/>
+      </svg>`;
+    header.onclick = () => {
+      if (collapsedCats.has(cat)) collapsedCats.delete(cat);
+      else collapsedCats.add(cat);
+      group.classList.toggle('collapsed');
+    };
+
+    const body = document.createElement('div');
+    body.className = 'cat-group-body';
+    catVocab.forEach(v => body.appendChild(makeCharBtn(v)));
+
+    group.appendChild(header);
+    group.appendChild(body);
+    sel.appendChild(group);
+  });
+}
+
+function filterWriting(query) {
+  buildGroupedSelector(query.trim());
+}
+
+function clearWritingSearch() {
+  document.getElementById('writing-search').value = '';
+  buildGroupedSelector('');
+}
+
+function setStatus(msg) {
+  document.getElementById('writing-status').textContent = msg;
+}
+
+function selectWritingVocab(vocab, btn) {
+  selectedVocab = vocab;
+  compoundChars = [...vocab.char];
+  compoundIdx = 0;
+
+  document.querySelectorAll('.char-btn').forEach(b => b.classList.remove('active'));
+  if (btn) btn.classList.add('active');
+
+  const isMulti = compoundChars.length > 1;
+  document.getElementById('single-char-display').style.display = isMulti ? 'none' : 'block';
+  document.getElementById('compound-display').style.display = isMulti ? 'block' : 'none';
+
+  if (isMulti) {
+    document.getElementById('writing-word-full').textContent = vocab.char;
+    document.getElementById('writing-word-pinyin').textContent = vocab.pinyin;
+    document.getElementById('writing-word-meaning').textContent = vocab.es;
+  } else {
+    document.getElementById('writing-char').textContent = vocab.char;
+    document.getElementById('writing-pinyin').textContent = vocab.pinyin;
+    document.getElementById('writing-meaning').textContent = vocab.es;
+  }
+
+  updateCompoundDots();
+  loadHanziWriter(compoundChars[0]);
+}
+
+function updateCompoundDots() {
+  const dotsEl = document.getElementById('compound-dots');
+  dotsEl.innerHTML = '';
+  compoundChars.forEach((ch, i) => {
+    const dot = document.createElement('div');
+    const s = state[selectedVocab.char] || {};
+    dot.className = 'dot' + (i === compoundIdx ? ' current' : (s.level >= 2 ? ' done' : ''));
+    dot.textContent = ch;
+    dot.title = `Ir a ${ch}`;
+    dot.onclick = () => loadCharAtIndex(i);
+    dotsEl.appendChild(dot);
+  });
+  document.getElementById('compound-char-label').textContent =
+    `Carácter ${compoundIdx + 1} de ${compoundChars.length}: ${compoundChars[compoundIdx]}`;
+}
+
+function loadCharAtIndex(idx) {
+  compoundIdx = idx;
+  updateCompoundDots();
+  loadHanziWriter(compoundChars[idx]);
+}
+
+function loadHanziWriter(char) {
+  writer = null;
+  setAnimating(false);
+  const container = document.getElementById('hanzi-container');
+  container.innerHTML =
+    '<div class="hz-loading"><div class="hz-spinner"></div></div>' +
+    '<div id="hz-target" style="display:none"></div>';
+  setStatus('');
+
+  const hzSize = Math.round(parseFloat(
+    getComputedStyle(document.documentElement).getPropertyValue('--hz-size')
+  )) || 220;
+  writer = HanziWriter.create('hz-target', char, {
+    width: hzSize, height: hzSize,
+    padding: 12,
+    showOutline: true,
+    strokeColor: '#d44030',
+    outlineColor: '#3a3530',
+    drawingColor: '#f0ebe3',
+    drawingWidth: 6,
+    strokeAnimationSpeed: 1,
+    onLoadCharDataSuccess: () => {
+      container.querySelector('.hz-loading')?.remove();
+      document.getElementById('hz-target').style.display = '';
+      setStatus('');
+      setAnimating(true);
+      writer.animateCharacter({ onComplete: () => setAnimating(false) });
+    },
+    onLoadCharDataError: () => {
+      container.querySelector('.hz-loading')?.remove();
+      document.getElementById('hz-target').style.display = '';
+      setStatus('Carácter no disponible en la librería.');
+      writer = null;
+    },
+  });
+}
+
+function resetWriter() {
+  if (!writer) return false;
+  try { writer.cancelQuiz(); } catch(e) {}
+  try { writer.cancelAnimation(); } catch(e) {}
+  setAnimating(false);
+  setQuizMode(null);
+  return true;
+}
+
+function toggleAnimate() {
+  if (isAnimating) {
+    if (!writer) return;
+    try { writer.cancelAnimation(); } catch(e) {}
+    setAnimating(false);
+    setStatus('');
+    try { writer.showCharacter(); } catch(e) {}
+    return;
+  }
+  if (!resetWriter()) return;
+  setStatus('');
+  writer.showCharacter({ duration: 0 });
+  setAnimating(true);
+  if (loopMode) {
+    writer.loopCharacterAnimation();
+  } else {
+    writer.animateCharacter({ onComplete: () => setAnimating(false) });
+  }
+}
+
+function resetChar() {
+  if (!resetWriter()) return;
+  setStatus('');
+  writer.showCharacter();
+}
+
+function quizChar(withHints) {
+  if (!resetWriter()) return;
+  setQuizMode(withHints ? 'hints' : 'free');
+  const isMulti = compoundChars.length > 1;
+  const msg = withHints ? 'Dibuja cada trazo en orden. Te dará pistas si fallas.'
+                        : 'Dibuja el carácter completo sin ayuda. ¡Ánimo!';
+  setStatus(msg);
+  writer.quiz({
+    showHintAfterMisses: withHints ? 2 : false,
+    onComplete: () => {
+      const hasNext = isMulti && compoundIdx < compoundChars.length - 1;
+      if (hasNext) {
+        setStatus('¡Bien! Pasando al siguiente...');
+        setTimeout(() => loadCharAtIndex(compoundIdx + 1), 800);
+      } else {
+        setStatus('¡Completado!');
+        setQuizMode(null);
+        markWordLearned(selectedVocab.char);
+      }
+    },
+  });
+}
+
+function markWordLearned(key) {
+  const s = state[key] || {level:0, nextReview:0};
+  const wasNew = s.level < 2;
+  if (wasNew) { state[key] = {...s, level: s.level + 1}; saveState(); }
+  document.querySelectorAll('.char-btn').forEach(btn => {
+    if (btn.textContent === key) btn.classList.add('learned');
+  });
+  if (wasNew) showToast('¡Aprendido: ' + key + '!');
+  const vocab = VOCAB.find(v => v.char === key);
+  if (vocab) {
+    const group = document.querySelector(`.cat-group[data-cat="${vocab.cat}"]`);
+    if (group) {
+      const catVocab = VOCAB.filter(v => v.cat === vocab.cat);
+      const learnedCount = catVocab.filter(v => (state[v.char]||{}).level >= 2).length;
+      const badge = group.querySelector('.cat-progress');
+      if (badge) badge.textContent = `${learnedCount}/${catVocab.length}`;
+    }
+  }
+}
+
+// ================================================================
+// GRAMMAR
+// ================================================================
+const EXERCISES = [
+  // Partículas
+  {type:'Partículas', q:'¿Tú tienes hambre?<br><span style="font-size:1.3rem">你饿___？</span>', qPinyin:'nǐ è ___？', options:['吗','呢','的','了'], answer:'吗', explanation:'吗 se usa para preguntas directas de sí/no.'},
+  {type:'Partículas', q:'Yo también estoy cansado.<br><span style="font-size:1.3rem">我___累了。</span>', qPinyin:'wǒ ___ lèi le。', options:['也','都','不','很'], answer:'也', explanation:'也 significa "también".'},
+  {type:'Partículas', q:'¿Y tú qué tal?<br><span style="font-size:1.3rem">你___？</span>', qPinyin:'nǐ ___？', options:['呢','吗','吧','啊'], answer:'呢', explanation:'呢 en pregunta de seguimiento retoma el tema anterior.'},
+  {type:'Partículas', q:'Esto es mi libro.<br><span style="font-size:1.3rem">这是我___书。</span>', qPinyin:'zhè shì wǒ ___ shū。', options:['的','了','吧','吗'], answer:'的', explanation:'的 indica posesión o relación.'},
+  {type:'Partículas', q:'Vamos a comer, ¿vale?<br><span style="font-size:1.3rem">我们去吃饭___。</span>', qPinyin:'wǒmen qù chīfàn ___。', options:['吧','吗','呢','了'], answer:'吧', explanation:'吧 hace una sugerencia o busca acuerdo.'},
+  {type:'Partículas', q:'¡Ya ha llegado!<br><span style="font-size:1.3rem">来___！</span>', qPinyin:'lái ___！', options:['了','吗','的','呢'], answer:'了', explanation:'了 indica que algo ha ocurrido o ha cambiado.'},
+  // Clasificadores
+  {type:'Clasificadores', q:'Un libro<br><span style="font-size:1.3rem">一___书</span>', qPinyin:'yī ___ shū', options:['本','个','只','张'], answer:'本', explanation:'本 es el clasificador para libros.'},
+  {type:'Clasificadores', q:'Tres gatos<br><span style="font-size:1.3rem">三___猫</span>', qPinyin:'sān ___ māo', options:['只','个','条','辆'], answer:'只', explanation:'只 se usa para animales.'},
+  {type:'Clasificadores', q:'Dos coches<br><span style="font-size:1.3rem">两___车</span>', qPinyin:'liǎng ___ chē', options:['辆','个','条','台'], answer:'辆', explanation:'辆 es el clasificador para vehículos con ruedas.'},
+  {type:'Clasificadores', q:'Una taza de té<br><span style="font-size:1.3rem">一___茶</span>', qPinyin:'yī ___ chá', options:['杯','个','本','件'], answer:'杯', explanation:'杯 significa "taza" y se usa para bebidas.'},
+  {type:'Clasificadores', q:'Una persona<br><span style="font-size:1.3rem">一___人</span>', qPinyin:'yī ___ rén', options:['个','只','张','本'], answer:'个', explanation:'个 es el clasificador general, se usa también para personas.'},
+  {type:'Clasificadores', q:'Una foto<br><span style="font-size:1.3rem">一___照片</span>', qPinyin:'yī ___ zhàopiàn', options:['张','个','本','只'], answer:'张', explanation:'张 se usa para objetos planos (fotos, papeles, mesas).'},
+  // Interrogativas
+  {type:'Interrogativas', q:'¿Cómo te llamas?<br><span style="font-size:1.3rem">你叫___名字？</span>', qPinyin:'nǐ jiào ___ míngzi？', options:['什么','谁','哪里','几'], answer:'什么', explanation:'什么 significa "qué".'},
+  {type:'Interrogativas', q:'¿Quién es él?<br><span style="font-size:1.3rem">他是___？</span>', qPinyin:'tā shì ___？', options:['谁','什么','哪里','怎么样'], answer:'谁', explanation:'谁 significa "quién".'},
+  {type:'Interrogativas', q:'¿Cuántos años tienes? (menos de 10)<br><span style="font-size:1.3rem">你___岁？</span>', qPinyin:'nǐ ___ suì？', options:['几','多少','什么','哪'], answer:'几', explanation:'几 se usa para cantidades pequeñas esperadas (< 10).'},
+  {type:'Interrogativas', q:'¿Cómo estás?<br><span style="font-size:1.3rem">你___？</span>', qPinyin:'nǐ ___？', options:['怎么样','什么','谁','哪里'], answer:'怎么样', explanation:'怎么样 significa "cómo" o "qué tal".'},
+  {type:'Interrogativas', q:'¿Dónde está el baño?<br><span style="font-size:1.3rem">洗手间在___？</span>', qPinyin:'xǐshǒujiān zài ___？', options:['哪里','什么','谁','怎么样'], answer:'哪里', explanation:'哪里 significa "dónde".'},
+  // Negación
+  {type:'Negación', q:'No tengo hambre.<br><span style="font-size:1.3rem">我___饿。</span>', qPinyin:'wǒ ___ è。', options:['不','没','很','也'], answer:'不', explanation:'不 niega el estado actual o la voluntad.'},
+  {type:'Negación', q:'No he comido.<br><span style="font-size:1.3rem">我___吃。</span>', qPinyin:'wǒ ___ chī。', options:['没','不','也','很'], answer:'没', explanation:'没 niega acciones en el pasado.'},
+  {type:'Negación', q:'No puedo (capacidad física).<br><span style="font-size:1.3rem">我___能去。</span>', qPinyin:'wǒ ___ néng qù。', options:['不','没','很','也'], answer:'不', explanation:'不 se usa con verbos modales como 能, 会, 要.'},
+];
+
+let grammarQueue = [];
+let grammarIdx = 0;
+let grammarCorrect = 0;
+let grammarTotal = 0;
+let grammarWrong = [];
+let activeGrammarCat = 'Todas';
+
+function initGrammar() {
+  const cats = ['Todas', ...new Set(EXERCISES.map(e => e.type))];
+  const bar = document.getElementById('grammar-filters');
+  bar.innerHTML = '';
+  cats.forEach(cat => {
+    const btn = document.createElement('button');
+    btn.textContent = cat;
+    btn.className = cat === activeGrammarCat ? 'active' : '';
+    btn.onclick = () => {
+      activeGrammarCat = cat;
+      initGrammar();
+    };
+    bar.appendChild(btn);
+  });
+  grammarQueue = (activeGrammarCat === 'Todas' ? EXERCISES : EXERCISES.filter(e => e.type === activeGrammarCat))
+    .slice().sort(() => Math.random() - 0.5);
+  grammarIdx = 0;
+  grammarCorrect = 0;
+  grammarTotal = 0;
+  grammarWrong = [];
+  updateGrammarScore();
+  showExercise();
+}
+
+function updateGrammarScore() {
+  document.getElementById('grammar-score').textContent = `${grammarCorrect} / ${grammarTotal}`;
+}
+
+function showExercise() {
+  const container = document.getElementById('exercise-container');
+  if (grammarIdx >= grammarQueue.length) {
+    const wrongHtml = grammarWrong.length > 0 ? `
+      <div class="grammar-wrong-list">
+        <div class="grammar-wrong-title">Repasar (${grammarWrong.length} incorrectas)</div>
+        ${grammarWrong.map(ex => `
+          <div class="grammar-wrong-item">
+            <div style="font-size:0.6rem;font-weight:600;letter-spacing:1.2px;text-transform:uppercase;color:var(--gold);margin-bottom:3px">${ex.type}</div>
+            <div style="color:var(--text-dim)">${ex.q.replace(/<[^>]*>/g, ' ').replace(/\s+/g,' ').trim()}</div>
+            <div class="grammar-wrong-answer">✓ ${ex.answer} — ${ex.explanation}</div>
+          </div>`).join('')}
+      </div>` : `<p style="color:var(--green);margin-bottom:16px">¡Sin errores! 完美 (perfecto)</p>`;
+    container.innerHTML = `<div class="session-done">
+      <h2>¡Completado!</h2>
+      <p>${grammarCorrect} de ${grammarTotal} correctas</p>
+      ${wrongHtml}
+      <button class="btn-primary" onclick="initGrammar(); lucide.createIcons();"><i data-lucide="refresh-cw"></i>Repetir</button>
+    </div>`;
+    document.getElementById('next-exercise').style.display = 'none';
+    lucide.createIcons();
+    return;
+  }
+
+  const ex = grammarQueue[grammarIdx];
+  const shuffled = [...ex.options].sort(() => Math.random() - 0.5);
+
+  container.innerHTML = `
+    <div class="exercise-card">
+      <div class="exercise-type">${ex.type}</div>
+      <div class="exercise-question">${ex.q}${ex.qPinyin ? `<div class="exercise-q-pinyin">${ex.qPinyin}</div>` : ''}</div>
+      <div class="options" id="options-${grammarIdx}">
+        ${shuffled.map(opt => {
+          const py = pinyinFor(opt);
+          return `<button class="option-btn" data-value="${opt}" onclick="checkAnswer(this,'${opt}','${ex.answer}',${grammarIdx})"><span>${opt}</span>${py ? `<span class="opt-pinyin">${py}</span>` : ''}</button>`;
+        }).join('')}
+      </div>
+      <div class="feedback" id="feedback-${grammarIdx}"></div>
+    </div>
+  `;
+  document.getElementById('next-exercise').style.display = 'none';
+}
+
+function checkAnswer(btn, chosen, correct, idx) {
+  const container = document.getElementById(`options-${idx}`);
+  container.querySelectorAll('.option-btn').forEach(b => {
+    b.disabled = true;
+    if (b.dataset.value === correct) b.classList.add('correct');
+  });
+  const fb = document.getElementById(`feedback-${idx}`);
+  grammarTotal++;
+  if (chosen === correct) {
+    btn.classList.add('correct');
+    fb.textContent = '✓ ¡Correcto! ' + grammarQueue[grammarIdx].explanation;
+    fb.className = 'feedback correct';
+    grammarCorrect++;
+  } else {
+    btn.classList.add('wrong');
+    fb.textContent = '✗ Incorrecto. ' + grammarQueue[grammarIdx].explanation;
+    fb.className = 'feedback wrong';
+    grammarWrong.push(grammarQueue[grammarIdx]);
+  }
+  updateGrammarScore();
+  document.getElementById('next-exercise').style.display = 'inline-block';
+
+  // Fill the blank in the sentence with the correct answer
+  const card = container.closest('.exercise-card');
+  if (card) {
+    const charHtml = `<span style="color:var(--green);font-weight:600;display:inline;font-size:inherit;font-family:inherit">${correct}</span>`;
+    const pyHtml   = `<span style="color:var(--green);display:inline;font-size:inherit;font-family:inherit">${pinyinFor(correct) || correct}</span>`;
+    const qSpan = card.querySelector('.exercise-question span');
+    if (qSpan) qSpan.innerHTML = qSpan.innerHTML.replace('___', charHtml);
+    const pyEl = card.querySelector('.exercise-q-pinyin');
+    if (pyEl) pyEl.innerHTML = pyEl.innerHTML.replace('___', pyHtml);
+  }
+}
+
+function nextExercise() {
+  grammarIdx++;
+  showExercise();
+}
+
+
+// ================================================================
+// SWIPE GESTURES (flashcards)
+// ================================================================
+(function() {
+  let touchStartX = 0, touchStartY = 0;
+  const card = document.getElementById('flashcard');
+  card.addEventListener('touchstart', e => {
+    touchStartX = e.touches[0].clientX;
+    touchStartY = e.touches[0].clientY;
+  }, { passive: true });
+  card.addEventListener('touchend', e => {
+    const dx = e.changedTouches[0].clientX - touchStartX;
+    const dy = e.changedTouches[0].clientY - touchStartY;
+    if (Math.abs(dx) < Math.abs(dy) || Math.abs(dx) < 40) return;
+    if (dx < -40) nextCard();
+    else if (dx > 40) prevCard();
+  }, { passive: true });
+})();
+
+// ================================================================
+// KEYBOARD SHORTCUTS
+// ================================================================
+document.addEventListener('keydown', e => {
+  if (e.key === 'Escape') { hideShortcuts(); return; }
+  const activeSection = document.querySelector('.section.active')?.id;
+  if (activeSection === 'vocab') {
+    if (e.key === 'ArrowLeft')  { e.preventDefault(); prevCard(); }
+    if (e.key === 'ArrowRight') { e.preventDefault(); nextCard(); }
+  }
+  if (activeSection === 'writing') {
+    if (e.key === 'a') toggleAnimate();
+    if (e.key === 'l') toggleLoopMode();
+    if (e.key === 's') resetChar();
+    if (e.key === 'q') quizChar(true);
+    if (e.key === 'w') quizChar(false);
+  }
+  if (activeSection === 'grammar') {
+    if (e.key === 'Enter' || e.key === 'ArrowRight') {
+      const btn = document.getElementById('next-exercise');
+      if (btn && btn.style.display !== 'none') nextExercise();
+    }
+  }
+});
+
+// ================================================================
+// TOAST
+// ================================================================
+let _toastTimer = null;
+function showToast(msg, duration = 2400) {
+  const el = document.getElementById('toast');
+  el.textContent = msg;
+  el.classList.add('show');
+  clearTimeout(_toastTimer);
+  _toastTimer = setTimeout(() => el.classList.remove('show'), duration);
+}
+
+// ================================================================
+// KEYBOARD SHORTCUTS OVERLAY
+// ================================================================
+function showShortcuts() {
+  document.getElementById('shortcuts-overlay').style.display = 'flex';
+}
+function hideShortcuts() {
+  document.getElementById('shortcuts-overlay').style.display = 'none';
+}
+
+// ================================================================
+// RESET PROGRESS
+// ================================================================
+function confirmReset() {
+  if (!confirm('¿Reiniciar todo el progreso? Se borrarán los niveles de todas las tarjetas.')) return;
+  localStorage.removeItem('chino-state');
+  state = {};
+  updateStats();
+  restartSession();
+  showToast('Progreso reiniciado');
+}
+
+// ================================================================
+// RESPONSIVE CANVAS — reload writer on resize/orientation change
+// ================================================================
+let _resizeTimer = null;
+window.addEventListener('resize', () => {
+  clearTimeout(_resizeTimer);
+  _resizeTimer = setTimeout(() => {
+    if (document.getElementById('writing').classList.contains('active') && compoundChars.length) {
+      loadHanziWriter(compoundChars[compoundIdx]);
+    }
+  }, 200);
+});
+
+// ================================================================
+// INIT
+// ================================================================
+(function() {
+  const id = HASH_SECTION[location.hash] || 'vocab';
+  history.replaceState({ section: id }, '', SECTION_HASH[id]);
+  navigateTo(id);
+  lucide.createIcons();
+})();
+</script>
+
+<!-- Toast -->
+<div id="toast" aria-live="polite"></div>
+
+<!-- Keyboard shortcuts overlay -->
+<div id="shortcuts-overlay" style="display:none" onclick="hideShortcuts()">
+  <div class="shortcuts-panel" onclick="event.stopPropagation()">
+    <h3>Atajos de teclado</h3>
+    <div class="shortcut-section">词汇 — Tarjetas</div>
+    <div class="shortcut-row"><span>Anterior / Siguiente</span><kbd>← →</kbd></div>
+    <div class="shortcut-section">汉字 — Escritura</div>
+    <div class="shortcut-row"><span>Animar / Parar</span><kbd>A</kbd></div>
+    <div class="shortcut-row"><span>Activar / pausar bucle</span><kbd>L</kbd></div>
+    <div class="shortcut-row"><span>Mostrar</span><kbd>S</kbd></div>
+    <div class="shortcut-row"><span>Con guías</span><kbd>Q</kbd></div>
+    <div class="shortcut-row"><span>Sin guías</span><kbd>W</kbd></div>
+    <div class="shortcut-section">语法 — Gramática</div>
+    <div class="shortcut-row"><span>Siguiente ejercicio</span><kbd>Enter</kbd></div>
+    <div class="shortcut-row"><span>Cerrar este panel</span><kbd>Esc</kbd></div>
+    <div style="text-align:center;margin-top:20px">
+      <button class="btn-primary" onclick="hideShortcuts()">Cerrar</button>
+    </div>
+  </div>
+</div>
+</body>
+</html>
