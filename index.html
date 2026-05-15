@@ -368,6 +368,48 @@
   #mode-badge.hints { background: rgba(74,144,217,0.15); color: #6ab0e8; border: 1px solid rgba(74,144,217,0.3); }
   #mode-badge.free  { background: rgba(212,64,48,0.12);  color: var(--red);  border: 1px solid rgba(212,64,48,0.25); }
 
+  /* Info button — top-right of canvas */
+  #btn-char-info {
+    position: absolute; top: 8px; right: 8px; z-index: 10;
+    width: 30px; height: 30px; border-radius: 8px;
+    background: rgba(28,26,23,0.75); border: 1px solid rgba(255,255,255,0.1);
+    color: var(--muted); cursor: pointer;
+    display: flex; align-items: center; justify-content: center;
+    backdrop-filter: blur(4px); transition: all 0.15s;
+  }
+  #btn-char-info:hover { color: var(--text); border-color: var(--text-dim); background: rgba(28,26,23,0.95); }
+  #btn-char-info svg { width: 14px; height: 14px; stroke-width: 1.8; }
+  #btn-char-info.hidden { display: none; }
+
+  /* Example popover panel */
+  #char-info-panel {
+    position: absolute; top: 44px; right: 8px; z-index: 30;
+    width: min(240px, calc(100% - 16px));
+    background: var(--surface2); border: 1px solid var(--border);
+    border-radius: 12px; padding: 12px 14px;
+    display: flex; flex-direction: column; gap: 4px;
+    box-shadow: 0 8px 24px rgba(0,0,0,0.45);
+    opacity: 0; pointer-events: none;
+    transform: translateY(-6px) scale(0.97);
+    transform-origin: top right;
+    transition: opacity 0.18s ease, transform 0.18s ease;
+  }
+  #char-info-panel.open {
+    opacity: 1; pointer-events: auto;
+    transform: translateY(0) scale(1);
+  }
+  #char-info-panel .info-zh {
+    font-family: 'Noto Sans SC', sans-serif;
+    font-size: 0.85rem; color: var(--text); line-height: 1.5;
+  }
+  #char-info-panel .info-py {
+    font-family: 'Space Grotesk', sans-serif;
+    font-size: 0.65rem; color: var(--gold); letter-spacing: 0.2px;
+  }
+  #char-info-panel .info-es {
+    font-size: 0.68rem; color: var(--text-dim); font-style: italic;
+  }
+
   /* Completion flash overlay */
   #hz-done-flash {
     position: absolute; inset: 0; border-radius: 4px;
@@ -1262,6 +1304,14 @@
       <button id="btn-show-char" onclick="resetChar()" aria-label="Mostrar carácter">
         <i data-lucide="eye"></i>
       </button>
+      <button id="btn-char-info" class="hidden" onclick="toggleCharInfo(event)" aria-label="Ver ejemplo de uso">
+        <i data-lucide="info"></i>
+      </button>
+      <div id="char-info-panel" role="tooltip">
+        <div class="info-zh" id="char-info-zh"></div>
+        <div class="info-py" id="char-info-py"></div>
+        <div class="info-es" id="char-info-es"></div>
+      </div>
     </div>
     <div id="writing-status"></div>
 
@@ -2552,7 +2602,25 @@ function selectWritingVocab(vocab, btn, keepMode) {
 
   updateCompoundDots();
   updateWritingNavBtns();
+  updateCharInfoBtn(vocab);
   loadHanziWriter(compoundChars[0], keepMode ? lastPracticeMode : null);
+}
+
+function updateCharInfoBtn(vocab) {
+  const btn = document.getElementById('btn-char-info');
+  const panel = document.getElementById('char-info-panel');
+  const ex = EXAMPLES[vocab.char];
+  if (!ex) { btn.classList.add('hidden'); panel.classList.remove('open'); return; }
+  btn.classList.remove('hidden');
+  panel.classList.remove('open');
+  document.getElementById('char-info-zh').textContent = ex.zh;
+  document.getElementById('char-info-py').textContent = ex.py;
+  document.getElementById('char-info-es').textContent = ex.es;
+}
+
+function toggleCharInfo(e) {
+  e.stopPropagation();
+  document.getElementById('char-info-panel').classList.toggle('open');
 }
 
 function updateCompoundDots() {
@@ -3200,8 +3268,16 @@ function nextExercise() {
 // ================================================================
 // KEYBOARD SHORTCUTS
 // ================================================================
+document.addEventListener('click', e => {
+  const panel = document.getElementById('char-info-panel');
+  if (panel && panel.classList.contains('open') &&
+      !panel.contains(e.target) && e.target.id !== 'btn-char-info' && !document.getElementById('btn-char-info')?.contains(e.target)) {
+    panel.classList.remove('open');
+  }
+});
+
 document.addEventListener('keydown', e => {
-  if (e.key === 'Escape') { hideShortcuts(); return; }
+  if (e.key === 'Escape') { hideShortcuts(); document.getElementById('char-info-panel')?.classList.remove('open'); return; }
   const activeSection = document.querySelector('.section.active')?.id;
   if (activeSection === 'vocab') {
     if (e.key === 'ArrowLeft')  { e.preventDefault(); prevCard(); }
