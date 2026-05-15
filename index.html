@@ -1727,6 +1727,9 @@ const _extraPinyin = {
   '已经':'yǐjīng', '正在':'zhèngzài', '一起':'yīqǐ',
   '块':'kuài', '碗':'wǎn',
   '一直':'yīzhí', '需要':'xūyào', '应该':'yīnggāi', '可以':'kěyǐ',
+  // Time & dates
+  '星期':'xīngqī', '号':'hào', '十二':'shí èr', '十一':'shí yī',
+  '明天见':'míngtiān jiàn',
 };
 function pinyinFor(char) { return _pinyinMap[char] || _extraPinyin[char] || ''; }
 
@@ -2868,6 +2871,27 @@ const EXERCISES = [
   {type:'Adverbios', q:'Todavía tengo sueño.<br><span style="font-size:1.3rem">我___困。</span>', qPinyin:'wǒ ___ kùn。', options:['还','也','都','已经'], answer:'还', explanation:'还 significa "todavía / aún". Indica que un estado sigue igual.'},
   {type:'Adverbios', q:'Siempre me ha gustado el chino.<br><span style="font-size:1.3rem">我___喜欢中文。</span>', qPinyin:'wǒ ___ xǐhuān Zhōngwén。', options:['一直','一起','也','都'], answer:'一直', explanation:'一直 significa "siempre / todo el tiempo". Indica continuidad o constancia.'},
   {type:'Adverbios', q:'Vamos juntos.<br><span style="font-size:1.3rem">我们___去吧。</span>', qPinyin:'wǒmen ___ qù ba。', options:['一起','一直','都','还'], answer:'一起', explanation:'一起 significa "juntos". Se coloca antes del verbo.'},
+  // Tiempo y fechas
+  {type:'Tiempo y fechas', q:'Buenos días.<br><span style="font-size:1.3rem">___好！</span>', qPinyin:'___ hǎo！', options:['早上','下午','晚上','中午'], answer:'早上', explanation:'早上好 = Buenos días. 早上 es la mañana temprana (antes del mediodía).'},
+  {type:'Tiempo y fechas', q:'Buenas tardes.<br><span style="font-size:1.3rem">___好！</span>', qPinyin:'___ hǎo！', options:['下午','早上','晚上','中午'], answer:'下午', explanation:'下午好 = Buenas tardes. 下午 es la tarde (de 12h a ~18h).'},
+  {type:'Tiempo y fechas', q:'Buenas noches.<br><span style="font-size:1.3rem">___好！</span>', qPinyin:'___ hǎo！', options:['晚上','早上','下午','上午'], answer:'晚上', explanation:'晚上好 = Buenas noches. 晚上 es la noche.'},
+  {type:'Tiempo y fechas', q:'¿Qué día de la semana es hoy?<br><span style="font-size:1.3rem">今天___几？</span>', qPinyin:'jīntiān ___ jǐ？', options:['星期','月','号','年'], answer:'星期', explanation:'星期 = semana / día de la semana. 星期几 = ¿qué día de la semana?'},
+  {type:'Tiempo y fechas', q:'Lunes<br><span style="font-size:1.3rem">星期___</span>', qPinyin:'xīngqī ___', options:['一','二','三','日'], answer:'一', explanation:'星期一 = lunes. Los días van del 一 (lunes) al 六 (sábado). El domingo es 星期日 o 星期天.'},
+  {type:'Tiempo y fechas', q:'Miércoles<br><span style="font-size:1.3rem">星期___</span>', qPinyin:'xīngqī ___', options:['三','二','四','一'], answer:'三', explanation:'星期三 = miércoles. 三 = tres, el tercer día laborable.'},
+  {type:'Tiempo y fechas', q:'Viernes<br><span style="font-size:1.3rem">星期___</span>', qPinyin:'xīngqī ___', options:['五','四','六','三'], answer:'五', explanation:'星期五 = viernes. 五 = cinco.'},
+  {type:'Tiempo y fechas', q:'Domingo<br><span style="font-size:1.3rem">星期___</span>', qPinyin:'xīngqī ___', options:['日','七','一','六'], answer:'日', explanation:'星期日 (o 星期天) = domingo. Es el único día con nombre especial, no usa un número.'},
+  {type:'Tiempo y fechas', q:'¿En qué mes estamos?<br><span style="font-size:1.3rem">现在是几___？</span>', qPinyin:'xiànzài shì jǐ ___？', options:['月','天','年','号'], answer:'月', explanation:'月 = mes. 几月 = ¿qué mes? Los meses se forman con número + 月: 一月 enero, 二月 febrero…'},
+  {type:'Tiempo y fechas', q:'Enero<br><span style="font-size:1.3rem">___月</span>', qPinyin:'___ yuè', options:['一','十','二','三'], answer:'一', explanation:'一月 = enero. En chino los meses son simplemente número + 月.'},
+  {type:'Tiempo y fechas', q:'Julio<br><span style="font-size:1.3rem">___月</span>', qPinyin:'___ yuè', options:['七','六','八','五'], answer:'七', explanation:'七月 = julio. 七 = siete.'},
+  {type:'Tiempo y fechas', q:'Diciembre<br><span style="font-size:1.3rem">___月</span>', qPinyin:'___ yuè', options:['十二','十一','十','九'], answer:'十二', explanation:'十二月 = diciembre. 十二 = doce.'},
+  {type:'Tiempo y fechas', q:'¿A qué día del mes estamos?<br><span style="font-size:1.3rem">今天几___？</span>', qPinyin:'jīntiān jǐ ___？', options:['号','月','年','天'], answer:'号', explanation:'号 indica el número del día en el mes (口语). 今天几号 = ¿a qué día estamos?'},
+  {type:'Tiempo y fechas', q:'Hoy es el día cinco.<br><span style="font-size:1.3rem">今天五___。</span>', qPinyin:'jīntiān wǔ ___。', options:['号','月','点','年'], answer:'号', explanation:'号 = número del día. 五号 = día cinco. Ej: 五月五号 = el 5 de mayo.'},
+  {type:'Tiempo y fechas', q:'¿Qué hora es?<br><span style="font-size:1.3rem">现在___点？</span>', qPinyin:'xiànzài ___ diǎn？', options:['几','多少','什么','哪'], answer:'几', explanation:'几点 = ¿qué hora es? 点 = en punto. Se usa 几 porque las horas son números pequeños (< 10).'},
+  {type:'Tiempo y fechas', q:'Son las tres en punto.<br><span style="font-size:1.3rem">现在三___。</span>', qPinyin:'xiànzài sān ___。', options:['点','号','月','分'], answer:'点', explanation:'点 = en punto / hora. 三点 = las tres en punto.'},
+  {type:'Tiempo y fechas', q:'Son las dos y media.<br><span style="font-size:1.3rem">两点___。</span>', qPinyin:'liǎng diǎn ___。', options:['半','分','刻','号'], answer:'半', explanation:'半 = media. 两点半 = las dos y media. 两 se usa en lugar de 二 para cantidades.'},
+  {type:'Tiempo y fechas', q:'Nos vemos mañana.<br><span style="font-size:1.3rem">___见！</span>', qPinyin:'___ jiàn！', options:['明天','今天','昨天','晚上'], answer:'明天', explanation:'明天见 = ¡Hasta mañana! 明天 = mañana. 见 = ver / encontrarse.'},
+  {type:'Tiempo y fechas', q:'Ayer fui a clase.<br><span style="font-size:1.3rem">___我去上课了。</span>', qPinyin:'___ wǒ qù shàngkè le。', options:['昨天','明天','今天','早上'], answer:'昨天', explanation:'昨天 = ayer. Las expresiones de tiempo van al inicio de la oración o después del sujeto.'},
+  {type:'Tiempo y fechas', q:'Hoy es martes.<br><span style="font-size:1.3rem">今天是星期___。</span>', qPinyin:'jīntiān shì xīngqī ___。', options:['二','一','三','日'], answer:'二', explanation:'星期二 = martes. 二 = dos, el segundo día de la semana.'},
 ];
 
 const EXERCISE_INDEX = new Map(EXERCISES.map((ex, i) => [ex, i]));
