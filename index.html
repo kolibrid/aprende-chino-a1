@@ -242,12 +242,6 @@
 
 
   /* ── SESSION DONE ── */
-  .session-done { text-align: center; padding: 50px 20px; }
-  .session-done h2 {
-    font-family: 'Noto Serif SC', serif;
-    font-size: 2.2rem; font-weight: 700; color: var(--gold); margin-bottom: 10px;
-  }
-  .session-done p { color: var(--muted); margin-bottom: 24px; }
 
   .btn-primary {
     background: var(--red); color: white; border: none; border-radius: 10px;
@@ -560,12 +554,12 @@
   .option-btn {
     padding: 10px 20px; border: 1px solid var(--border); border-radius: 10px;
     background: var(--surface2); color: var(--text);
-    cursor: pointer; font-family: 'Noto Serif SC', serif; font-size: 1.15rem;
+    cursor: pointer; font-family: 'Noto Serif SC', serif; font-size: 1.45rem;
     transition: all 0.15s;
-    display: flex; flex-direction: column; align-items: center; gap: 2px;
+    display: flex; flex-direction: column; align-items: center; gap: 3px;
   }
   .opt-pinyin {
-    font-family: 'Space Grotesk', sans-serif; font-size: 0.6rem;
+    font-family: 'Space Grotesk', sans-serif; font-size: 0.75rem;
     color: var(--muted); letter-spacing: 0.3px; line-height: 1;
   }
   .option-btn.correct .opt-pinyin { color: rgba(90,191,130,0.85); }
@@ -738,6 +732,127 @@
     }
   }
 
+  /* ── GAME INTERACTIONS ── */
+
+  /* 1. Button press micro-animation */
+  button:active:not(:disabled) { transform: scale(0.94); }
+  .btn-nav:active:not(:disabled), .btn-primary:active, .mode-seg-btn:active:not(:disabled),
+  .btn-secondary:active, .option-btn:active:not(:disabled), .char-btn:active { transform: scale(0.94); }
+
+  /* 2. Tab slide-in animations */
+  @keyframes slideInRight { from { opacity: 0; transform: translateX(28px); } to { opacity: 1; transform: translateX(0); } }
+  @keyframes slideInLeft  { from { opacity: 0; transform: translateX(-28px); } to { opacity: 1; transform: translateX(0); } }
+
+  /* 3. Card stack ghost cards */
+  .flashcard-wrap { position: relative; padding-bottom: 12px; overflow: visible; }
+  .flashcard-wrap::before, .flashcard-wrap::after {
+    content: '';
+    position: absolute;
+    left: 0; right: 0; bottom: 0;
+    border-radius: 20px;
+    background: var(--surface);
+    border: 1px solid var(--border);
+    pointer-events: none;
+  }
+  .flashcard-wrap::before {
+    height: calc(100% - 12px);
+    transform: translateY(7px) scaleX(0.96);
+    opacity: 0.55;
+    z-index: 0;
+  }
+  .flashcard-wrap::after {
+    height: calc(100% - 12px);
+    transform: translateY(13px) scaleX(0.91);
+    opacity: 0.28;
+    z-index: -1;
+  }
+  .flashcard { position: relative; z-index: 1; transition: transform 0.28s cubic-bezier(0.25,0.46,0.45,0.94), opacity 0.28s ease; }
+
+  /* Swipe tint overlay */
+  .swipe-tint {
+    position: absolute; inset: 0; border-radius: 20px;
+    pointer-events: none; z-index: 10; opacity: 0;
+    transition: opacity 0.08s;
+  }
+  /* Swipe direction labels */
+  .swipe-label {
+    position: absolute; top: 18px;
+    font-family: 'Space Grotesk', sans-serif;
+    font-size: 0.68rem; font-weight: 800; letter-spacing: 1.5px;
+    text-transform: uppercase; border-radius: 8px; padding: 4px 10px;
+    border: 2px solid currentColor; opacity: 0;
+    pointer-events: none; z-index: 11; transition: opacity 0.1s;
+  }
+  .swipe-label-left  { left: 16px;  color: #e07060; }
+  .swipe-label-right { right: 16px; color: #5abf82; }
+
+  /* 4. Card content change flash */
+  @keyframes cardContentIn {
+    from { opacity: 0; transform: translateY(8px); }
+    to   { opacity: 1; transform: translateY(0); }
+  }
+  .card-content-anim { animation: cardContentIn 0.22s ease both; }
+
+  /* 5. XP popup */
+  .xp-popup {
+    position: fixed; pointer-events: none; z-index: 9000;
+    font-family: 'Space Grotesk', sans-serif; font-weight: 800; font-size: 1rem;
+    color: var(--gold); transform: translateX(-50%);
+    text-shadow: 0 2px 8px rgba(200,149,74,0.6);
+    animation: xpFloat 0.95s cubic-bezier(0.25,0.46,0.45,0.94) forwards;
+  }
+  @keyframes xpFloat {
+    0%   { opacity: 1; transform: translateX(-50%) translateY(0) scale(0.7); }
+    20%  { opacity: 1; transform: translateX(-50%) translateY(-12px) scale(1.25); }
+    100% { opacity: 0; transform: translateX(-50%) translateY(-60px) scale(1.0); }
+  }
+
+  /* 6. Grammar streak badge */
+  #grammar-streak { margin-left: 6px; }
+  .streak-badge {
+    display: inline-flex; align-items: center; gap: 3px;
+    background: rgba(212,64,48,0.15); border: 1px solid rgba(212,64,48,0.3);
+    border-radius: 20px; padding: 2px 9px;
+    font-size: 0.65rem; font-weight: 700; color: var(--red);
+    animation: streakPop 0.35s cubic-bezier(0.34,1.56,0.64,1);
+    vertical-align: middle;
+  }
+  @keyframes streakPop { 0% { transform:scale(0.6); } 100% { transform:scale(1); } }
+
+  /* 7. Confetti particle */
+  .confetti-particle {
+    position: absolute;
+    animation: confettiFly 0.75s cubic-bezier(0,0.9,0.57,1) forwards;
+  }
+  @keyframes confettiFly {
+    0%   { transform: translate(-50%,-50%) translate(0,0) scale(1); opacity: 1; }
+    100% { transform: translate(-50%,-50%) translate(var(--cdx),var(--cdy)) scale(0); opacity: 0; }
+  }
+
+  /* 8. Session done celebration */
+  .session-done { text-align: center; padding: 40px 20px; }
+  .session-done-icon {
+    font-family: 'Noto Serif SC', serif;
+    font-size: 3.5rem; line-height: 1; margin-bottom: 12px; display: block;
+    animation: doneIconPop 0.6s cubic-bezier(0.34,1.56,0.64,1) both;
+    animation-delay: 0.1s;
+  }
+  .session-done h2 { animation: fadeUp 0.4s ease both; animation-delay: 0.2s; opacity: 0; animation-fill-mode: both; }
+  .session-done p  { animation: fadeUp 0.4s ease both; animation-delay: 0.35s; opacity: 0; animation-fill-mode: both; }
+  .session-done .btn-primary { animation: fadeUp 0.4s ease both; animation-delay: 0.5s; opacity: 0; animation-fill-mode: both; }
+  @keyframes doneIconPop {
+    0%   { transform: scale(0) rotate(-15deg); opacity: 0; }
+    60%  { transform: scale(1.2) rotate(8deg);  opacity: 1; }
+    100% { transform: scale(1) rotate(0deg);    opacity: 1; }
+  }
+  .done-stat-row {
+    display: flex; justify-content: center; gap: 20px; margin: 14px 0 20px;
+    animation: fadeUp 0.4s ease both; animation-delay: 0.4s; opacity: 0; animation-fill-mode: both;
+  }
+  .done-stat { text-align: center; }
+  .done-stat-num { font-size: 1.7rem; font-weight: 800; color: var(--gold); line-height: 1; font-variant-numeric: tabular-nums; }
+  .done-stat-lbl { font-size: 0.52rem; font-weight: 700; color: var(--muted); letter-spacing: 1px; text-transform: uppercase; margin-top: 3px; }
+
   /* ── ACCESSIBILITY & GLOBAL INTERACTION ── */
   button, input { touch-action: manipulation; }
   button:focus-visible { outline: 2px solid var(--red); outline-offset: 2px; border-radius: inherit; }
@@ -771,10 +886,12 @@
   }
   .btn-reset {
     background: none; border: none; color: var(--muted);
-    font-family: 'Space Grotesk', sans-serif; font-size: 0.65rem;
-    cursor: pointer; padding: 0; transition: color 0.15s;
+    font-family: 'Space Grotesk', sans-serif; font-size: 0.62rem;
+    cursor: pointer; padding: 4px 6px; margin-top: 2px; transition: color 0.15s;
+    line-height: 1;
   }
   .btn-reset:hover { color: var(--red); }
+  .btn-reset:active { color: var(--red); transform: scale(0.94); }
   .mastery-bar-wrap {
     background: var(--surface); border-radius: 4px; height: 4px;
     margin-bottom: 14px; overflow: hidden;
@@ -876,6 +993,107 @@
   .grammar-wrong-item:last-child { border-bottom: none; }
   .grammar-wrong-answer { color: var(--green); font-size: 0.72rem; margin-top: 3px; }
 
+  /* ── GRAMMAR ANSWER BAR (mobile bottom sheet) ── */
+  #grammar-answer-bar {
+    position: fixed;
+    bottom: calc(68px + env(safe-area-inset-bottom, 0px));
+    left: 0; right: 0;
+    padding: 12px 18px 14px;
+    display: flex; align-items: center; gap: 12px;
+    border-top: 2px solid var(--border);
+    background: var(--surface);
+    z-index: 95;
+    transform: translateY(calc(100% + 4px));
+    transition: transform 0.32s cubic-bezier(0.34,1.56,0.64,1);
+  }
+  #grammar-answer-bar.show { transform: translateY(0); }
+  #grammar-answer-bar.correct {
+    background: var(--surface2);
+    border-color: var(--green);
+  }
+  #grammar-answer-bar.wrong {
+    background: var(--surface2);
+    border-color: var(--red);
+  }
+  #gab-icon {
+    font-size: 1.3rem; flex-shrink: 0; line-height: 1;
+  }
+  #gab-text {
+    flex: 1; font-size: 0.72rem; line-height: 1.45;
+    color: var(--text-dim);
+  }
+  #gab-text strong { font-weight: 700; color: inherit; margin-right: 4px; }
+  #gab-next {
+    flex-shrink: 0;
+    background: var(--red); color: #fff; border: none; border-radius: 10px;
+    padding: 10px 18px; font-family: 'Space Grotesk', sans-serif;
+    font-size: 0.8rem; font-weight: 700; cursor: pointer;
+    letter-spacing: 0.3px; transition: opacity 0.15s;
+    display: none;
+  }
+  #grammar-answer-bar.show #gab-next { display: block; }
+  #gab-next:active { opacity: 0.8; transform: scale(0.95); }
+  /* Desktop: bar hidden — use in-card feedback */
+  @media (min-width: 601px) { #grammar-answer-bar { display: none; } }
+
+  /* ── GRAMMAR: fit within mobile viewport, no scrolling ── */
+  @media (max-width: 600px) {
+    /* Section: fixed-height flex column */
+    #grammar.active {
+      display: flex;
+      flex-direction: column;
+      height: calc(100dvh - 88px);
+      padding-top: 14px;
+      padding-bottom: calc(68px + env(safe-area-inset-bottom, 0px));
+      overflow: hidden;
+      transition: padding-bottom 0.32s cubic-bezier(0.34,1.56,0.64,1);
+    }
+    /* Push content up when the answer bar slides in */
+    #grammar.active.answer-shown {
+      padding-bottom: calc(185px + env(safe-area-inset-bottom, 0px));
+    }
+    /* Tighter header */
+    #grammar .grammar-nav { flex-shrink: 0; margin-bottom: 8px; }
+    #grammar .grammar-nav strong { font-size: 0.9rem; }
+    #grammar .grammar-progress-wrap { flex-shrink: 0; margin-bottom: 6px; }
+    #grammar .filter-bar { flex-shrink: 0; margin-bottom: 6px; }
+    /* Exercise area fills remaining height */
+    #grammar #exercise-container { flex: 1; min-height: 0; display: flex; flex-direction: column; }
+    /* Old next-wrap and in-card feedback are unused on mobile */
+    #grammar-next-wrap { display: none; }
+    #grammar .feedback { display: none !important; }
+    /* Celebrate stars: float above card, don't push layout */
+    #grammar .celebrate-row {
+      position: absolute; top: 8px; left: 0; right: 0;
+      pointer-events: none; z-index: 2;
+    }
+    /* Card fills the exercise container */
+    #grammar .exercise-card {
+      flex: 0 0 auto;
+      display: flex; flex-direction: column;
+      padding: 14px 16px; margin-bottom: 0;
+      position: relative; overflow: hidden;
+    }
+    #grammar .exercise-type { flex-shrink: 0; margin-bottom: 8px; }
+    #grammar .exercise-question {
+      flex-shrink: 0; font-size: 0.88rem;
+      line-height: 1.5; margin-bottom: 10px;
+    }
+    #grammar .exercise-question span { font-size: 1.2rem; margin-top: 5px; }
+    #grammar .exercise-q-pinyin { font-size: 0.65rem; margin-top: 3px; }
+    /* Options: 2×2 grid filling all remaining space */
+    #grammar .options {
+      display: grid;
+      grid-template-columns: 1fr 1fr;
+      grid-template-rows: repeat(2, 68px);
+      gap: 7px;
+    }
+    #grammar .option-btn { padding: 0 10px; font-size: 1.25rem; justify-content: center; }
+    #grammar .opt-pinyin { font-size: 0.72rem; }
+    /* Session done inside exercise container */
+    #grammar .session-done { flex: 1; overflow-y: auto; padding: 24px 16px; }
+  }
+
   /* ── DESKTOP: wider content + remove mobile bottom padding ── */
   @media (min-width: 601px) {
     .section { padding-bottom: 24px; max-width: 980px; padding-left: 28px; padding-right: 28px; }
@@ -948,10 +1166,10 @@
       <div class="stat-num" style="color:var(--text-dim)" id="stat-total">0</div>
       <div class="stat-label">Total</div>
     </div>
-    <div class="stat-box" style="position:relative">
+    <div class="stat-box">
       <div class="stat-num" style="color:var(--gold)" id="stat-unknown">0</div>
       <div class="stat-label">Por aprender</div>
-      <button class="btn-reset" style="position:absolute;bottom:6px;right:8px" onclick="confirmReset()">Reiniciar</button>
+      <button class="btn-reset" onclick="confirmReset()">Reiniciar</button>
     </div>
   </div>
 
@@ -971,10 +1189,13 @@
 
   <div class="flashcard-wrap">
     <div class="flashcard" id="flashcard">
+      <div class="swipe-tint" id="swipe-tint"></div>
+      <div class="swipe-label swipe-label-left" id="swipe-label-left">✗ No sé</div>
+      <div class="swipe-label swipe-label-right" id="swipe-label-right">✓ Conozco</div>
       <button class="btn-known" id="btn-known" onclick="toggleKnown()" aria-label="Marcar como conocida">
         <i data-lucide="check"></i>
       </button>
-      <div class="card-content">
+      <div class="card-content" id="card-content">
         <div class="category-tag" id="card-cat"></div>
         <div class="char-big" id="card-char"></div>
         <div class="pinyin" id="card-pinyin"></div>
@@ -984,11 +1205,7 @@
     </div>
   </div>
 
-  <div class="session-done" id="session-done" style="display:none">
-    <h2>¡Sesión completada!</h2>
-    <p>Has repasado todas las tarjetas de esta sesión.</p>
-    <button class="btn-primary" onclick="restartSession()"><i data-lucide="refresh-cw"></i>Otra ronda</button>
-  </div>
+  <div class="session-done" id="session-done" style="display:none"></div>
 </div>
 
 <!-- ======================== WRITING ======================== -->
@@ -1077,12 +1294,15 @@
     <div>
       <strong>Ejercicios de gramática</strong>
       <p style="font-size:0.6rem;color:var(--muted);margin-top:3px">Elige la opción correcta</p>
+      <p id="grammar-mastered-count" style="font-size:0.6rem;color:var(--gold);margin-top:2px">0 / 100 dominadas</p>
     </div>
     <div style="display:flex;align-items:center;gap:10px;flex-shrink:0">
+      <span id="grammar-streak"></span>
       <div class="grammar-score" id="grammar-score-pct"></div>
       <div style="font-size:0.8rem;font-weight:600;font-variant-numeric:tabular-nums">
         <span style="color:var(--green)" id="grammar-score-correct">0</span><span style="color:var(--muted)"> / </span><span style="color:var(--text-dim)" id="grammar-score-total">0</span>
       </div>
+      <button onclick="resetGrammarMastered()" style="font-size:0.6rem;color:var(--muted);background:none;border:none;cursor:pointer;font-family:inherit;padding:2px 4px;flex-shrink:0" title="Reiniciar progreso">Reiniciar</button>
     </div>
   </div>
 
@@ -1094,7 +1314,7 @@
 
   <div id="exercise-container"></div>
 
-  <div style="text-align:center;margin-top:16px">
+  <div id="grammar-next-wrap" style="text-align:center;margin-top:16px">
     <button class="btn-primary" id="next-exercise" onclick="nextExercise()"><i data-lucide="arrow-right"></i>Siguiente</button>
   </div>
 </div>
@@ -1484,7 +1704,34 @@ const VOCAB = [
 // PINYIN LOOKUP
 // ================================================================
 const _pinyinMap = Object.fromEntries(VOCAB.map(v => [v.char, v.pinyin]));
-function pinyinFor(char) { return _pinyinMap[char] || ''; }
+const _extraPinyin = {
+  // Particles
+  '嘛':'ma', '啊':'a',
+  // Classifiers
+  '条':'tiáo', '件':'jiàn', '把':'bǎ', '瓶':'píng', '双':'shuāng',
+  '对':'duì', '台':'tái', '间':'jiān', '首':'shǒu', '封':'fēng',
+  '棵':'kē', '朵':'duǒ', '座':'zuò',
+  // Adverbs & connectors
+  '也':'yě', '都':'dōu', '还':'hái', '又':'yòu', '再':'zài',
+  '才':'cái', '就':'jiù', '别':'bié',
+  // Modal verbs
+  '会':'huì', '能':'néng', '想':'xiǎng', '要':'yào', '得':'děi',
+  // Multi-char options
+  '没有':'méi yǒu', '不想':'bù xiǎng', '不用':'bù yòng',
+  '不会':'bù huì', '不能':'bù néng', '没去':'méi qù',
+  '很想':'hěn xiǎng', '没想':'méi xiǎng', '从不':'cóng bù',
+  '哪个':'nǎ ge', '怎么':'zěnme', '什么时候':'shénme shíhou',
+  '为什么':'wèishénme', '多大':'duō dà', '几岁':'jǐ suì',
+  '多久':'duō jiǔ', '几点':'jǐ diǎn', '多高':'duō gāo',
+  '多少':'duōshǎo', '怎么样':'zěnmeyàng', '哪里':'nǎlǐ',
+  '已经':'yǐjīng', '正在':'zhèngzài', '一起':'yīqǐ',
+  '一直':'yīzhí', '需要':'xūyào', '应该':'yīnggāi', '可以':'kěyǐ',
+};
+function pinyinFor(char) { return _pinyinMap[char] || _extraPinyin[char] || ''; }
+
+const GRAMMAR_MASTERED_KEY = 'chino-grammar-mastered-v1';
+const loadMasteredGrammar = () => { try { return new Set(JSON.parse(localStorage.getItem(GRAMMAR_MASTERED_KEY) || '[]')); } catch { return new Set(); } };
+const saveMasteredGrammar = (s) => { localStorage.setItem(GRAMMAR_MASTERED_KEY, JSON.stringify([...s])); };
 
 // ================================================================
 // EXAMPLE SENTENCES
@@ -1857,17 +2104,29 @@ function saveState() { localStorage.setItem('chino-state', JSON.stringify(state)
 // ================================================================
 const SECTION_HASH = { vocab: '#vocab', writing: '#characters', grammar: '#grammar' };
 const HASH_SECTION = { '#vocab': 'vocab', '#characters': 'writing', '#grammar': 'grammar' };
+const TAB_ORDER = ['vocab', 'writing', 'grammar'];
+let _currentTabId = null;
 
 function navigateTo(id) {
+  const prevId = _currentTabId;
   document.querySelectorAll('.section').forEach(s => s.classList.remove('active'));
   document.querySelectorAll('nav button').forEach(b => b.classList.remove('active'));
-  document.getElementById(id).classList.add('active');
+  const el = document.getElementById(id);
+  el.classList.add('active');
   const navBtn = document.querySelector(`nav button[data-section="${id}"]`);
   if (navBtn) navBtn.classList.add('active');
   if (id === 'vocab') initVocab();
   if (id === 'writing') initWriting();
   if (id === 'grammar') initGrammar();
   lucide.createIcons();
+  // Direction-aware slide animation
+  const dir = !prevId ? 'Right' : (TAB_ORDER.indexOf(id) > TAB_ORDER.indexOf(prevId) ? 'Right' : 'Left');
+  el.style.animation = 'none';
+  requestAnimationFrame(() => requestAnimationFrame(() => {
+    el.style.animation = `slideIn${dir} 0.27s cubic-bezier(0.25,0.46,0.45,0.94) both`;
+    setTimeout(() => { el.style.animation = ''; }, 300);
+  }));
+  _currentTabId = id;
 }
 
 function showSection(id) {
@@ -1929,13 +2188,30 @@ function restartSession() {
   showCard();
 }
 
+function animateCount(el, from, to, duration) {
+  const start = performance.now();
+  const update = () => {
+    const t = Math.min((performance.now() - start) / duration, 1);
+    const eased = 1 - Math.pow(1 - t, 3);
+    el.textContent = Math.round(from + (to - from) * eased);
+    if (t < 1) requestAnimationFrame(update);
+  };
+  requestAnimationFrame(update);
+}
+
 function updateStats() {
   const known = VOCAB.filter(v => (state[v.char] || {}).known).length;
   const unknown = VOCAB.length - known;
   const pct = Math.round((known / VOCAB.length) * 100);
-  document.getElementById('stat-learned').textContent = known;
+  const learnedEl = document.getElementById('stat-learned');
+  const unknownEl = document.getElementById('stat-unknown');
+  const prev = parseInt(learnedEl.textContent) || 0;
+  const prevU = parseInt(unknownEl.textContent) || 0;
+  if (prev !== known) animateCount(learnedEl, prev, known, 450);
+  else learnedEl.textContent = known;
+  if (prevU !== unknown) animateCount(unknownEl, prevU, unknown, 450);
+  else unknownEl.textContent = unknown;
   document.getElementById('stat-total').textContent = VOCAB.length;
-  document.getElementById('stat-unknown').textContent = unknown;
   document.getElementById('stat-pct').textContent = pct + '%';
   const circ = 144.5;
   const offset = circ - (pct / 100) * circ;
@@ -1945,7 +2221,43 @@ function updateStats() {
 function showCard() {
   if (currentIdx >= currentQueue.length) {
     document.getElementById('flashcard').style.display = 'none';
-    document.getElementById('session-done').style.display = 'block';
+    const known = VOCAB.filter(v => (state[v.char] || {}).known).length;
+    const sessionKnown = currentQueue.filter(v => (state[v.char] || {}).known).length;
+    const doneSec = document.getElementById('session-done');
+    doneSec.style.display = 'block';
+    doneSec.innerHTML = `
+      <span class="session-done-icon">完</span>
+      <h2>¡Sesión completada!</h2>
+      <div class="done-stat-row">
+        <div class="done-stat">
+          <div class="done-stat-num" id="done-num-known">0</div>
+          <div class="done-stat-lbl">Conocidas</div>
+        </div>
+        <div class="done-stat" style="border-left:1px solid var(--border);padding-left:20px">
+          <div class="done-stat-num" style="color:var(--red)" id="done-num-total">0</div>
+          <div class="done-stat-lbl">En esta sesión</div>
+        </div>
+        <div class="done-stat" style="border-left:1px solid var(--border);padding-left:20px">
+          <div class="done-stat-num" style="color:var(--green)" id="done-num-pct">0%</div>
+          <div class="done-stat-lbl">Dominadas</div>
+        </div>
+      </div>
+      <button class="btn-primary" onclick="restartSession()"><i data-lucide="refresh-cw"></i>Otra ronda</button>`;
+    lucide.createIcons();
+    setTimeout(() => {
+      animateCount(document.getElementById('done-num-known'), 0, known, 700);
+      animateCount(document.getElementById('done-num-total'), 0, currentQueue.length, 700);
+      const pct = Math.round((known / VOCAB.length) * 100);
+      const pctEl = document.getElementById('done-num-pct');
+      const start = performance.now();
+      const animPct = () => {
+        const t = Math.min((performance.now() - start) / 700, 1);
+        const e = 1 - Math.pow(1 - t, 3);
+        pctEl.textContent = Math.round(pct * e) + '%';
+        if (t < 1) requestAnimationFrame(animPct);
+      };
+      requestAnimationFrame(animPct);
+    }, 300);
     return;
   }
   currentCard = currentQueue[currentIdx];
@@ -1956,6 +2268,9 @@ function showCard() {
   renderExample(currentCard, document.getElementById('card-example'));
   const isKnown = !!(state[currentCard.char] || {}).known;
   document.getElementById('btn-known').classList.toggle('known', isKnown);
+  // Animate card content in
+  const cc = document.getElementById('card-content');
+  if (cc) { cc.classList.remove('card-content-anim'); void cc.offsetWidth; cc.classList.add('card-content-anim'); }
 
   const pct = Math.round((currentIdx / currentQueue.length) * 100);
   document.getElementById('progress-bar').style.width = pct + '%';
@@ -1979,6 +2294,7 @@ function toggleKnown() {
   saveState();
   updateStats();
   document.getElementById('btn-known').classList.toggle('known', s.known);
+  if (navigator.vibrate) navigator.vibrate(s.known ? 40 : 20);
 }
 
 function toggleOnlyUnknown() {
@@ -2350,6 +2666,24 @@ function modeSegClick(mode) {
   }
 }
 
+function spawnConfetti(container) {
+  const COLORS = ['#d95232','#c8954a','#5cbf87','#4a90d9','#f0ebe6','#a78bfa'];
+  for (let i = 0; i < 20; i++) {
+    const p = document.createElement('div');
+    p.className = 'confetti-particle';
+    const angle = (i / 20) * 360 + Math.random() * 18;
+    const dist = 35 + Math.random() * 55;
+    const dx = Math.cos(angle * Math.PI / 180) * dist;
+    const dy = Math.sin(angle * Math.PI / 180) * dist;
+    const size = 4 + Math.random() * 5;
+    p.style.cssText = `width:${size}px;height:${size}px;border-radius:${Math.random()>.5?'50%':'3px'};`
+      + `background:${COLORS[i % COLORS.length]};left:50%;top:50%;`
+      + `--cdx:${dx}px;--cdy:${dy}px;animation-delay:${Math.random()*0.05}s`;
+    container.appendChild(p);
+    setTimeout(() => p.remove(), 900);
+  }
+}
+
 function showDoneFlash(onDone) {
   const flash = document.getElementById('hz-done-flash');
   const container = document.getElementById('hanzi-container');
@@ -2359,6 +2693,8 @@ function showDoneFlash(onDone) {
   flash.style.opacity = '1';
   const check = flash.querySelector('.done-check');
   if (check) { check.style.animation = 'none'; check.offsetHeight; check.style.animation = ''; }
+  spawnConfetti(container);
+  if (navigator.vibrate) navigator.vibrate([60, 40, 100]);
   setTimeout(() => {
     flash.style.opacity = '0';
     flash.style.animation = '';
@@ -2446,7 +2782,95 @@ const EXERCISES = [
   {type:'Negación', q:'No tengo hambre.<br><span style="font-size:1.3rem">我___饿。</span>', qPinyin:'wǒ ___ è。', options:['不','没','很','也'], answer:'不', explanation:'不 niega el estado actual o la voluntad.'},
   {type:'Negación', q:'No he comido.<br><span style="font-size:1.3rem">我___吃。</span>', qPinyin:'wǒ ___ chī。', options:['没','不','也','很'], answer:'没', explanation:'没 niega acciones en el pasado.'},
   {type:'Negación', q:'No puedo (capacidad física).<br><span style="font-size:1.3rem">我___能去。</span>', qPinyin:'wǒ ___ néng qù。', options:['不','没','很','也'], answer:'不', explanation:'不 se usa con verbos modales como 能, 会, 要.'},
+  {type:'Negación', q:'No tengo dinero.<br><span style="font-size:1.3rem">我___钱。</span>', qPinyin:'wǒ ___ qián。', options:['没有','不','也','很'], answer:'没有', explanation:'没有 niega la posesión. 有 es verbo, así que se niega con 没, nunca con 不.'},
+  {type:'Negación', q:'¡No toques eso!<br><span style="font-size:1.3rem">___碰那个！</span>', qPinyin:'___ pèng nà ge！', options:['别','不','没','很'], answer:'别', explanation:'别 se usa en imperativo para prohibir: "¡No hagas eso!".'},
+  {type:'Negación', q:'No quiero ir.<br><span style="font-size:1.3rem">我___去。</span>', qPinyin:'wǒ ___ qù。', options:['不想','没去','不用','很想'], answer:'不想', explanation:'不想 niega el deseo o intención. 不 + verbo de estado mental.'},
+  {type:'Negación', q:'¡No hables!<br><span style="font-size:1.3rem">___说话！</span>', qPinyin:'___ shuōhuà！', options:['别','不','没','很'], answer:'别', explanation:'别 es la partícula prohibitiva en imperativo.'},
+  {type:'Negación', q:'No es así.<br><span style="font-size:1.3rem">___是这样。</span>', qPinyin:'___ shì zhèyàng。', options:['不','没','别','很'], answer:'不', explanation:'不是 niega la identidad o descripción de algo.'},
+  {type:'Negación', q:'Nunca he ido a China.<br><span style="font-size:1.3rem">我___去过中国。</span>', qPinyin:'wǒ ___ qù guò Zhōngguó。', options:['没','不','别','很'], answer:'没', explanation:'没 + verbo + 过 niega una experiencia pasada.'},
+  {type:'Negación', q:'No es muy bueno.<br><span style="font-size:1.3rem">___太好。</span>', qPinyin:'___ tài hǎo。', options:['不','没','别','很'], answer:'不', explanation:'不太 = "no muy". 不 niega adjetivos y estados.'},
+  {type:'Negación', q:'No hace falta que vengas.<br><span style="font-size:1.3rem">你___来了。</span>', qPinyin:'nǐ ___ lái le。', options:['不用','没有','不想','别'], answer:'不用', explanation:'不用 significa "no hace falta / no es necesario".'},
+  {type:'Negación', q:'Él todavía no ha llegado.<br><span style="font-size:1.3rem">他还___来。</span>', qPinyin:'tā hái ___ lái。', options:['没','不','别','很'], answer:'没', explanation:'还没 = "todavía no". 没 niega que la acción haya ocurrido.'},
+  {type:'Negación', q:'Eso no está bien.<br><span style="font-size:1.3rem">这___行。</span>', qPinyin:'zhè ___ xíng。', options:['不','没','别','很'], answer:'不', explanation:'不行 significa "no está bien / no es posible".'},
+  {type:'Negación', q:'No lo sé.<br><span style="font-size:1.3rem">我___知道。</span>', qPinyin:'wǒ ___ zhīdào。', options:['不','没','别','很'], answer:'不', explanation:'不知道 = "no saber". 不 niega estados de conocimiento.'},
+  {type:'Negación', q:'El paquete aún no ha llegado.<br><span style="font-size:1.3rem">包裹___到。</span>', qPinyin:'bāoguǒ ___ dào。', options:['没','不','别','很'], answer:'没', explanation:'没 niega la completación de una acción.'},
+  // Partículas — avanzadas
+  {type:'Partículas', q:'Él es estudiante, ¿verdad?<br><span style="font-size:1.3rem">他是学生___？</span>', qPinyin:'tā shì xuésheng ___？', options:['吧','吗','呢','啊'], answer:'吧', explanation:'吧 pide confirmación o expresa suposición, similar a "¿verdad?" o "¿no?".'},
+  {type:'Partículas', q:'¡El paisaje es muy bonito!<br><span style="font-size:1.3rem">风景真美___！</span>', qPinyin:'fēngjǐng zhēn měi ___！', options:['啊','吗','吧','了'], answer:'啊', explanation:'啊 al final de la frase expresa admiración o emoción.'},
+  {type:'Partículas', q:'¿Tú no vienes?<br><span style="font-size:1.3rem">你不来___？</span>', qPinyin:'nǐ bù lái ___？', options:['吗','呢','吧','的'], answer:'吗', explanation:'吗 convierte cualquier oración en pregunta de sí/no.'},
+  {type:'Partículas', q:'Ya lo sé (ahora).<br><span style="font-size:1.3rem">我知道___。</span>', qPinyin:'wǒ zhīdào ___。', options:['了','吗','吧','呢'], answer:'了', explanation:'了 indica cambio de estado: "antes no sabía, ahora sí".'},
+  {type:'Partículas', q:'Este libro es mío (énfasis).<br><span style="font-size:1.3rem">这本书是我___。</span>', qPinyin:'zhè běn shū shì wǒ ___。', options:['的','了','吧','吗'], answer:'的', explanation:'的 al final de una frase con 是 enfatiza la certeza o identidad.'},
+  {type:'Partículas', q:'¿Y él (qué va a hacer)?<br><span style="font-size:1.3rem">他___？</span>', qPinyin:'tā ___？', options:['呢','吗','吧','啊'], answer:'呢', explanation:'呢 en pregunta corta retoma el mismo tema: "¿y él?".'},
+  {type:'Partículas', q:'Me voy ya.<br><span style="font-size:1.3rem">我走___。</span>', qPinyin:'wǒ zǒu ___。', options:['了','吗','呢','吧'], answer:'了', explanation:'了 indica que la acción está a punto de ocurrir o ha cambiado la situación.'},
+  {type:'Partículas', q:'¡Corre rápido!<br><span style="font-size:1.3rem">快跑___！</span>', qPinyin:'kuài pǎo ___！', options:['啊','吗','吧','了'], answer:'啊', explanation:'啊 en imperativo suaviza la orden o añade urgencia y ánimo.'},
+  {type:'Partículas', q:'Esto es de él.<br><span style="font-size:1.3rem">这是他___。</span>', qPinyin:'zhè shì tā ___。', options:['的','了','吗','吧'], answer:'的', explanation:'的 al final indica posesión o pertenencia tras 是.'},
+  {type:'Partículas', q:'Va a llover (cambio inminente).<br><span style="font-size:1.3rem">要下雨___。</span>', qPinyin:'yào xià yǔ ___。', options:['了','吗','吧','呢'], answer:'了', explanation:'了 con 要 anuncia un cambio que está a punto de ocurrir.'},
+  {type:'Partículas', q:'¿Tienes novio/a?<br><span style="font-size:1.3rem">你有男朋友___？</span>', qPinyin:'nǐ yǒu nánpéngyou ___？', options:['吗','呢','吧','了'], answer:'吗', explanation:'吗 al final convierte la oración en pregunta directa de sí/no.'},
+  {type:'Partículas', q:'Pues claro que es fácil.<br><span style="font-size:1.3rem">这很简单___。</span>', qPinyin:'zhè hěn jiǎndān ___。', options:['嘛','吗','呢','吧'], answer:'嘛', explanation:'嘛 indica que algo es obvio, como decir "¡pues claro!".'},
+  {type:'Partículas', q:'Llevas mucho tiempo esperando.<br><span style="font-size:1.3rem">你等很久___。</span>', qPinyin:'nǐ děng hěn jiǔ ___。', options:['了','吗','吧','呢'], answer:'了', explanation:'了 al final indica que una situación ya ha durado bastante tiempo.'},
+  {type:'Partículas', q:'¿Comemos juntos?<br><span style="font-size:1.3rem">我们一起吃饭___？</span>', qPinyin:'wǒmen yīqǐ chīfàn ___？', options:['吧','吗','呢','啊'], answer:'吧', explanation:'吧 con tono interrogativo hace una propuesta o busca acuerdo.'},
+  // Clasificadores — avanzados
+  {type:'Clasificadores', q:'Un pez<br><span style="font-size:1.3rem">一___鱼</span>', qPinyin:'yī ___ yú', options:['条','只','本','个'], answer:'条', explanation:'条 se usa para objetos largos y flexibles: peces, ríos, calles, pantalones.'},
+  {type:'Clasificadores', q:'Una prenda de ropa<br><span style="font-size:1.3rem">一___衣服</span>', qPinyin:'yī ___ yīfu', options:['件','个','条','张'], answer:'件', explanation:'件 se usa para prendas de ropa y asuntos.'},
+  {type:'Clasificadores', q:'Un paraguas<br><span style="font-size:1.3rem">一___雨伞</span>', qPinyin:'yī ___ yǔsǎn', options:['把','个','条','本'], answer:'把', explanation:'把 se usa para objetos con mango o asa: paraguas, cuchillo, silla.'},
+  {type:'Clasificadores', q:'Una botella de agua<br><span style="font-size:1.3rem">一___水</span>', qPinyin:'yī ___ shuǐ', options:['瓶','杯','个','条'], answer:'瓶', explanation:'瓶 significa "botella" y se usa para líquidos embotellados.'},
+  {type:'Clasificadores', q:'Un par de zapatos<br><span style="font-size:1.3rem">一___鞋</span>', qPinyin:'yī ___ xié', options:['双','对','只','件'], answer:'双', explanation:'双 significa "par" para objetos que van en parejas: zapatos, calcetines, palillos.'},
+  {type:'Clasificadores', q:'Un ordenador<br><span style="font-size:1.3rem">一___电脑</span>', qPinyin:'yī ___ diànnǎo', options:['台','个','件','张'], answer:'台', explanation:'台 se usa para maquinaria y aparatos electrónicos: ordenador, televisión, lavadora.'},
+  {type:'Clasificadores', q:'Una habitación<br><span style="font-size:1.3rem">一___房间</span>', qPinyin:'yī ___ fángjiān', options:['间','个','张','座'], answer:'间', explanation:'间 es el clasificador para habitaciones y espacios interiores.'},
+  {type:'Clasificadores', q:'Una canción<br><span style="font-size:1.3rem">一___歌</span>', qPinyin:'yī ___ gē', options:['首','个','条','张'], answer:'首', explanation:'首 se usa para canciones y poemas.'},
+  {type:'Clasificadores', q:'Una carta<br><span style="font-size:1.3rem">一___信</span>', qPinyin:'yī ___ xìn', options:['封','张','个','条'], answer:'封', explanation:'封 es el clasificador para cartas y correos electrónicos.'},
+  {type:'Clasificadores', q:'Un pantalón<br><span style="font-size:1.3rem">一___裤子</span>', qPinyin:'yī ___ kùzi', options:['条','件','双','个'], answer:'条', explanation:'条 se usa para pantalones, faldas y objetos largos en general.'},
+  {type:'Clasificadores', q:'Un árbol<br><span style="font-size:1.3rem">一___树</span>', qPinyin:'yī ___ shù', options:['棵','个','条','张'], answer:'棵', explanation:'棵 es el clasificador para plantas y árboles.'},
+  {type:'Clasificadores', q:'Cuatro sillas<br><span style="font-size:1.3rem">四___椅子</span>', qPinyin:'sì ___ yǐzi', options:['把','个','张','条'], answer:'把', explanation:'把 también se usa para sillas (objetos con respaldo/asa).'},
+  {type:'Clasificadores', q:'Dos flores<br><span style="font-size:1.3rem">两___花</span>', qPinyin:'liǎng ___ huā', options:['朵','个','条','只'], answer:'朵', explanation:'朵 es el clasificador para flores y nubes.'},
+  {type:'Clasificadores', q:'Un edificio grande<br><span style="font-size:1.3rem">一___大楼</span>', qPinyin:'yī ___ dàlóu', options:['座','个','间','张'], answer:'座', explanation:'座 se usa para estructuras grandes: edificios, montañas, puentes.'},
+  // Interrogativas — avanzadas
+  {type:'Interrogativas', q:'¿Cuántas personas hay?<br><span style="font-size:1.3rem">有___人？</span>', qPinyin:'yǒu ___ rén？', options:['多少','几','什么','谁'], answer:'多少', explanation:'多少 se usa para cantidades grandes o sin límite esperado.'},
+  {type:'Interrogativas', q:'¿Cuánto cuesta?<br><span style="font-size:1.3rem">这___钱？</span>', qPinyin:'zhè ___ qián？', options:['多少','几','什么','哪里'], answer:'多少', explanation:'多少钱 es la forma estándar de preguntar el precio.'},
+  {type:'Interrogativas', q:'¿Cómo se va a la estación?<br><span style="font-size:1.3rem">___去火车站？</span>', qPinyin:'___ qù huǒchēzhàn？', options:['怎么','什么','哪里','谁'], answer:'怎么', explanation:'怎么 pregunta por el método o modo de hacer algo.'},
+  {type:'Interrogativas', q:'¿Cuál quieres?<br><span style="font-size:1.3rem">你要___？</span>', qPinyin:'nǐ yào ___？', options:['哪个','什么','谁','几'], answer:'哪个', explanation:'哪个 significa "¿cuál?" y elige entre opciones específicas.'},
+  {type:'Interrogativas', q:'¿Cuándo es tu cumpleaños?<br><span style="font-size:1.3rem">你的生日是___？</span>', qPinyin:'nǐde shēngrì shì ___？', options:['什么时候','怎么样','哪里','多少'], answer:'什么时候', explanation:'什么时候 significa "¿cuándo?" o "¿en qué momento?".'},
+  {type:'Interrogativas', q:'¿Por qué estás triste?<br><span style="font-size:1.3rem">你___难过？</span>', qPinyin:'nǐ ___ nánguò？', options:['为什么','什么','怎么','哪里'], answer:'为什么', explanation:'为什么 significa "¿por qué?".'},
+  {type:'Interrogativas', q:'¿Cuántos años tienes? (adulto)<br><span style="font-size:1.3rem">你___了？</span>', qPinyin:'nǐ ___ le？', options:['多大','几岁','什么','多少'], answer:'多大', explanation:'多大 se usa para preguntar la edad a adultos; 几岁 se usa más con niños.'},
+  {type:'Interrogativas', q:'¿Cuánto tiempo tardas?<br><span style="font-size:1.3rem">你要___？</span>', qPinyin:'nǐ yào ___？', options:['多久','多少','什么时候','怎么'], answer:'多久', explanation:'多久 pregunta por la duración de tiempo.'},
+  {type:'Interrogativas', q:'¿Qué hora es?<br><span style="font-size:1.3rem">现在___？</span>', qPinyin:'xiànzài ___？', options:['几点','多少','什么','哪里'], answer:'几点', explanation:'几点 significa "¿qué hora es?". 点 = en punto.'},
+  {type:'Interrogativas', q:'¿De qué color es?<br><span style="font-size:1.3rem">这是___颜色？</span>', qPinyin:'zhè shì ___ yánsè？', options:['什么','哪','几','多少'], answer:'什么', explanation:'什么 + sustantivo pregunta por características como el color o tipo.'},
+  {type:'Interrogativas', q:'¿Cuánto mides?<br><span style="font-size:1.3rem">你___？</span>', qPinyin:'nǐ ___？', options:['多高','多少','几','哪里'], answer:'多高', explanation:'多高 pregunta la altura. 多 + adjetivo es el patrón para medidas.'},
+  {type:'Interrogativas', q:'¿De qué país eres?<br><span style="font-size:1.3rem">你是___国人？</span>', qPinyin:'nǐ shì ___ guó rén？', options:['哪','什么','谁','哪里'], answer:'哪', explanation:'哪 significa "¿cuál?" al modificar directamente un sustantivo.'},
+  {type:'Interrogativas', q:'¿Adónde vas?<br><span style="font-size:1.3rem">你去___？</span>', qPinyin:'nǐ qù ___？', options:['哪里','什么','谁','怎么'], answer:'哪里', explanation:'哪里 significa "¿dónde?" o "¿adónde?".'},
+  {type:'Interrogativas', q:'¿Qué estás haciendo?<br><span style="font-size:1.3rem">你在做___？</span>', qPinyin:'nǐ zài zuò ___？', options:['什么','谁','哪里','怎么'], answer:'什么', explanation:'什么 pregunta sobre objetos o acciones: "¿qué?".'},
+  {type:'Interrogativas', q:'¿Cómo está la comida?<br><span style="font-size:1.3rem">食物___？</span>', qPinyin:'shíwù ___？', options:['怎么样','什么','几','哪里'], answer:'怎么样', explanation:'怎么样 pregunta cómo es algo o cómo está alguien.'},
+  // Verbos modales
+  {type:'Verbos modales', q:'Sé nadar (habilidad aprendida).<br><span style="font-size:1.3rem">我___游泳。</span>', qPinyin:'wǒ ___ yóuyǒng。', options:['会','能','要','想'], answer:'会', explanation:'会 indica una habilidad adquirida mediante aprendizaje.'},
+  {type:'Verbos modales', q:'Puedo levantar mucho peso (capacidad física).<br><span style="font-size:1.3rem">我___举起来。</span>', qPinyin:'wǒ ___ jǔ qǐlái。', options:['能','会','要','应该'], answer:'能', explanation:'能 indica capacidad física o circunstancial en un momento dado.'},
+  {type:'Verbos modales', q:'Quiero comer pizza.<br><span style="font-size:1.3rem">我___吃披萨。</span>', qPinyin:'wǒ ___ chī pīsà。', options:['想','要','会','能'], answer:'想', explanation:'想 expresa deseo o ganas de hacer algo.'},
+  {type:'Verbos modales', q:'Deberías descansar más.<br><span style="font-size:1.3rem">你___多休息。</span>', qPinyin:'nǐ ___ duō xiūxi。', options:['应该','想','能','会'], answer:'应该', explanation:'应该 significa "debería". Expresa obligación moral o consejo.'},
+  {type:'Verbos modales', q:'¿Puedo entrar? (pedir permiso)<br><span style="font-size:1.3rem">我___进来吗？</span>', qPinyin:'wǒ ___ jìnlái ma？', options:['可以','会','想','应该'], answer:'可以', explanation:'可以 pide o da permiso: "¿puedo...?" / "sí, puedes...".'},
+  {type:'Verbos modales', q:'Mañana va a llover.<br><span style="font-size:1.3rem">明天___下雨。</span>', qPinyin:'míngtiān ___ xià yǔ。', options:['要','会','能','想'], answer:'要', explanation:'要 indica que algo va a ocurrir o es inminente.'},
+  {type:'Verbos modales', q:'Hoy no puedo venir (impedimento).<br><span style="font-size:1.3rem">我今天不___来。</span>', qPinyin:'wǒ jīntiān bù ___ lái。', options:['能','会','要','想'], answer:'能', explanation:'不能 indica un impedimento externo o circunstancial.'},
+  {type:'Verbos modales', q:'Seguro que lo sabrá (predicción).<br><span style="font-size:1.3rem">他___知道答案。</span>', qPinyin:'tā ___ zhīdào dáàn。', options:['会','能','要','应该'], answer:'会', explanation:'会 también expresa predicción o probabilidad sobre el futuro.'},
+  {type:'Verbos modales', q:'Hay que estudiar mucho.<br><span style="font-size:1.3rem">___努力学习。</span>', qPinyin:'___ nǔlì xuéxí。', options:['要','会','能','想'], answer:'要', explanation:'要 expresa obligación o necesidad: "hay que / se debe".'},
+  {type:'Verbos modales', q:'No hace falta que pagues.<br><span style="font-size:1.3rem">你___付钱。</span>', qPinyin:'nǐ ___ fù qián。', options:['不用','不会','不能','不想'], answer:'不用', explanation:'不用 = "no hace falta". Se opone a 要 y 得 para indicar ausencia de necesidad.'},
+  {type:'Verbos modales', q:'Tienes que ir al médico.<br><span style="font-size:1.3rem">你___去看医生。</span>', qPinyin:'nǐ ___ qù kàn yīshēng。', options:['得','会','想','能'], answer:'得', explanation:'得 (děi) expresa obligación fuerte: "tienes que / hay que".'},
+  {type:'Verbos modales', q:'¿Sabes hablar chino?<br><span style="font-size:1.3rem">你___说中文吗？</span>', qPinyin:'nǐ ___ shuō Zhōngwén ma？', options:['会','能','要','想'], answer:'会', explanation:'会 pregunta si alguien tiene la habilidad aprendida de hacer algo.'},
+  {type:'Verbos modales', q:'Necesito más tiempo.<br><span style="font-size:1.3rem">我___更多时间。</span>', qPinyin:'wǒ ___ gèng duō shíjiān。', options:['需要','要','想','能'], answer:'需要', explanation:'需要 significa "necesitar". Es más objetivo y formal que 想.'},
+  {type:'Verbos modales', q:'No deberías llegar tarde.<br><span style="font-size:1.3rem">你不___迟到。</span>', qPinyin:'nǐ bù ___ chídào。', options:['应该','能','会','想'], answer:'应该', explanation:'不应该 significa "no deberías". Expresa reproche o consejo moral.'},
+  {type:'Verbos modales', q:'Quiero ir a China algún día.<br><span style="font-size:1.3rem">我___去中国。</span>', qPinyin:'wǒ ___ qù Zhōngguó。', options:['想','要','会','能'], answer:'想', explanation:'想 expresa un deseo o aspiración personal.'},
+  // Adverbios
+  {type:'Adverbios', q:'Yo también voy.<br><span style="font-size:1.3rem">我___去。</span>', qPinyin:'wǒ ___ qù。', options:['也','都','还','又'], answer:'也', explanation:'也 significa "también" y va antes del verbo.'},
+  {type:'Adverbios', q:'Todos vienen.<br><span style="font-size:1.3rem">他们___来。</span>', qPinyin:'tāmen ___ lái。', options:['都','也','还','就'], answer:'都', explanation:'都 significa "todos/todo" y va antes del verbo o adjetivo.'},
+  {type:'Adverbios', q:'Todavía está estudiando.<br><span style="font-size:1.3rem">他___在学习。</span>', qPinyin:'tā ___ zài xuéxí。', options:['还','也','都','就'], answer:'还', explanation:'还 significa "todavía / aún". Indica que una situación continúa.'},
+  {type:'Adverbios', q:'Ha vuelto a llegar tarde (ya ocurrió).<br><span style="font-size:1.3rem">他___迟到了。</span>', qPinyin:'tā ___ chídào le。', options:['又','再','也','都'], answer:'又', explanation:'又 indica que una acción pasada se ha repetido.'},
+  {type:'Adverbios', q:'No llegues tarde otra vez (en el futuro).<br><span style="font-size:1.3rem">别___迟到了。</span>', qPinyin:'bié ___ chídào le。', options:['再','又','也','还'], answer:'再', explanation:'再 indica repetición futura o hipotética: "otra vez (que ocurrirá)".'},
+  {type:'Adverbios', q:'Ya he comido.<br><span style="font-size:1.3rem">我___吃了。</span>', qPinyin:'wǒ ___ chī le。', options:['已经','还','又','都'], answer:'已经', explanation:'已经 significa "ya" (completado). Va antes del verbo.'},
+  {type:'Adverbios', q:'Estoy comiendo ahora mismo.<br><span style="font-size:1.3rem">我___吃饭。</span>', qPinyin:'wǒ ___ chīfàn。', options:['正在','已经','还','就'], answer:'正在', explanation:'正在 indica acción en curso en este momento (progresivo).'},
+  {type:'Adverbios', q:'En cuanto llegue, te llamo.<br><span style="font-size:1.3rem">我到了___给你打电话。</span>', qPinyin:'wǒ dào le ___ gěi nǐ dǎ diànhuà。', options:['就','才','还','也'], answer:'就', explanation:'就 indica consecuencia inmediata: "en cuanto... entonces...".'},
+  {type:'Adverbios', q:'Solo me fui cuando terminé.<br><span style="font-size:1.3rem">我做完了___走。</span>', qPinyin:'wǒ zuò wán le ___ zǒu。', options:['才','就','也','都'], answer:'才', explanation:'才 indica que la acción solo ocurrió bajo cierta condición: "solo entonces".'},
+  {type:'Adverbios', q:'Vamos juntos.<br><span style="font-size:1.3rem">我们___去吧。</span>', qPinyin:'wǒmen ___ qù ba。', options:['一起','一直','都','还'], answer:'一起', explanation:'一起 significa "juntos". Se coloca antes del verbo.'},
 ];
+
+const EXERCISE_INDEX = new Map(EXERCISES.map((ex, i) => [ex, i]));
+let masteredGrammar = loadMasteredGrammar();
 
 let grammarQueue = [];
 let grammarIdx = 0;
@@ -2454,6 +2878,56 @@ let grammarCorrect = 0;
 let grammarTotal = 0;
 let grammarWrong = [];
 let activeGrammarCat = 'Todas';
+let grammarStreak = 0;
+
+function showAnswerBar(correct, explanation) {
+  if (window.innerWidth > 600) return; // desktop uses in-card feedback
+  const bar = document.getElementById('grammar-answer-bar');
+  const icon = document.getElementById('gab-icon');
+  const text = document.getElementById('gab-text');
+  if (!bar) return;
+  bar.className = correct ? 'show correct' : 'show wrong';
+  icon.textContent = correct ? '✓' : '✗';
+  icon.style.color = correct ? 'var(--green)' : 'var(--red)';
+  text.innerHTML = `<strong style="color:${correct ? 'var(--green)' : 'var(--red)'}">${correct ? '¡Correcto!' : 'Incorrecto'}</strong>${explanation}`;
+  document.getElementById('grammar')?.classList.add('answer-shown');
+}
+
+function hideAnswerBar() {
+  const bar = document.getElementById('grammar-answer-bar');
+  if (bar) bar.className = '';
+  document.getElementById('grammar')?.classList.remove('answer-shown');
+}
+
+function showXP(anchorEl) {
+  const popup = document.createElement('div');
+  popup.className = 'xp-popup';
+  popup.textContent = '+10';
+  document.body.appendChild(popup);
+  const rect = anchorEl.getBoundingClientRect();
+  popup.style.left = (rect.left + rect.width / 2) + 'px';
+  popup.style.top = rect.top + 'px';
+  setTimeout(() => popup.remove(), 1000);
+}
+
+function updateStreak(correct) {
+  grammarStreak = correct ? grammarStreak + 1 : 0;
+  const el = document.getElementById('grammar-streak');
+  if (!el) return;
+  el.innerHTML = grammarStreak >= 2
+    ? `<span class="streak-badge">🔥 ${grammarStreak}</span>` : '';
+}
+
+function updateMasteredCount() {
+  const el = document.getElementById('grammar-mastered-count');
+  if (el) el.textContent = `${masteredGrammar.size} / ${EXERCISES.length} dominadas`;
+}
+
+function resetGrammarMastered() {
+  masteredGrammar = new Set();
+  saveMasteredGrammar(masteredGrammar);
+  initGrammar();
+}
 
 function initGrammar() {
   const cats = ['Todas', ...new Set(EXERCISES.map(e => e.type))];
@@ -2469,12 +2943,38 @@ function initGrammar() {
     };
     bar.appendChild(btn);
   });
-  grammarQueue = (activeGrammarCat === 'Todas' ? EXERCISES : EXERCISES.filter(e => e.type === activeGrammarCat))
-    .slice().sort(() => Math.random() - 0.5);
+
+  const pool = (activeGrammarCat === 'Todas' ? EXERCISES : EXERCISES.filter(e => e.type === activeGrammarCat))
+    .filter(ex => !masteredGrammar.has(EXERCISE_INDEX.get(ex)));
+
+  updateMasteredCount();
+
+  if (pool.length === 0) {
+    grammarQueue = [];
+    grammarIdx = 0; grammarCorrect = 0; grammarTotal = 0; grammarWrong = []; grammarStreak = 0;
+    const streakEl = document.getElementById('grammar-streak');
+    if (streakEl) streakEl.innerHTML = '';
+    hideAnswerBar();
+    updateGrammarScore();
+    document.getElementById('exercise-container').innerHTML = `
+      <div class="session-done">
+        <span class="session-done-icon">🏆</span>
+        <h2>¡Todo dominado!</h2>
+        <p>Has completado todas las preguntas de esta categoría.</p>
+        <button class="btn-primary" onclick="resetGrammarMastered()">Reiniciar progreso</button>
+      </div>`;
+    return;
+  }
+
+  grammarQueue = pool.slice().sort(() => Math.random() - 0.5);
   grammarIdx = 0;
   grammarCorrect = 0;
   grammarTotal = 0;
   grammarWrong = [];
+  grammarStreak = 0;
+  const streakEl = document.getElementById('grammar-streak');
+  if (streakEl) streakEl.innerHTML = '';
+  hideAnswerBar();
   updateGrammarScore();
   showExercise();
 }
@@ -2494,6 +2994,7 @@ function updateGrammarScore() {
 }
 
 function showExercise() {
+  hideAnswerBar();
   const container = document.getElementById('exercise-container');
   if (grammarIdx >= grammarQueue.length) {
     const wrongHtml = grammarWrong.length > 0 ? `
@@ -2544,22 +3045,32 @@ function checkAnswer(btn, chosen, correct, idx) {
   });
   const fb = document.getElementById(`feedback-${idx}`);
   grammarTotal++;
+  const explanation = grammarQueue[grammarIdx].explanation;
   if (chosen === correct) {
     btn.classList.add('correct');
     fb.className = 'feedback correct';
-    fb.textContent = '✓ ¡Correcto! ' + grammarQueue[grammarIdx].explanation;
+    fb.textContent = '✓ ¡Correcto! ' + explanation;
     grammarCorrect++;
+    const exId = EXERCISE_INDEX.get(grammarQueue[grammarIdx]);
+    if (exId !== undefined) { masteredGrammar.add(exId); saveMasteredGrammar(masteredGrammar); }
+    updateMasteredCount();
+    updateStreak(true);
+    showXP(btn);
+    if (navigator.vibrate) navigator.vibrate(50);
     const card = container.closest('.exercise-card');
     if (card) {
       const starsHtml = `<div class="celebrate-row">${['✦','✦','✦'].map((s,i)=>`<span class="celebrate-star" style="animation-delay:${i*0.12}s">${s}</span>`).join('')}</div>`;
       card.insertAdjacentHTML('afterbegin', starsHtml);
     }
-    setTimeout(() => nextExercise(), 1400);
+    showAnswerBar(true, explanation);
   } else {
     btn.classList.add('wrong');
     fb.className = 'feedback wrong';
-    fb.textContent = '✗ Incorrecto. ' + grammarQueue[grammarIdx].explanation;
+    fb.textContent = '✗ Incorrecto. ' + explanation;
     grammarWrong.push(grammarQueue[grammarIdx]);
+    updateStreak(false);
+    if (navigator.vibrate) navigator.vibrate([30, 50, 30]);
+    showAnswerBar(false, explanation);
   }
   updateGrammarScore();
   document.getElementById('next-exercise').style.display = 'inline-block';
@@ -2577,27 +3088,87 @@ function checkAnswer(btn, chosen, correct, idx) {
 }
 
 function nextExercise() {
+  hideAnswerBar();
   grammarIdx++;
   showExercise();
 }
 
 
 // ================================================================
-// SWIPE GESTURES (flashcards)
+// SWIPE GESTURES (flashcards) — drag preview + animated dismiss
 // ================================================================
 (function() {
-  let touchStartX = 0, touchStartY = 0;
+  let startX = 0, startY = 0, isDragging = false;
+  const THRESHOLD = 75;
   const card = document.getElementById('flashcard');
+  const tint = document.getElementById('swipe-tint');
+  const lblL = document.getElementById('swipe-label-left');
+  const lblR = document.getElementById('swipe-label-right');
+
+  function resetCard() {
+    card.style.transition = '';
+    card.style.transform = '';
+    card.style.opacity = '';
+    if (tint) { tint.style.background = ''; tint.style.opacity = '0'; }
+    if (lblL) lblL.style.opacity = '0';
+    if (lblR) lblR.style.opacity = '0';
+    isDragging = false;
+  }
+
   card.addEventListener('touchstart', e => {
-    touchStartX = e.touches[0].clientX;
-    touchStartY = e.touches[0].clientY;
+    startX = e.touches[0].clientX;
+    startY = e.touches[0].clientY;
+    isDragging = false;
+    card.style.transition = 'none';
   }, { passive: true });
+
+  card.addEventListener('touchmove', e => {
+    const dx = e.touches[0].clientX - startX;
+    const dy = e.touches[0].clientY - startY;
+    if (!isDragging && Math.abs(dy) > Math.abs(dx) + 5) return;
+    isDragging = true;
+    const rot = dx * 0.035;
+    const fade = Math.max(0.65, 1 - Math.abs(dx) / 380);
+    card.style.transform = `translateX(${dx}px) rotate(${rot}deg)`;
+    card.style.opacity = fade;
+    const progress = Math.min(Math.abs(dx) / THRESHOLD, 1);
+    if (dx > 12) {
+      if (tint) { tint.style.background = 'rgba(74,158,107,0.22)'; tint.style.opacity = progress * 0.85; }
+      if (lblR) lblR.style.opacity = progress;
+      if (lblL) lblL.style.opacity = '0';
+    } else if (dx < -12) {
+      if (tint) { tint.style.background = 'rgba(212,64,48,0.22)'; tint.style.opacity = progress * 0.85; }
+      if (lblL) lblL.style.opacity = progress;
+      if (lblR) lblR.style.opacity = '0';
+    } else {
+      if (tint) tint.style.opacity = '0';
+      if (lblL) lblL.style.opacity = '0';
+      if (lblR) lblR.style.opacity = '0';
+    }
+  }, { passive: true });
+
   card.addEventListener('touchend', e => {
-    const dx = e.changedTouches[0].clientX - touchStartX;
-    const dy = e.changedTouches[0].clientY - touchStartY;
-    if (Math.abs(dx) < Math.abs(dy) || Math.abs(dx) < 40) return;
-    if (dx < -40) nextCard();
-    else if (dx > 40) prevCard();
+    if (!isDragging) { resetCard(); return; }
+    const dx = e.changedTouches[0].clientX - startX;
+    const dy = e.changedTouches[0].clientY - startY;
+    if (Math.abs(dx) < Math.abs(dy) * 0.7) { card.style.transition = ''; resetCard(); return; }
+
+    if (dx < -THRESHOLD) {
+      card.style.transition = 'transform 0.26s ease-in, opacity 0.26s ease-in';
+      card.style.transform = 'translateX(-140%) rotate(-9deg)';
+      card.style.opacity = '0';
+      if (navigator.vibrate) navigator.vibrate(18);
+      setTimeout(() => { resetCard(); nextCard(); }, 270);
+    } else if (dx > THRESHOLD) {
+      card.style.transition = 'transform 0.26s ease-in, opacity 0.26s ease-in';
+      card.style.transform = 'translateX(140%) rotate(9deg)';
+      card.style.opacity = '0';
+      if (navigator.vibrate) navigator.vibrate(18);
+      setTimeout(() => { resetCard(); prevCard(); }, 270);
+    } else {
+      card.style.transition = 'transform 0.32s cubic-bezier(0.34,1.56,0.64,1), opacity 0.2s ease';
+      resetCard();
+    }
   }, { passive: true });
 })();
 
@@ -2685,6 +3256,13 @@ window.addEventListener('resize', () => {
   lucide.createIcons();
 })();
 </script>
+
+<!-- Grammar answer bar (mobile bottom sheet) -->
+<div id="grammar-answer-bar">
+  <div id="gab-icon"></div>
+  <div id="gab-text"></div>
+  <button id="gab-next" onclick="nextExercise()">Siguiente →</button>
+</div>
 
 <!-- Toast -->
 <div id="toast" aria-live="polite"></div>
