@@ -598,6 +598,16 @@
     .writing-controls { gap: 8px; }
     .btn-secondary { padding: 10px 14px; font-size: 0.8rem; }
     .mode-seg-btn { padding: 12px 6px; font-size: 0.7rem; }
+
+    /* Horizontal scroll for category bars on mobile */
+    .filter-bar, .writing-cat-bar {
+      flex-wrap: nowrap; overflow-x: auto;
+      scrollbar-width: none; -ms-overflow-style: none;
+      padding-bottom: 2px;
+    }
+    .filter-bar::-webkit-scrollbar,
+    .writing-cat-bar::-webkit-scrollbar { display: none; }
+    .filter-bar button, .writing-cat-chip { flex-shrink: 0; }
   }
 
   /* ── ACCESSIBILITY & GLOBAL INTERACTION ── */
