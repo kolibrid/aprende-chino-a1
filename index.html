@@ -585,8 +585,8 @@
     #writing.active {
       display: flex;
       flex-direction: column;
-      gap: 14px;
-      padding-top: 16px;
+      gap: 10px;
+      padding-top: 10px;
     }
     #writing .writing-area { order: -1; }
     #writing .writing-left { order: 1; }
@@ -608,6 +608,69 @@
     .filter-bar::-webkit-scrollbar,
     .writing-cat-bar::-webkit-scrollbar { display: none; }
     .filter-bar button, .writing-cat-chip { flex-shrink: 0; }
+
+    /* ── WRITING TAB: MAXIMIZE CANVAS ── */
+
+    /* 1. Hide header when writing tab is active */
+    body:has(#writing.active) header { display: none; }
+
+    /* 2. Bigger canvas — nearly full width */
+    body:has(#writing.active) { --hz-size: min(calc(100vw - 16px), 380px); }
+
+    /* 3. Compact char info: single inline row */
+    body:has(#writing.active) .writing-area {
+      padding: 10px 10px 10px;
+      border-radius: 16px;
+    }
+    body:has(#writing.active) .writing-header {
+      margin-bottom: 6px;
+    }
+    body:has(#writing.active) #single-char-display {
+      display: flex; align-items: baseline;
+      justify-content: center; gap: 8px; flex-wrap: wrap;
+    }
+    body:has(#writing.active) #writing-char {
+      font-size: 1.5rem; margin-bottom: 0;
+    }
+    body:has(#writing.active) .writing-area .pinyin {
+      font-size: 0.78rem; margin-bottom: 0;
+    }
+    body:has(#writing.active) .writing-area .meaning {
+      font-size: 0.68rem; margin-bottom: 0;
+    }
+    /* Compound display compact */
+    body:has(#writing.active) #compound-display {
+      display: flex; flex-direction: column; gap: 2px;
+    }
+
+    /* 4. Status text overlaid at bottom of canvas, no extra height */
+    body:has(#writing.active) #writing-status {
+      position: absolute; bottom: 0; left: 0; right: 0;
+      background: linear-gradient(transparent, rgba(15,13,12,0.75));
+      padding: 14px 10px 6px; border-radius: 0 0 4px 4px;
+      pointer-events: none; min-height: 0; margin-top: 0;
+      font-size: 0.65rem;
+    }
+    body:has(#writing.active) #hanzi-container {
+      position: relative;
+    }
+
+    /* 5. Sticky controls bar above bottom nav */
+    body:has(#writing.active) .writing-controls {
+      position: fixed; bottom: calc(56px + env(safe-area-inset-bottom, 0px));
+      left: 0; right: 0; z-index: 90;
+      background: rgba(28,26,23,0.97); backdrop-filter: blur(14px);
+      border-top: 1px solid var(--border);
+      padding: 8px 12px 6px;
+      gap: 6px; margin-top: 0;
+    }
+    body:has(#writing.active) .mode-seg-btn { padding: 10px 6px; font-size: 0.68rem; }
+    body:has(#writing.active) .writing-aux .btn-secondary { padding: 8px 12px; font-size: 0.72rem; }
+
+    /* Extra bottom padding so content doesn't hide behind fixed controls */
+    body:has(#writing.active) #writing.active {
+      padding-bottom: 140px;
+    }
   }
 
   /* ── ACCESSIBILITY & GLOBAL INTERACTION ── */
