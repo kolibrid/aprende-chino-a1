@@ -2545,11 +2545,16 @@ function setStatus(msg) {
   document.getElementById('writing-status').textContent = msg;
 }
 
+function stripTones(s) {
+  return s.normalize('NFD').replace(/[̀-ͯ]/g, '').toLowerCase();
+}
+
 function getFilteredVocabList() {
-  const q = (document.getElementById('writing-search')?.value || '').trim().toLowerCase();
+  const raw = (document.getElementById('writing-search')?.value || '').trim().toLowerCase();
+  const q = stripTones(raw);
   let pool = activeWritingCat === 'Todas' ? VOCAB : VOCAB.filter(v => v.cat === activeWritingCat);
   if (q) pool = pool.filter(v =>
-    v.char.includes(q) || v.pinyin.toLowerCase().includes(q) || v.es.toLowerCase().includes(q)
+    v.char.includes(raw) || stripTones(v.pinyin).includes(q) || v.es.toLowerCase().includes(q)
   );
   return pool;
 }
