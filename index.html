@@ -306,7 +306,7 @@
   .writing-area .meaning { font-size: 0.75rem; color: var(--muted); margin-bottom: 0; }
 
   /* 田字格 grid behind HanziWriter */
-  #hanzi-container { display: flex; justify-content: center; margin: 8px 0 4px; position: relative; }
+  #hanzi-container { display: flex; justify-content: center; margin: 4px 0 4px; position: relative; }
   #hanzi-container::before {
     content: '';
     position: absolute;
@@ -317,27 +317,39 @@
     background-size: calc(var(--hz-size) / 2) calc(var(--hz-size) / 2);
     background-position: center center;
     border: 1px solid var(--border);
-    border-radius: 4px;
+    border-radius: 8px;
     pointer-events: none; z-index: 0;
-    transition: border-color 0.3s;
+    transition: border-color 0.3s, box-shadow 0.3s;
   }
-  #hanzi-container.mode-hints::before { border-color: rgba(74,144,217,0.4); }
-  #hanzi-container.mode-free::before  { border-color: rgba(212,64,48,0.4); }
-  #hanzi-container.mode-done::before  { border-color: rgba(74,158,107,0.5); }
+  #hanzi-container.mode-hints::before {
+    border-color: rgba(74,144,217,0.35);
+    box-shadow: 0 0 0 3px rgba(74,144,217,0.08), inset 0 0 24px rgba(74,144,217,0.04);
+  }
+  #hanzi-container.mode-free::before {
+    border-color: rgba(212,64,48,0.35);
+    box-shadow: 0 0 0 3px rgba(212,64,48,0.08), inset 0 0 24px rgba(212,64,48,0.04);
+  }
+  #hanzi-container.mode-done::before {
+    border-color: rgba(74,158,107,0.45);
+    box-shadow: 0 0 0 3px rgba(74,158,107,0.1), inset 0 0 24px rgba(74,158,107,0.06);
+  }
   #hz-target { position: relative; z-index: 1; }
 
-  /* Mode badge floating over canvas */
+  /* Mode badge — sits above the canvas, not inside it */
+  #mode-badge-wrap {
+    display: flex; justify-content: center; align-items: center;
+    min-height: 18px; margin-bottom: 2px;
+  }
   #mode-badge {
-    position: absolute; top: 7px; left: 50%; transform: translateX(-50%);
     font-family: 'Space Grotesk', sans-serif; font-size: 0.42rem; font-weight: 700;
     letter-spacing: 1.5px; text-transform: uppercase;
-    padding: 3px 9px; border-radius: 20px; pointer-events: none; z-index: 10;
+    padding: 3px 10px; border-radius: 20px; pointer-events: none;
     opacity: 0; transition: opacity 0.2s;
     white-space: nowrap;
   }
   #mode-badge.visible { opacity: 1; }
-  #mode-badge.hints { background: rgba(74,144,217,0.18); color: #6ab0e8; border: 1px solid rgba(74,144,217,0.3); }
-  #mode-badge.free  { background: rgba(212,64,48,0.15);  color: var(--red);  border: 1px solid rgba(212,64,48,0.3); }
+  #mode-badge.hints { background: rgba(74,144,217,0.15); color: #6ab0e8; border: 1px solid rgba(74,144,217,0.3); }
+  #mode-badge.free  { background: rgba(212,64,48,0.12);  color: var(--red);  border: 1px solid rgba(212,64,48,0.25); }
 
   /* Completion flash overlay */
   #hz-done-flash {
@@ -645,14 +657,11 @@
 
     /* 4. Status text overlaid at bottom of canvas, no extra height */
     body:has(#writing.active) #writing-status {
-      position: absolute; bottom: 0; left: 0; right: 0;
-      background: linear-gradient(transparent, rgba(15,13,12,0.75));
-      padding: 14px 10px 6px; border-radius: 0 0 4px 4px;
-      pointer-events: none; min-height: 0; margin-top: 0;
-      font-size: 0.65rem;
+      min-height: 0; margin-top: 2px; font-size: 0.65rem;
     }
-    body:has(#writing.active) #hanzi-container {
-      position: relative;
+    /* Badge row takes no space when empty */
+    body:has(#writing.active) #mode-badge-wrap {
+      min-height: 0;
     }
 
     /* 5. Sticky controls bar above bottom nav */
@@ -974,9 +983,11 @@
       </button>
     </div>
 
+    <!-- Mode badge row (above canvas, no overlap) -->
+    <div id="mode-badge-wrap"><div id="mode-badge"></div></div>
+
     <!-- Canvas -->
     <div id="hanzi-container">
-      <div id="mode-badge"></div>
       <div id="hz-done-flash"><span class="done-check">✓</span></div>
     </div>
     <div id="writing-status"></div>
@@ -2200,11 +2211,9 @@ function loadHanziWriter(char, autoMode) {
   setAnimating(false);
   setQuizMode(null);
   const container = document.getElementById('hanzi-container');
-  // preserve badge + flash elements
-  const badge = document.getElementById('mode-badge');
+  // preserve the done-flash element (badge is now outside the container)
   const flash = document.getElementById('hz-done-flash');
   container.innerHTML = '<div class="hz-loading"><div class="hz-spinner"></div></div><div id="hz-target" style="display:none"></div>';
-  if (badge) container.appendChild(badge);
   if (flash) container.appendChild(flash);
   setStatus('');
 
