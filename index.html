@@ -2260,10 +2260,12 @@ function loadHanziWriter(char, autoMode) {
   setAnimating(false);
   setQuizMode(null);
   const container = document.getElementById('hanzi-container');
-  // preserve the done-flash element (badge is now outside the container)
+  // preserve overlay elements before clearing
   const flash = document.getElementById('hz-done-flash');
+  const eyeBtn = document.getElementById('btn-show-char');
   container.innerHTML = '<div class="hz-loading"><div class="hz-spinner"></div></div><div id="hz-target" style="display:none"></div>';
   if (flash) container.appendChild(flash);
+  if (eyeBtn) container.appendChild(eyeBtn);
   setStatus('');
 
   // CSS custom properties with min()/calc() don't resolve via getComputedStyle,
