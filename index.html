@@ -2475,10 +2475,10 @@ function buildGroupedSelector(query = '') {
 
   // Flat filtered list when search query or single category
   if (query || activeWritingCat !== 'Todas') {
-    const q = query.toLowerCase();
+    const q = stripTones(query);
     let pool = activeWritingCat === 'Todas' ? VOCAB : VOCAB.filter(v => v.cat === activeWritingCat);
     if (q) pool = pool.filter(v =>
-      v.char.includes(query) || v.pinyin.toLowerCase().includes(q) || v.es.toLowerCase().includes(q)
+      v.char.includes(query) || stripTones(v.pinyin).includes(q) || v.es.toLowerCase().includes(q)
     );
     if (!pool.length) {
       sel.innerHTML = '<div style="color:var(--muted);font-size:0.8rem;padding:10px 0">Sin resultados</div>';
